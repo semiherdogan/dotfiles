@@ -1,12 +1,12 @@
-BASEDIR=~/dotfiles
+DOTFILES_BASE=~/dotfiles
 
 function source_all() {
-    source $BASEDIR/aliases/exports.sh
-    source $BASEDIR/aliases/aliases.sh
-    source $BASEDIR/aliases/shortcuts.sh
+    source $DOTFILES_BASE/aliases/exports.sh
+    source $DOTFILES_BASE/aliases/aliases.sh
+    source $DOTFILES_BASE/aliases/shortcuts.sh
 
-    if [[ -f "$BASEDIR/aliases/environment.sh" ]]; then
-        source $BASEDIR/aliases/environment.sh
+    if [[ -f "$DOTFILES_BASE/aliases/environment.sh" ]]; then
+        source $DOTFILES_BASE/aliases/environment.sh
     fi
 }
 
@@ -14,18 +14,18 @@ source_all
 
 # Vimrc
 rm -f ~/.vimrc
-ln -s $BASEDIR/.vimrc ~/.vimrc
+ln -s $DOTFILES_BASE/.vimrc ~/.vimrc
 
 # Script Aliases
-alias download="php '$BASEDIR/scripts/downloader.php'"
-alias pull-request="php '$BASEDIR/scripts/bitbucket-pull-request.php'"
+alias download="php '$DOTFILES_BASE/scripts/downloader.php'"
+alias pull-request="php '$DOTFILES_BASE/scripts/bitbucket-pull-request.php'"
 
 # Psysh
-if [[ ! -f "./psysh" ]]; then
-    download https://psysh.org/psysh
-    chmod +x psysh
-
-    alias p="$BASEDIR/psysh --color --config '$BASEDIR/scripts/psysh_user.php'"
+alias p="$DOTFILES_BASE/psysh --color --config '$DOTFILES_BASE/scripts/psysh_user.php'"
+if [[ ! -f "$DOTFILES_BASE/psysh" ]]; then
+    echo "Downloading (psysh) ..."
+    download https://psysh.org/psysh $DOTFILES_BASE
+    chmod +x $DOTFILES_BASE/psysh
 fi
 
 # Zsh .hushlogin

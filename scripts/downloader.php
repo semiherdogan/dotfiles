@@ -1,6 +1,7 @@
 <?php
 
 $link = $argv[1] ?? null;
+$pathToSave = $argv[2] ?? null;
 
 if (is_null($link)) {
     echo 'ERROR: Link required.'.PHP_EOL;
@@ -10,14 +11,17 @@ if (is_null($link)) {
 $fileName = basename($link);
 $fileContent = file_get_contents($link);
 
-file_put_contents('./'.$fileName, $fileContent);
+$filePath = is_null($pathToSave) ?
+    getcwd().'/'.$fileName :
+    $pathToSave.'/'.$fileName;
 
-$filePath = getcwd().'/'.$fileName;
+file_put_contents($filePath, $fileContent);
 
 echo 'File: '.$filePath.PHP_EOL;
 echo 'Size: '.filesize_formatted($filePath).PHP_EOL;
 
-function filesize_formatted($path) {
+function filesize_formatted($path)
+{
     $size = filesize($path);
     $units = array( 'B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB');
     $power = $size > 0 ? floor(log($size, 1024)) : 0;
