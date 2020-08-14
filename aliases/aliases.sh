@@ -5,7 +5,7 @@
 ####
 
 # General
-alias q='exit'
+alias q='exit 0'
 alias ..='cd ../'
 alias ...='cd ../../'
 alias ....='cd ../../../'
@@ -32,7 +32,7 @@ alias php-server-here='open http://localhost:8000 && php -S 127.0.0.1:8000'
 alias shrug="echo '¯\_(ツ)_/¯' && echo '¯\_(ツ)_/¯' | pbcopy";
 alias fight="echo '(ง'̀-'́)ง'";
 
-# GIT 
+# GIT
 alias g='git'
 alias nah='git reset --hard && git clean -df'
 

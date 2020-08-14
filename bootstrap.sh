@@ -17,8 +17,12 @@ rm -f ~/.vimrc
 ln -s $DOTFILES_BASE/.vimrc ~/.vimrc
 
 # Script Aliases
+alias ip="php '$DOTFILES_BASE/scripts/ip.php'"
+alias releaser="php '$DOTFILES_BASE/scripts/releaser.php'"
 alias download="php '$DOTFILES_BASE/scripts/downloader.php'"
 alias pull-request="php '$DOTFILES_BASE/scripts/bitbucket-pull-request.php'"
+alias git--merged-branches="php $DOTFILES_BASE/scripts/git-merged-branches.php"
+alias covid="php '$DOTFILES_BASE/scripts/covid-turkey.php'"
 
 # Psysh
 alias p="$DOTFILES_BASE/psysh --color --config '$DOTFILES_BASE/scripts/psysh_user.php'"
