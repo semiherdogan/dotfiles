@@ -54,8 +54,8 @@ function dcup() {
 
     if test -f "./docker-sync.yml"; then
         echo "Docker-sync file exist, starting..."
+        docker-sync stop
         docker-sync start
-        docker-sync sync
     fi
 }
 
@@ -66,5 +66,31 @@ alias d-redis-flushall='d-redis flushall'
 # Laravel
 alias a='php artisan'
 alias tinker='a tinker'
-alias laravel--delete-log-files='cd storage/logs && rm -f *'
+
+laravel--delete-log-files () {
+    CURRENT_PATH=$(pwd)
+    CURRENT_DATE=$(date '+%Y-%m-%d')
+
+    LOG_FILES_TO_KEEP=(
+        laravel.log
+        laravel-$CURRENT_DATE.log
+    )
+
+    cd storage/logs
+
+    for LOG_FILE in "${LOG_FILES_TO_KEEP[@]}"
+    do
+        if [[ -f $LOG_FILE ]]; then
+            cat /dev/null > $LOG_FILE
+        fi
+    done
+
+    ls \
+    | grep -v laravel.log \
+    | grep -v laravel-$CURRENT_DATE.log \
+    | xargs rm -f
+
+    cd $CURRENT_PATH
+}
+
 alias lr='laravel--delete-log-files && q'
