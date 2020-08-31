@@ -1,5 +1,7 @@
 <?php
 
+// https://mlocati.github.io/php-cs-fixer-configurator
+
 $finder = Symfony\Component\Finder\Finder::create()
     ->notPath('bootstrap/*')
     ->notPath('storage/*')
@@ -16,9 +18,11 @@ return PhpCsFixer\Config::create()
     ->setRules([
         '@PSR2' => true,
         'array_syntax' => ['syntax' => 'short'],
-        'ordered_imports' => ['sortAlgorithm' => 'alpha'],
-        'no_unused_imports' => true,
-        'not_operator_with_successor_space' => true,
+        'array_indentation' => true,
+        'single_quote' => true,
+        // 'ordered_imports' => ['sortAlgorithm' => 'alpha'],
+        // 'no_unused_imports' => true,
+        'not_operator_with_successor_space' => false,
         'trailing_comma_in_multiline_array' => true,
         'phpdoc_scalar' => true,
         'unary_operator_spaces' => true,
@@ -32,5 +36,5 @@ return PhpCsFixer\Config::create()
             'on_multiline' => 'ensure_fully_multiline',
             'keep_multiple_spaces_after_comma' => true,
         ]
-    ]);
+    ])
     ->setFinder($finder);

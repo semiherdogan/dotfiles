@@ -9,10 +9,13 @@
     autocrlf = input
 [color]
     ui = auto
+[push]
+    default = current
 [alias]
-    s = status
+    s = status --show-stash
     sb = s -sb
-    a = add .
+    a = add
+    aa = a .
     c = commit -m
     p = pull
     h = push
