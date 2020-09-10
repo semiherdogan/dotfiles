@@ -16,38 +16,47 @@ if (!function_exists('d')) {
     }
 }
 
-if (!function_exists('read_clipboard')) {
-    function read_clipboard() : string
+if (!function_exists('x')) {
+    function x($function, ...$params)
     {
-        $cliboardData = shell_exec('pbpaste');
-        echo $cliboardData;
-        return $cliboardData;
+        return call_user_func_array($function, $params);
+    }
+}
+
+if (!function_exists('read_clipboard')) {
+    function read_clipboard()
+    {
+        $clipboardData = shell_exec('pbpaste');
+
+        return $clipboardData;
     }
 }
 
 if (!function_exists('write_clipboard')) {
-    function write_clipboard($data, $arrayGlue=PHP_EOL) : void
+    function write_clipboard($data, $arrayGlue = PHP_EOL)
     {
         if (is_array($data)) {
             $data = implode($arrayGlue, $data);
         }
 
-        shell_exec("printf '$data' | pbcopy");
-        echo 'Copied.';
+        shell_exec(sprintf('printf %s | pbcopy', $data));
+
+        return $data;
     }
 }
 
 if (!function_exists('parse_clipboard')) {
     function parse_clipboard() : array
     {
-        $cliboardData = read_clipboard();
+        $clipboardData = read_clipboard();
 
-        return d(explode(PHP_EOL, $cliboardData));
+        return explode(PHP_EOL, $clipboardData);
     }
 }
 
 if (!function_exists('f')) {
-    function f ($data, $index, $body = null) {
+    function f($data, $index, $body = null)
+    {
         eval($body.';');
     }
 }
@@ -67,6 +76,23 @@ if (!function_exists('frequency')) {
             $result[$value] = isset($result[$value]) ? $result[$value] + 1 : 1;
         }
 
-        return d($result);
+        return $result;
+    }
+}
+
+if (!function_exists('random_string')) {
+    function random_string($length = 16)
+    {
+        $string = '';
+
+        while (($len = strlen($string)) < $length) {
+            $size = $length - $len;
+
+            $bytes = random_bytes($size);
+
+            $string .= substr(str_replace(['/', '+', '='], '', base64_encode($bytes)), 0, $size);
+        }
+
+        return $string;
     }
 }

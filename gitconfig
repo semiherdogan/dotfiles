@@ -4,7 +4,7 @@
 [github]
   user = semiherdogan
 [core]
-    editor = nano
+    editor = vi
     excludesfile = "~/dotfiles/gitignore_global"
     autocrlf = input
 [color]
