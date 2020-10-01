@@ -32,7 +32,13 @@ alias php-server-here='open http://localhost:8000 && php -S 127.0.0.1:8000'
 alias shrug="echo '¯\_(ツ)_/¯' && echo '¯\_(ツ)_/¯' | pbcopy";
 alias fight="echo '(ง'̀-'́)ง'";
 
+# Npm
 alias nr='npm run'
+
+# React native
+alias rn='npx react-native'
+alias rn-metro='./node_modules/react-native/scripts/launchPackager.command; exit'
+alias rn-bundle-android='mkdir -p android/app/src/main/assets/ && rn bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res'
 
 # GIT
 alias g='git'
@@ -53,12 +59,6 @@ alias d-tinker='d-artisan tinker'
 
 function dcup() {
     dc up -d
-
-    if test -f "./docker-sync.yml"; then
-        echo "Docker-sync file exist, starting..."
-        docker-sync stop
-        docker-sync start
-    fi
 }
 
 # Docker redis
