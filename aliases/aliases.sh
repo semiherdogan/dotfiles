@@ -10,7 +10,7 @@ alias ..='cd ../'
 alias ...='cd ../../'
 alias ....='cd ../../../'
 alias ll='ls -lah'
-alias o="open"
+alias o='open'
 
 # Enable aliases to be sudo’ed
 alias sudo='sudo '
@@ -26,11 +26,25 @@ alias pwd-clipboard='pwd && pwd | pbcopy'
 alias ips="ifconfig -a | grep -o 'inet6\? \(addr:\)\?\s\?\(\(\([0-9]\+\.\)\{3\}[0-9]\+\)\|[a-fA-F0-9:]\+\)' | awk '{ sub(/inet6? (addr:)? ?/, \"\"); print }'"
 alias timestamp='echo $(date +%s) && echo $(date +%s) | pbcopy && echo "Copied."'
 alias curlt='curl -s -o /dev/null -w "%{time_starttransfer}\n"'
-alias restart--touchbar="killall ControlStrip"
-alias php-server-here='open http://localhost:8000 && php -S 127.0.0.1:8000'
+# alias restart--touchbar="killall ControlStrip"
+
+function php-server-here() {
+    LOCAL_SERVER_PORT=8000
+
+    if [ $# -eq 1 ]
+    then
+        LOCAL_SERVER_PORT=$1
+    fi
+
+    open http://localhost:$LOCAL_SERVER_PORT && php -S 127.0.0.1:$LOCAL_SERVER_PORT
+}
 
 alias shrug="echo '¯\_(ツ)_/¯' && echo '¯\_(ツ)_/¯' | pbcopy";
 alias fight="echo '(ง'̀-'́)ง'";
+
+github-open() {
+    open `git remote -v | grep fetch | awk '{print $2}' | sed 's/git@/http:\/\//' | sed 's/com:/com\//'` | head -n1
+}
 
 # Npm
 alias nr='npm run'
@@ -38,7 +52,7 @@ alias nr='npm run'
 # React native
 alias rn='npx react-native'
 alias rn-metro='./node_modules/react-native/scripts/launchPackager.command; exit'
-alias rn-bundle-android='mkdir -p android/app/src/main/assets/ && rn bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res'
+alias rn-android-bundle='mkdir -p android/app/src/main/assets/ && rn bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res'
 
 # GIT
 alias g='git'
