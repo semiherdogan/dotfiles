@@ -4,6 +4,7 @@ function source_all() {
     source $DOTFILES_BASE/aliases/exports.sh
     source $DOTFILES_BASE/aliases/aliases.sh
     source $DOTFILES_BASE/aliases/shortcuts.sh
+    source $DOTFILES_BASE/aliases/helpers.sh
 
     if [[ -f "$DOTFILES_BASE/aliases/environment.sh" ]]; then
         source $DOTFILES_BASE/aliases/environment.sh
