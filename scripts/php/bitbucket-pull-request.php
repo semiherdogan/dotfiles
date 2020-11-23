@@ -2,7 +2,7 @@
 
 /**
  *
- * Bitbucket pull requester
+ * Bitbucket pull requester (opens browser)
  *
  */
 
@@ -15,10 +15,11 @@ if (!is_dir(getcwd().'/.git')) {
 // Check special words
 if (isset($argv[1]) && !isset($argv[2])) {
     $specialWords = [
-        'repo'   => '',
-        'commit' => 'commits',
-        'branch' => 'branches',
-        'pull'   => 'pull-requests',
+        'r' => '',
+        's' => 'src',
+        'c' => 'commits',
+        'b' => 'branches',
+        'p' => 'pull-requests',
     ];
 
     if (in_array($argv[1], array_keys($specialWords))) {

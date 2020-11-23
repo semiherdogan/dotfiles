@@ -4,7 +4,7 @@ $data = shell_exec('git ls-remote | grep -v "tags\|HEAD\|From\|/master\|/test\|d
 
 $data = explode(PHP_EOL, trim($data));
 
-$remoteBranchToCheck = 'origin/master'; 
+$remoteBranchToCheck = 'origin/master';
 if (isset($argv[1])) {
     $remoteBranchToCheck = 'origin/'.$argv[1];
 }

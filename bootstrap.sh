@@ -13,19 +13,15 @@ function source_all() {
 
 source_all
 
-# Vimrc
-rm -f ~/.vimrc
-ln -s $DOTFILES_BASE/.vimrc ~/.vimrc
-
 # Script Aliases
-alias ip="php '$DOTFILES_BASE/scripts/ip.php'"
-alias download="php '$DOTFILES_BASE/scripts/downloader.php'"
-alias pull-request="php '$DOTFILES_BASE/scripts/bitbucket-pull-request.php'"
-alias git--merged-branches="php $DOTFILES_BASE/scripts/git-merged-branches.php"
-alias covid="php '$DOTFILES_BASE/scripts/covid-turkey.php'"
+alias ip="php '$DOTFILES_BASE/scripts/php/ip.php'"
+alias download="php '$DOTFILES_BASE/scripts/php/downloader.php'"
+alias pull-request="php '$DOTFILES_BASE/scripts/php/bitbucket-pull-request.php'"
+alias git--merged-branches="php $DOTFILES_BASE/scripts/php/git-merged-branches.php"
+alias covid="php '$DOTFILES_BASE/scripts/php/covid-turkey.php'"
 
 # Psysh
-alias p="$DOTFILES_BASE/psysh --color --config '$DOTFILES_BASE/scripts/psysh_user.php'"
+alias p="$DOTFILES_BASE/psysh --color --config '$DOTFILES_BASE/scripts/php/psysh_user.php'"
 if [[ ! -f "$DOTFILES_BASE/psysh" ]]; then
     echo "Downloading (psysh) ..."
     download https://psysh.org/psysh $DOTFILES_BASE
