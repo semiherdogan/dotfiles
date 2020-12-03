@@ -27,20 +27,19 @@ alias ips="ifconfig -a | grep -o 'inet6\? \(addr:\)\?\s\?\(\(\([0-9]\+\.\)\{3\}[
 alias timestamp='echo $(date +%s) && echo $(date +%s) | pbcopy && echo "Copied."'
 alias curlt='curl -s -o /dev/null -w "%{time_starttransfer}\n"'
 
-function loop () {
+loop () {
     for i in {1..$1}
     do
         eval ${@:2}
     done
 }
 
-function php-server-here() {
-    LOCAL_SERVER_PORT=8000
+shush() {
+    "$@" >& /dev/null
+}
 
-    if [ $# -eq 1 ]
-    then
-        LOCAL_SERVER_PORT=$1
-    fi
+php-server-here() {
+    LOCAL_SERVER_PORT=${1:-8000}
 
     open http://localhost:$LOCAL_SERVER_PORT && php -S 127.0.0.1:$LOCAL_SERVER_PORT
 }
@@ -76,7 +75,7 @@ alias d-phpunit='dc exec app ./vendor/bin/phpunit'
 alias d-artisan='dc exec app php artisan'
 alias d-tinker='d-artisan tinker'
 
-function dcup() {
+dcup() {
     dc up -d
 }
 
