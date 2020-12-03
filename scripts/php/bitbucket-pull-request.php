@@ -33,14 +33,21 @@ $secondArg = $argv[2] ?? null;
 
 $currentBranch = exec('git symbolic-ref --short HEAD');
 
-if ($firstArg === 'dt' && is_null($secondArg)) {
-    $firstArg = 'dev';
-    $secondArg = 'test';
-}
-
-if ($firstArg === 'tr' && is_null($secondArg)) {
-    $firstArg = 'test';
-    $secondArg = 'release';
+if (is_null($secondArg)) {
+    switch ($firstArg) {
+        case 'dt':
+            $firstArg = 'dev';
+            $secondArg = 'test';
+            break;
+        case 'tr':
+            $firstArg = 'test';
+            $secondArg = 'release';
+            break;
+        case 'rm':
+            $firstArg = 'release';
+            $secondArg = 'master';
+            break;
+    }
 }
 
 if (!is_null($firstArg) && is_null($secondArg)) {
