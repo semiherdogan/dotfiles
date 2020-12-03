@@ -9,5 +9,5 @@ if (!isset($argv[1])) {
         $result = 'Not found.';
     }
 
-    echo 'Ip of "'.$argv[1].'": '.$result.PHP_EOL;
+    echo $argv[1].' : '.$result.PHP_EOL;
 }

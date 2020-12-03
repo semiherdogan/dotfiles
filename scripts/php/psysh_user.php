@@ -26,9 +26,7 @@ if (!function_exists('x')) {
 if (!function_exists('read_clipboard')) {
     function read_clipboard()
     {
-        $clipboardData = shell_exec('pbpaste');
-
-        return $clipboardData;
+        return shell_exec('pbpaste');
     }
 }
 

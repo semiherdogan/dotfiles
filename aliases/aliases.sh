@@ -26,7 +26,13 @@ alias pwd-clipboard='pwd && pwd | pbcopy'
 alias ips="ifconfig -a | grep -o 'inet6\? \(addr:\)\?\s\?\(\(\([0-9]\+\.\)\{3\}[0-9]\+\)\|[a-fA-F0-9:]\+\)' | awk '{ sub(/inet6? (addr:)? ?/, \"\"); print }'"
 alias timestamp='echo $(date +%s) && echo $(date +%s) | pbcopy && echo "Copied."'
 alias curlt='curl -s -o /dev/null -w "%{time_starttransfer}\n"'
-# alias restart--touchbar="killall ControlStrip"
+
+function loop () {
+    for i in {1..$1}
+    do
+        eval ${@:2}
+    done
+}
 
 function php-server-here() {
     LOCAL_SERVER_PORT=8000
@@ -40,7 +46,6 @@ function php-server-here() {
 }
 
 alias shrug="echo '¯\_(ツ)_/¯' && echo '¯\_(ツ)_/¯' | pbcopy";
-alias fight="echo '(ง'̀-'́)ง'";
 
 github-open() {
     open `git remote -v | grep fetch | awk '{print $2}' | sed 's/git@/http:\/\//' | sed 's/com:/com\//'` | head -n1
