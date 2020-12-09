@@ -86,6 +86,7 @@ alias d-redis-flushall='d-redis flushall'
 # Laravel
 alias a='php artisan'
 alias tinker='a tinker'
+alias sail='vendor/bin/sail'
 
 laravel--delete-log-files () {
     CURRENT_PATH=$(pwd)
