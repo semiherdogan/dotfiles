@@ -14,3 +14,4 @@ export COLOR_BLUE='\033[0;34m'
 export COLOR_CYAN='\033[0;36m'
 export COLOR_LIGHT_GRAY='\033[0;37m'
 
+export PATH=$PATH:~/.composer/vendor/bin
