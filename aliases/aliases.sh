@@ -17,6 +17,7 @@ alias sudo='sudo '
 
 # Folders
 alias www='cd ~/Code ; ll'
+alias www2='cd ~/CodeSmh ; ll'
 alias desk='cd ~/Desktop'
 alias sf='cd ~/.ssh'
 
@@ -34,7 +35,7 @@ loop () {
     done
 }
 
-shush() {
+silent() {
     "$@" >& /dev/null
 }
 
@@ -44,10 +45,22 @@ php-server-here() {
     open http://localhost:$LOCAL_SERVER_PORT && php -S 127.0.0.1:$LOCAL_SERVER_PORT
 }
 
+open-local() {
+    LOCAL_SERVER_PORT=${1:-80}
+    open http://localhost:$LOCAL_SERVER_PORT
+}
+
 alias shrug="echo '¯\_(ツ)_/¯' && echo '¯\_(ツ)_/¯' | pbcopy";
 
 github-open() {
-    open `git remote -v | grep fetch | awk '{print $2}' | sed 's/git@/http:\/\//' | sed 's/com:/com\//'` | head -n1
+    open `
+        git remote -v |
+        grep fetch |
+        awk '{print $2}' |
+        sed 's/git@/https:\/\//' |
+        sed 's/com:/com\//' |
+        sed 's/\.git//'
+    `
 }
 
 # Npm
@@ -61,6 +74,16 @@ alias rn-android-bundle='mkdir -p android/app/src/main/assets/ && rn bundle --pl
 # GIT
 alias g='git'
 alias nah='git reset --hard && git clean -df'
+commit() {
+    commitMessage="$1"
+
+    if [ "$commitMessage" = "" ]; then
+        commitMessage='wip'
+    fi
+
+    git add .
+    eval "git commit -a -m '${commitMessage}'"
+}
 
 # Docker (d)
 alias d-ps='docker ps'
@@ -74,10 +97,11 @@ alias d-php='dc exec app php'
 alias d-phpunit='dc exec app ./vendor/bin/phpunit'
 alias d-artisan='dc exec app php artisan'
 alias d-tinker='d-artisan tinker'
-
 dcup() {
     dc up -d
 }
+
+alias qodana='docker run --rm -it -v $(pwd)/:/data/project/ -p 8080:8080 jetbrains/qodana --show-report'
 
 # Docker redis
 alias d-redis='dc exec cache redis-cli'
