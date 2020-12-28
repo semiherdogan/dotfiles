@@ -26,6 +26,8 @@ foreach ($branchAuthorsData as $key => $value) {
     $branchAuthors[$value[0]] = $value[1];
 }
 
+unset($branchAuthorsData);
+
 foreach ($data as $row) {
     $row = explode('refs/heads/', $row);
     $commitHash = trim($row[0]);
@@ -36,6 +38,6 @@ foreach ($data as $row) {
     $isMergedIntoBranch = trim($result) === $remoteBranchToCheck;
 
     if ($isMergedIntoBranch) {
-        echo 'git push origin --delete '.$branchName.' # AUTHOR: '.($branchAuthors[$branchName] ?? '').PHP_EOL;
+        echo 'git push origin --delete '.$branchName.' # AUTHOR: '.($branchAuthors[$branchName] ?? '?').PHP_EOL;
     }
 }
