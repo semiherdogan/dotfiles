@@ -1,7 +1,9 @@
 git--conflicts-resolve () {
-    echo "${C_RED}For test -> release${NC}"
-    echo 'git checkout release'
-    echo 'git merge --no-ff -m "Merged in test (pull request #47)" remotes/origin/test'
+    cat << EOF
+For test -> release
+git checkout release
+git merge --no-ff -m "Merged in test (pull request #XXX)" remotes/origin/test
+EOF
 }
 
 laravel-listen-queries() {
@@ -25,9 +27,4 @@ laravel-listen-queries() {
     */
 });
 EOF
-}
-
-github-config() {
-    git config user.name "Semih ERDOGAN"
-    git config user.email "hasansemiherdogan@gmail.com"
 }

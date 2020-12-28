@@ -1,7 +1,8 @@
 # Laravel Local documentation
 # https://github.com/laratoolbox/laravel-local-documentation
 laravel-doc-update() {
-    cd ~/Code/laravel-documentation &&
+    cd ~/CodeSmh/laravel-documentation &&
+    # git pull &&
     php update.php &&
     cd ./docs
 }
@@ -10,7 +11,7 @@ ld() {
     if nc -z 127.0.0.1 8888; then
         open http://localhost:8888
     else
-        cd ~/Code/laravel-documentation &&
+        cd ~/CodeSmh/laravel-documentation &&
         open http://localhost:8888 &&
         nohup php -S 127.0.0.1:8888 &
     fi

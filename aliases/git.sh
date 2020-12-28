@@ -33,3 +33,8 @@ branch-create() {
 alias last-commit-diff='git diff HEAD@{1}'
 
 alias yolo-message='curl -s whatthecommit.com/index.txt'
+
+github-config() {
+    git config user.name "Semih ERDOGAN"
+    git config user.email "hasansemiherdogan@gmail.com"
+}

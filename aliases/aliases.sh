@@ -33,6 +33,7 @@ alias pwd-clipboard='pwd && pwd | pbcopy'
 alias ips="ifconfig -a | grep -o 'inet6\? \(addr:\)\?\s\?\(\(\([0-9]\+\.\)\{3\}[0-9]\+\)\|[a-fA-F0-9:]\+\)' | awk '{ sub(/inet6? (addr:)? ?/, \"\"); print }'"
 alias timestamp='echo $(date +%s) && echo $(date +%s) | pbcopy && echo "Copied."'
 alias curlt='curl -s -o /dev/null -w "%{time_starttransfer}\n"'
+alias remove--ds_store="find . -type f -name '*.DS_Store' -ls -delete"
 
 loop () {
     for i in {1..$1}
@@ -90,10 +91,9 @@ dcup() {
     dc up -d
 }
 
-alias qodana='docker run --rm -it -v $(pwd)/:/data/project/ -p 8080:8080 jetbrains/qodana --show-report'
-
 # Docker redis
 alias d-redis='dc exec cache redis-cli'
 alias d-redis-flushall='d-redis flushall'
 
-alias remove--ds_store="find . -type f -name '*.DS_Store' -ls -delete"
+
+alias qodana='docker run --rm -it -v $(pwd)/:/data/project/ -p 8080:8080 jetbrains/qodana --show-report'
