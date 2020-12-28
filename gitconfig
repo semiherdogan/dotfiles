@@ -32,7 +32,6 @@
     export = !git archive --format zip --output project.zip $(git name-of-current-branch)
     unset-upstream = branch --unset-upstream
     set-upstream = !git branch --set-upstream-to=origin/$(git name-of-current-branch) $(git rev-parse --abbrev-ref HEAD)
-    last-commit-diff = diff HEAD@{1}
     log1 = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
     log2 = log --pretty=format:'%Cred|%Creset %<(12,trunc)%cr %Cred|%Creset %<(15,trunc)%aN %Cred|%Creset %<(50,trunc)%s %Cgreen|%Creset %h %Cgreen|%Creset %cd %Cgreen|%Creset' --abbrev-commit --date=format:'%Y-%m-%d %H:%M:%S'
     reset-soft = reset --soft HEAD~1
@@ -44,8 +43,6 @@
     sortdiff = !sh -c 'git diff "$@" | grep "^[+-]" | sort --key=1.2 | uniq -u -s1'
     new = !sh -c 'git log $1@{1}..$1@{0} "$@"'
     latest-tag = !sh -c 'git fetch -pq && git describe --tags $(git rev-list --tags --max-count=1)'
-    branch-authors = for-each-ref --format='%(color:cyan)%(authordate:format:%Y-%m-%d %H:%M)   %(align:23,left)%(color:yellow)%(authorname)%(end) %(color:reset)%(refname:strip=3)' --sort=authordate refs/remotes
-    yolo = !curl -s whatthecommit.com/index.txt
 [filter "lfs"]
     clean = git-lfs clean -- %f
     smudge = git-lfs smudge -- %f

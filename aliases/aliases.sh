@@ -104,13 +104,15 @@ artisan () {
     fi
 
     if docker-compose ps | grep 'Exit' &> /dev/null; then
-        echo 'Docker is not running.'
-        return 1
+        echo "${C_RED}Docker is not running.${NC}"
+        php artisan "$@"
+        return 0
     fi
 
     if [ ! -n "$(docker-compose ps -q)" ]; then
-        echo 'Docker is not running.'
-        return 1
+        echo "${C_RED}Docker is not running.${NC}"
+        php artisan "$@"
+        return 0
     fi
 
     if [[ -f "vendor/bin/sail" ]]; then
@@ -120,6 +122,7 @@ artisan () {
     fi
 }
 
+alias a='artisan'
 alias tinker='artisan tinker'
 alias sail='vendor/bin/sail'
 
