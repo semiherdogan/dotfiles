@@ -10,7 +10,13 @@ alias ..='cd ../'
 alias ...='cd ../../'
 alias ....='cd ../../../'
 alias ll='ls -lah'
-alias o='open'
+o() {
+    if [ $# -eq 0 ]; then
+        open .
+    else
+        open "$@"
+    fi;
+}
 
 # Enable aliases to be sudo’ed
 alias sudo='sudo '
@@ -41,7 +47,6 @@ silent() {
 
 php-server-here() {
     LOCAL_SERVER_PORT=${1:-8000}
-
     open http://localhost:$LOCAL_SERVER_PORT && php -S 127.0.0.1:$LOCAL_SERVER_PORT
 }
 
@@ -71,20 +76,6 @@ alias rn='npx react-native'
 alias rn-metro='./node_modules/react-native/scripts/launchPackager.command; exit'
 alias rn-android-bundle='mkdir -p android/app/src/main/assets/ && rn bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res'
 
-# GIT
-alias g='git'
-alias nah='git reset --hard && git clean -df'
-commit() {
-    commitMessage="$1"
-
-    if [ "$commitMessage" = "" ]; then
-        commitMessage='wip'
-    fi
-
-    git add .
-    eval "git commit -a -m '${commitMessage}'"
-}
-
 # Docker (d)
 alias d-ps='docker ps'
 alias d-stop='docker stop $(docker ps -q)'
@@ -95,8 +86,6 @@ alias d-composer='dc exec app php -d memory_limit=-1 composer.phar'
 alias d-bash='dc exec app bash'
 alias d-php='dc exec app php'
 alias d-phpunit='dc exec app ./vendor/bin/phpunit'
-alias d-artisan='dc exec app php artisan'
-alias d-tinker='d-artisan tinker'
 dcup() {
     dc up -d
 }
@@ -108,8 +97,30 @@ alias d-redis='dc exec cache redis-cli'
 alias d-redis-flushall='d-redis flushall'
 
 # Laravel
-alias a='php artisan'
-alias tinker='a tinker'
+artisan () {
+    if [[ ! -f "docker-compose.yml" ]]; then
+        php artisan "$@"
+        return 0
+    fi
+
+    if docker-compose ps | grep 'Exit' &> /dev/null; then
+        echo 'Docker is not running.'
+        return 1
+    fi
+
+    if [ ! -n "$(docker-compose ps -q)" ]; then
+        echo 'Docker is not running.'
+        return 1
+    fi
+
+    if [[ -f "vendor/bin/sail" ]]; then
+        ./vendor/bin/sail artisan "$@"
+    else
+        docker-compose exec app php artisan "$@"
+    fi
+}
+
+alias tinker='artisan tinker'
 alias sail='vendor/bin/sail'
 
 laravel--delete-log-files () {
@@ -139,3 +150,5 @@ laravel--delete-log-files () {
 }
 
 alias lr='laravel--delete-log-files && q'
+
+alias remove--ds_store="find . -type f -name '*.DS_Store' -ls -delete"

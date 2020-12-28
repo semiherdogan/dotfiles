@@ -1,5 +1,5 @@
 git--conflicts-resolve () {
-    echo "${COLOR_RED}For test -> release${NO_COLOR}"
+    echo "${C_RED}For test -> release${NC}"
     echo 'git checkout release'
     echo 'git merge --no-ff -m "Merged in test (pull request #47)" remotes/origin/test'
 }
