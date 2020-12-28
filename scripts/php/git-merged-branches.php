@@ -4,12 +4,27 @@ $data = shell_exec('git ls-remote | grep -v "tags\|HEAD\|From\|/master\|/test\|d
 
 $data = explode(PHP_EOL, trim($data));
 
+echo PHP_EOL;
+print_r($data);
+echo PHP_EOL;
+
 $remoteBranchToCheck = 'origin/master';
 if (isset($argv[1])) {
     $remoteBranchToCheck = 'origin/'.$argv[1];
 }
 
-print_r($data);
+$branchAuthorsData = explode(
+    PHP_EOL,
+    trim(
+        shell_exec('git for-each-ref --format="%(refname:strip=3)---%(authorname)" --sort=authordate refs/remotes')
+    )
+);
+
+$branchAuthors = [];
+foreach ($branchAuthorsData as $key => $value) {
+    $value = explode('---', $value);
+    $branchAuthors[$value[0]] = $value[1];
+}
 
 foreach ($data as $row) {
     $row = explode('refs/heads/', $row);
@@ -21,6 +36,6 @@ foreach ($data as $row) {
     $isMergedIntoBranch = trim($result) === $remoteBranchToCheck;
 
     if ($isMergedIntoBranch) {
-        echo 'git push origin --delete '.$branchName.PHP_EOL;
+        echo 'git push origin --delete '.$branchName.' # AUTHOR: '.($branchAuthors[$branchName] ?? '').PHP_EOL;
     }
 }
