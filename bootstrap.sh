@@ -1,14 +1,19 @@
 DOTFILES_BASE=~/dotfiles
 
 # Source files
-source $DOTFILES_BASE/aliases/exports.sh
-source $DOTFILES_BASE/aliases/aliases.sh
-source $DOTFILES_BASE/aliases/git.sh
-source $DOTFILES_BASE/aliases/shortcuts.sh
-source $DOTFILES_BASE/aliases/helpers.sh
-if [[ -f "$DOTFILES_BASE/aliases/environment.sh" ]]; then
-    source $DOTFILES_BASE/aliases/environment.sh
-fi
+source_aliases () {
+    source $DOTFILES_BASE/aliases/exports.sh
+    source $DOTFILES_BASE/aliases/aliases.sh
+    source $DOTFILES_BASE/aliases/git.sh
+    source $DOTFILES_BASE/aliases/laravel.sh
+    source $DOTFILES_BASE/aliases/shortcuts.sh
+    source $DOTFILES_BASE/aliases/helpers.sh
+    if [[ -f "$DOTFILES_BASE/aliases/environment.sh" ]]; then
+        source $DOTFILES_BASE/aliases/environment.sh
+    fi
+}
+
+source_aliases
 
 # Script Aliases
 alias ip="php '$DOTFILES_BASE/scripts/php/ip.php'"
