@@ -25,10 +25,7 @@
     wip =  commit -am 'wip'
     aliases = !sh -c 'git config -l | grep alias | cut -c 7-'
     name-of-current-branch = symbolic-ref --short HEAD
-    rename-branch = branch -m
-    publish = !git push -u origin $(git name-of-current-branch)
     forget = !git fetch -pq && git branch -vv | awk '/: gone]/{print $1}' | xargs git branch -D
-    create-branch = !sh -c 'git fetch -pq && git checkout -b $2 --no-track origin/$1' -
     export = !git archive --format zip --output project.zip $(git name-of-current-branch)
     unset-upstream = branch --unset-upstream
     set-upstream = !git branch --set-upstream-to=origin/$(git name-of-current-branch) $(git rev-parse --abbrev-ref HEAD)
