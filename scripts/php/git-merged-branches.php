@@ -1,5 +1,7 @@
 <?php
 
+shell_exec('git fetch -qp');
+
 $data = shell_exec('git ls-remote | grep -v "tags\|HEAD\|From\|/master\|/test\|dev\|release"');
 
 $data = explode(PHP_EOL, trim($data));

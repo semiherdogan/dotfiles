@@ -19,7 +19,6 @@ source_aliases
 alias ip="php '$DOTFILES_BASE/scripts/php/ip.php'"
 alias download="php '$DOTFILES_BASE/scripts/php/downloader.php'"
 alias pull-request="php '$DOTFILES_BASE/scripts/php/bitbucket-pull-request.php'"
-alias git--merged-branches="php $DOTFILES_BASE/scripts/php/git-merged-branches.php"
 
 # Psysh
 alias p="$DOTFILES_BASE/psysh --color --config '$DOTFILES_BASE/scripts/php/psysh_user.php'"
