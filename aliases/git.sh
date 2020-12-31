@@ -5,23 +5,33 @@
 alias g='git'
 alias nah='git reset --hard && git clean -df'
 
-alias add='git add .'
 alias pull='git pull'
 alias push='git push'
 alias status='git status'
 alias stash='git stash --include-untracked'
 alias stash-list='git stash list'
 alias pop='git stash pop'
+alias unstage='git restore --staged'
+alias diff='git diff'
+
+add() {
+    git add ${@:-.}
+}
 
 commit() {
+    if [[ "$1" == "." ]]; then
+        shift 1
+
+        git add .
+    fi
+
     commitMessage="$1"
 
     if [ "$commitMessage" = "" ]; then
         commitMessage='wip'
     fi
 
-    git add .
-    eval "git commit -a -m '${commitMessage}'"
+    eval "git commit -m '${commitMessage}'"
 }
 
 alias branch-name='git symbolic-ref --short HEAD'
