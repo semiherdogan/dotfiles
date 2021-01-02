@@ -34,6 +34,15 @@ alias ips="ifconfig -a | grep -o 'inet6\? \(addr:\)\?\s\?\(\(\([0-9]\+\.\)\{3\}[
 alias timestamp='echo $(date +%s) && echo $(date +%s) | pbcopy && echo "Copied."'
 alias curlt='curl -s -o /dev/null -w "%{time_starttransfer}\n"'
 alias remove--ds_store="find . -type f -name '*.DS_Store' -ls -delete"
+desktop-icons-toggle() {
+    local SHOW_ICONS=true
+
+    if [[ $(defaults read com.apple.finder CreateDesktop) == "1" ]]; then
+        SHOW_ICONS=false
+    fi
+
+    defaults write com.apple.finder CreateDesktop -bool $SHOW_ICONS && killall Finder
+}
 
 loop () {
     for i in {1..$1}
