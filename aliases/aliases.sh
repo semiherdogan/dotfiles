@@ -106,3 +106,9 @@ alias d-redis-flushall='d-redis flushall'
 
 
 alias qodana='docker run --rm -it -v $(pwd)/:/data/project/ -p 8080:8080 jetbrains/qodana --show-report'
+
+alias php71-composer='docker run --rm --volume $(pwd):/app prooph/composer:7.1'
+alias php72-composer='docker run --rm --volume $(pwd):/app prooph/composer:7.2'
+alias php73-composer='docker run --rm --volume $(pwd):/app prooph/composer:7.3'
+alias php74-composer='docker run --rm --volume $(pwd):/opt -w /opt laravelsail/php74-composer:latest composer'
+alias php80-composer='docker run --rm --volume $(pwd):/opt -w /opt laravelsail/php80-composer:latest composer'
