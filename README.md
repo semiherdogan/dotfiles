@@ -3,14 +3,12 @@ My personal dotfiles.
 
 Usage
 
-Source bootstrap.sh file into .zshrc or .bashrc file
-
-- .zshrc
+- Source `bootstrap.sh` file into `~/.zshrc` or `~/.bashrc` file. See below:
 ```
 source ~/dotfiles/bootstrap.sh
 ```
 
-- .gitconfig
+- Add this line into your `~/.gitconfig` file.
 ```
 [include]
 	path = "~/dotfiles/gitconfig"
