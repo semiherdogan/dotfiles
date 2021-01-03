@@ -3,6 +3,8 @@
  * User file for "psysh"
  */
 
+date_default_timezone_set('Europe/Istanbul');
+
 if (!function_exists('d')) {
     function d($data, $exit = false)
     {
@@ -16,8 +18,8 @@ if (!function_exists('d')) {
     }
 }
 
-if (!function_exists('x')) {
-    function x($function, ...$params)
+if (!function_exists('f')) {
+    function f($function, ...$params)
     {
         return call_user_func_array($function, $params);
     }
@@ -52,17 +54,12 @@ if (!function_exists('parse_clipboard')) {
     }
 }
 
-if (!function_exists('f')) {
-    function f($data, $index, $body = null)
+if (!function_exists('each')) {
+    function each(array $data, string $body) : void
     {
-        eval($body.';');
-    }
-}
-
-if (!function_exists('inline_each')) {
-    function inline_each(array $data, string $body) : void
-    {
-        array_walk($data, 'f', $body);
+        foreach ($data as $index => $value) {
+            eval($body.';');
+        }
     }
 }
 
