@@ -34,6 +34,7 @@ alias ips="ifconfig -a | grep -o 'inet6\? \(addr:\)\?\s\?\(\(\([0-9]\+\.\)\{3\}[
 alias timestamp='echo $(date +%s) && echo $(date +%s) | pbcopy && echo "Copied."'
 alias curlt='curl -s -o /dev/null -w "%{time_starttransfer}\n"'
 alias remove--ds_store="find . -type f -name '*.DS_Store' -ls -delete"
+
 desktop-icons-toggle() {
     local SHOW_ICONS=true
 
@@ -78,6 +79,10 @@ github-open() {
     `
 }
 
+port-check() {
+    lsof -nP -iTCP:$1 | grep LISTEN
+}
+
 # Npm
 alias nr='npm run'
 
@@ -104,9 +109,7 @@ dcup() {
 alias d-redis='dc exec cache redis-cli'
 alias d-redis-flushall='d-redis flushall'
 
-
-alias qodana='docker run --rm -it -v $(pwd)/:/data/project/ -p 8080:8080 jetbrains/qodana --show-report'
-
+# Composer
 alias php71-composer='docker run --rm --volume $(pwd):/app prooph/composer:7.1'
 alias php72-composer='docker run --rm --volume $(pwd):/app prooph/composer:7.2'
 alias php73-composer='docker run --rm --volume $(pwd):/app prooph/composer:7.3'
