@@ -115,3 +115,45 @@ alias php72-composer='docker run --rm --volume $(pwd):/app prooph/composer:7.2'
 alias php73-composer='docker run --rm --volume $(pwd):/app prooph/composer:7.3'
 alias php74-composer='docker run --rm --volume $(pwd):/opt -w /opt laravelsail/php74-composer:latest composer'
 alias php80-composer='docker run --rm --volume $(pwd):/opt -w /opt laravelsail/php80-composer:latest composer'
+
+composer() {
+    local COMPOSER_COMMAND="/usr/local/bin/composer"
+    if [ -f "composer.phar" ]; then
+        COMPOSER_COMMAND="php -d memory_limit=-1 composer.phar"
+    fi
+
+    if [ ! -f "docker-compose.yml" ]; then
+        "$COMPOSER_COMMAND" "$@"
+        return 0
+    fi
+
+    if docker-compose ps | grep 'Exit' &> /dev/null; then
+        echo "${C_RED}Docker is not running.${NC}"
+
+        if [[ "$1" == "-f" ]]; then
+            shift 1
+            "$COMPOSER_COMMAND" "$@"
+            return 0
+        fi
+
+        return 1
+    fi
+
+    if [ ! -n "$(docker-compose ps -q)" ]; then
+        echo "${C_RED}Docker is not running.${NC}"
+
+        if [[ "$1" == "-f" ]]; then
+            shift 1
+            "$COMPOSER_COMMAND" "$@"
+            return 0
+        fi
+
+        return 1
+    fi
+
+    if [[ -f "vendor/bin/sail" ]]; then
+        ./vendor/bin/sail composer "$@"
+    else
+        docker-compose exec app ${(Q)${(z)COMPOSER_COMMAND}} "$@"
+    fi
+}
