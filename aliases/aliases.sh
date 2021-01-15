@@ -57,19 +57,18 @@ silent() {
 }
 
 php-server-here() {
-    LOCAL_SERVER_PORT=${1:-8000}
+    LOCAL_SERVER_PORT=${1:-3000}
     open http://localhost:$LOCAL_SERVER_PORT && php -S 127.0.0.1:$LOCAL_SERVER_PORT
 }
 
 open-local() {
-    LOCAL_SERVER_PORT=${1:-80}
-    open http://localhost:$LOCAL_SERVER_PORT
+    open http://localhost:${1:-80}
 }
 
 alias shrug="echo '¯\_(ツ)_/¯' && echo '¯\_(ツ)_/¯' | pbcopy";
 
 github-open() {
-    open `
+    open -a /Applications/Firefox.app `
         git remote -v |
         grep fetch |
         awk '{print $2}' |
@@ -97,17 +96,15 @@ alias d-stop='docker stop $(docker ps -q)'
 
 # Docker Compose (dc)
 alias dc='docker-compose'
-alias d-composer='dc exec app php -d memory_limit=-1 composer.phar'
-alias d-bash='dc exec app bash'
-alias d-php='dc exec app php'
-alias d-phpunit='dc exec app ./vendor/bin/phpunit'
-dcup() {
-    dc up -d
-}
+alias d-composer='docker-compose exec app php -d memory_limit=-1 composer.phar'
+alias d-bash='docker-compose exec app bash'
+alias d-php='docker-compose exec app php'
+alias d-phpunit='docker-compose exec app ./vendor/bin/phpunit'
+alias dcup='docker-compose up -d'
 
 # Docker redis
-alias d-redis='dc exec cache redis-cli'
-alias d-redis-flushall='d-redis flushall'
+alias d-redis='docker-compose exec cache redis-cli'
+alias d-redis-flushall='docker-compose exec cache redis-cli flushall'
 
 # Composer
 alias php71-composer='docker run --rm --volume $(pwd):/app prooph/composer:7.1'

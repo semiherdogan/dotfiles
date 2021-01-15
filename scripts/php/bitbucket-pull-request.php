@@ -66,7 +66,7 @@ if (is_null($secondArg)) {
         $secondArg = 'dev';
     }
 
-     if (strpos($firstArg, 'bugfix/') !== false) {
+    if (strpos($firstArg, 'bugfix/') !== false) {
         $secondArg = 'dev';
     }
 
@@ -89,10 +89,11 @@ if (is_null($secondArg)) {
 
 openWebsite("pull-requests/new?source=$firstArg&dest=$secondArg&t=1");
 
-function openWebsite($path = null) {
+function openWebsite($path = null)
+{
     $gitRemoteUrl = exec('git config --get remote.origin.url');
 
-    // example string: "git@bitbucket.org:semiherdogan/myproject.git"
+    // example string: "git@bitbucket.org:semiherdogan/my-project.git"
     preg_match('/.+bitbucket\.org\:(.+)\.git$/i', $gitRemoteUrl, $matches);
 
     if (isset($matches[1])) {
