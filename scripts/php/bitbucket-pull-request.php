@@ -20,13 +20,13 @@ if (isset($argv[1]) && !isset($argv[2])) {
         'c' => 'commits',
         'b' => 'branches',
         'p' => 'pull-requests',
+        'l' => 'addon/pipelines/home',
     ];
 
     if (in_array($argv[1], array_keys($specialWords))) {
         openWebsite($specialWords[$argv[1]]);
     }
 }
-
 
 $firstArg = $argv[1] ?? null;
 $secondArg = $argv[2] ?? null;
