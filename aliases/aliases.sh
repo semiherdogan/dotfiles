@@ -120,7 +120,7 @@ composer() {
     fi
 
     if [ ! -f "docker-compose.yml" ]; then
-        "$COMPOSER_COMMAND" "$@"
+        eval "$COMPOSER_COMMAND $@"
         return 0
     fi
 
@@ -129,7 +129,7 @@ composer() {
 
         if [[ "$1" == "-f" ]]; then
             shift 1
-            "$COMPOSER_COMMAND" "$@"
+            eval "$COMPOSER_COMMAND $@"
             return 0
         fi
 
@@ -141,7 +141,7 @@ composer() {
 
         if [[ "$1" == "-f" ]]; then
             shift 1
-            "$COMPOSER_COMMAND" "$@"
+            eval "$COMPOSER_COMMAND $@"
             return 0
         fi
 
