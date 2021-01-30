@@ -95,6 +95,18 @@ alias d-ps='docker ps'
 alias d-stop='docker stop $(docker ps -q)'
 
 # Docker Compose (dc)
+docker-compose () {
+    local DOCKER_COMPOSE_FILE='docker-compose.yml'
+
+    if [ -f "docker-compose-local.yml" ]; then
+        DOCKER_COMPOSE_FILE='docker-compose-local.yml'
+    elif [ -f "docker-compose-dev.yml" ]; then
+        DOCKER_COMPOSE_FILE='docker-compose-dev.yml'
+    fi
+
+    /usr/local/bin/docker-compose -f "$DOCKER_COMPOSE_FILE" "$@"
+}
+
 alias dc='docker-compose'
 alias d-composer='docker-compose exec app php -d memory_limit=-1 composer.phar'
 alias d-bash='docker-compose exec app bash'
