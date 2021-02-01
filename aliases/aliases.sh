@@ -118,12 +118,19 @@ alias dcup='docker-compose up -d'
 alias d-redis='docker-compose exec cache redis-cli'
 alias d-redis-flushall='docker-compose exec cache redis-cli flushall'
 
+# Php
+alias php71='docker run --rm -v $(pwd):/app -w /app php:7.1'
+alias php72='docker run --rm -v $(pwd):/app -w /app php:7.2'
+alias php73='docker run --rm -v $(pwd):/app -w /app php:7.3'
+alias php74='docker run --rm -v $(pwd):/app -w /app php:7.4'
+alias php80='docker run --rm -v $(pwd):/app -w /app php:8.0'
+
 # Composer
-alias php71-composer='docker run --rm --volume $(pwd):/app prooph/composer:7.1'
-alias php72-composer='docker run --rm --volume $(pwd):/app prooph/composer:7.2'
-alias php73-composer='docker run --rm --volume $(pwd):/app prooph/composer:7.3'
-alias php74-composer='docker run --rm --volume $(pwd):/opt -w /opt laravelsail/php74-composer:latest composer'
-alias php80-composer='docker run --rm --volume $(pwd):/opt -w /opt laravelsail/php80-composer:latest composer'
+alias composer-71='docker run --rm --volume $(pwd):/app prooph/composer:7.1'
+alias composer-72='docker run --rm --volume $(pwd):/app prooph/composer:7.2'
+alias composer-73='docker run --rm --volume $(pwd):/app prooph/composer:7.3'
+alias composer-74='docker run --rm --volume $(pwd):/opt -w /opt laravelsail/php74-composer:latest composer'
+alias composer-80='docker run --rm --volume $(pwd):/opt -w /opt laravelsail/php80-composer:latest composer'
 
 composer() {
     local COMPOSER_COMMAND="/usr/local/bin/composer"
