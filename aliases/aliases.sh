@@ -90,48 +90,6 @@ alias rn='npx react-native'
 alias rn-metro='./node_modules/react-native/scripts/launchPackager.command; exit'
 alias rn-android-bundle='mkdir -p android/app/src/main/assets/ && rn bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res'
 
-# Docker (d)
-alias d-ps='docker ps'
-alias d-stop='docker stop $(docker ps -q)'
-
-# Docker Compose (dc)
-docker-compose () {
-    local DOCKER_COMPOSE_FILE='docker-compose.yml'
-
-    if [ -f "docker-compose-local.yml" ]; then
-        DOCKER_COMPOSE_FILE='docker-compose-local.yml'
-    elif [ -f "docker-compose-dev.yml" ]; then
-        DOCKER_COMPOSE_FILE='docker-compose-dev.yml'
-    fi
-
-    /usr/local/bin/docker-compose -f "$DOCKER_COMPOSE_FILE" "$@"
-}
-
-alias dc='docker-compose'
-alias d-composer='docker-compose exec app php -d memory_limit=-1 composer.phar'
-alias d-bash='docker-compose exec app bash'
-alias d-php='docker-compose exec app php'
-alias d-phpunit='docker-compose exec app ./vendor/bin/phpunit'
-alias dcup='docker-compose up -d'
-
-# Docker redis
-alias d-redis='docker-compose exec cache redis-cli'
-alias d-redis-flushall='docker-compose exec cache redis-cli flushall'
-
-# Php
-alias php71='docker run --rm -v $(pwd):/app -w /app php:7.1'
-alias php72='docker run --rm -v $(pwd):/app -w /app php:7.2'
-alias php73='docker run --rm -v $(pwd):/app -w /app php:7.3'
-alias php74='docker run --rm -v $(pwd):/app -w /app php:7.4'
-alias php80='docker run --rm -v $(pwd):/app -w /app php:8.0'
-
-# Composer
-alias composer-71='docker run --rm --volume $(pwd):/app prooph/composer:7.1'
-alias composer-72='docker run --rm --volume $(pwd):/app prooph/composer:7.2'
-alias composer-73='docker run --rm --volume $(pwd):/app prooph/composer:7.3'
-alias composer-74='docker run --rm --volume $(pwd):/opt -w /opt laravelsail/php74-composer:latest composer'
-alias composer-80='docker run --rm --volume $(pwd):/opt -w /opt laravelsail/php80-composer:latest composer'
-
 composer() {
     local COMPOSER_COMMAND="/usr/local/bin/composer"
     if [ -f "composer.phar" ]; then
