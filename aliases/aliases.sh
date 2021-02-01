@@ -68,7 +68,7 @@ open-local() {
 alias shrug="echo '¯\_(ツ)_/¯' && echo '¯\_(ツ)_/¯' | pbcopy";
 
 github-open() {
-    open -a /Applications/Firefox.app `
+    open -a /Applications/Firefox\ Developer\ Edition.app `
         git remote -v |
         grep fetch |
         awk '{print $2}' |
