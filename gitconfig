@@ -23,7 +23,7 @@
     h = push
     co = checkout
     l = log --decorate --graph
-    b = !sh -c 'git branch -a | cat'
+    b = !sh -c 'git -P branch -a'
     wip =  commit -am 'wip'
     aliases = !sh -c 'git config -l | grep alias | cut -c 7-'
     name-of-current-branch = symbolic-ref --short HEAD

@@ -20,6 +20,7 @@ add() {
     git add ${@:-.}
 }
 
+alias wip='commit'
 commit() {
     if [[ "$1" == "." ]]; then
         shift 1
