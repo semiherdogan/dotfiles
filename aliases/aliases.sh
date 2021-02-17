@@ -10,40 +10,17 @@ alias ..='cd ../'
 alias ...='cd ../../'
 alias ....='cd ../../../'
 alias ll='ls -lah'
-o() {
-    if [ $# -eq 0 ]; then
-        open .
-    else
-        open "$@"
-    fi;
-}
+
 
 # Enable aliases to be sudo’ed
 alias sudo='sudo '
 
 # Folders
 alias www='cd ~/Code ; ll'
-alias www2='cd ~/CodeSmh ; ll'
 alias desk='cd ~/Desktop'
-alias sf='cd ~/.ssh'
 
-alias json-beautify='pbpaste | jq "."'
-alias json-beautify-to-clipboard='json-beautify && json-beautify | pbcopy'
-alias pwd-clipboard='pwd && pwd | pbcopy'
 alias ips="ifconfig -a | grep -o 'inet6\? \(addr:\)\?\s\?\(\(\([0-9]\+\.\)\{3\}[0-9]\+\)\|[a-fA-F0-9:]\+\)' | awk '{ sub(/inet6? (addr:)? ?/, \"\"); print }'"
-alias timestamp='echo $(date +%s) && echo $(date +%s) | pbcopy && echo "Copied."'
 alias curlt='curl -s -o /dev/null -w "%{time_starttransfer}\n"'
-alias remove--ds_store="find . -type f -name '*.DS_Store' -ls -delete"
-
-desktop-icons-toggle() {
-    local SHOW_ICONS=true
-
-    if [[ $(defaults read com.apple.finder CreateDesktop) == "1" ]]; then
-        SHOW_ICONS=false
-    fi
-
-    defaults write com.apple.finder CreateDesktop -bool $SHOW_ICONS && killall Finder
-}
 
 loop () {
     for i in {1..$1}
@@ -54,28 +31,6 @@ loop () {
 
 silent() {
     "$@" >& /dev/null
-}
-
-php-server-here() {
-    LOCAL_SERVER_PORT=${1:-3000}
-    open http://localhost:$LOCAL_SERVER_PORT && php -S 127.0.0.1:$LOCAL_SERVER_PORT
-}
-
-open-local() {
-    open http://localhost:${1:-80}
-}
-
-alias shrug="echo '¯\_(ツ)_/¯' && echo '¯\_(ツ)_/¯' | pbcopy";
-
-github-open() {
-    open -a /Applications/Firefox\ Developer\ Edition.app `
-        git remote -v |
-        grep fetch |
-        awk '{print $2}' |
-        sed 's/git@/https:\/\//' |
-        sed 's/com:/com\//' |
-        sed 's/\.git//'
-    `
 }
 
 port-check() {

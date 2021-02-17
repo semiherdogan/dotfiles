@@ -9,8 +9,13 @@ source_aliases () {
     source $DOTFILES_BASE/aliases/laravel.sh
     source $DOTFILES_BASE/aliases/shortcuts.sh
     source $DOTFILES_BASE/aliases/helpers.sh
+
     if [[ -f "$DOTFILES_BASE/aliases/environment.sh" ]]; then
         source $DOTFILES_BASE/aliases/environment.sh
+    fi
+
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        source $DOTFILES_BASE/aliases/macos.sh
     fi
 }
 
@@ -27,9 +32,4 @@ if [[ ! -f "$DOTFILES_BASE/psysh" ]]; then
     echo "Downloading (psysh) ..."
     download https://psysh.org/psysh $DOTFILES_BASE
     chmod +x $DOTFILES_BASE/psysh
-fi
-
-# Zsh .hushlogin
-if [[ ! -f "~/.hushlogin" ]]; then
-    echo '' > ~/.hushlogin
 fi
