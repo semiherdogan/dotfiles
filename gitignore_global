@@ -4,3 +4,5 @@
 .vscode/
 .bitbucket/
 scratch.md
+supervisord.log
+supervisord.pid

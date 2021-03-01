@@ -16,6 +16,8 @@ source_aliases () {
 
     if [[ "$OSTYPE" == "darwin"* ]]; then
         source $DOTFILES_BASE/aliases/macos.sh
+    elif [[ "$OSTYPE" == "linux"* ]]; then
+        source $DOTFILES_BASE/aliases/linux.sh
     fi
 }
 
