@@ -9,12 +9,14 @@ alias pull='git pull'
 alias push='git push'
 alias status='git status'
 alias fetch='git fetch'
-alias checkout='git checkout'
 alias stash='git stash --include-untracked'
 alias stash-list='git stash list'
 alias pop='git stash pop'
 alias unstage='git restore --staged'
 alias diff='git diff'
+alias checkout='git checkout'
+
+alias dev='git checkout dev && git pull'
 
 add() {
     git add ${@:-.}
