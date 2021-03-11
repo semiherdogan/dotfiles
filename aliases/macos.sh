@@ -1,5 +1,5 @@
 ##
-# macOS 
+# macOS
 ##
 
 alias remove--ds_store="find . -type f -name '*.DS_Store' -ls -delete"
@@ -7,7 +7,7 @@ alias remove--ds_store="find . -type f -name '*.DS_Store' -ls -delete"
 alias pwd-clipboard='pwd && pwd | pbcopy'
 alias json-beautify='pbpaste | jq "."'
 alias json-beautify-to-clipboard='json-beautify && json-beautify | pbcopy'
-alias timestamp='echo $(date +%s) && echo $(date +%s) | pbcopy && echo "Copied."'
+alias timestamp='echo $(date +%s) && echo -n $(date +%s) | pbcopy && echo "Copied."'
 
 alias shrug="echo '¯\_(ツ)_/¯' && echo '¯\_(ツ)_/¯' | pbcopy";
 
