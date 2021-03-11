@@ -22,7 +22,7 @@ add() {
     git add ${@:-.}
 }
 
-alias wip='commit'
+alias wip='commit .'
 commit() {
     if [[ "$1" == "." ]]; then
         shift 1
@@ -54,7 +54,20 @@ alias last-commit-diff='git diff HEAD@{1}'
 
 alias yolo-message='curl -s whatthecommit.com/index.txt'
 
+merge() {
+    git merge "origin/$1"
+}
+
 github-config() {
     git config user.name "Semih ERDOGAN"
     git config user.email "hasansemiherdogan@gmail.com"
 }
+
+# # Reset the index and working tree to the desired tree
+# # Ensure you have no uncommitted changes that you want to keep
+# git reset --hard 56e05fced
+
+# # Move the branch pointer back to the previous HEAD
+# git reset --soft HEAD@{1}
+
+# git commit -m "Revert to 56e05fced"
