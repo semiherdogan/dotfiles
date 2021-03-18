@@ -63,11 +63,14 @@ github-config() {
     git config user.email "hasansemiherdogan@gmail.com"
 }
 
-# # Reset the index and working tree to the desired tree
-# # Ensure you have no uncommitted changes that you want to keep
-# git reset --hard 56e05fced
+revert-to() {
+    # Reset the index and working tree to the desired tree
+    # Ensure you have no uncommitted changes that you want to keep
+    git reset --hard $1
 
-# # Move the branch pointer back to the previous HEAD
-# git reset --soft HEAD@{1}
+    # Move the branch pointer back to the previous HEAD
+    git reset --soft HEAD@{1}
 
-# git commit -m "Revert to 56e05fced"
+    echo "git commit -m 'Revert to $1'"
+    echo 'git push -f'
+}
