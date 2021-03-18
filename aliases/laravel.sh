@@ -21,7 +21,7 @@ artisan () {
     if docker-compose ps | grep 'Exit' &> /dev/null; then
         echo "${C_RED}Docker is not running.${NC}"
 
-        if [[ "$1" == "-f" ]]; then
+        if [[ "$1" == "-f" || "$2" == "-f" ]]; then
             shift 1
             php artisan "$@"
             return 0
@@ -33,7 +33,7 @@ artisan () {
     if [ ! -n "$(docker-compose ps -q)" ]; then
         echo "${C_RED}Docker is not running.${NC}"
 
-        if [[ "$1" == "-f" ]]; then
+        if [[ "$1" == "-f" || "$2" == "-f" ]]; then
             shift 1
             php artisan "$@"
             return 0
