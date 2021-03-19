@@ -43,7 +43,8 @@ alias nr='npm run'
 # React native
 alias rn='npx react-native'
 alias rn-metro='./node_modules/react-native/scripts/launchPackager.command; exit'
-alias rn-android-bundle='mkdir -p android/app/src/main/assets/ && rn bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res'
+alias rn-android-bundle='mkdir -p android/app/src/main/assets/ && react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res'
+alias rn-ios-bundle='react-native bundle --platform ios --dev false --entry-file index.js --bundle-output ios/main.jsbundle --assets-dest ios'
 
 composer() {
     local COMPOSER_COMMAND="/usr/local/bin/composer"
