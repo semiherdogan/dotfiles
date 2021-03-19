@@ -15,8 +15,10 @@ alias pop='git stash pop'
 alias unstage='git restore --staged'
 alias diff='git diff'
 alias checkout='git checkout'
+alias switch='git switch'
+alias restore='git restore'
 
-alias dev='git checkout dev && git pull'
+alias dev='git switch dev && git pull'
 
 add() {
     git add ${@:-.}
