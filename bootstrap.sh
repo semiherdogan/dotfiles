@@ -18,6 +18,8 @@ source_aliases () {
         source $DOTFILES_BASE/aliases/macos.sh
     elif [[ "$OSTYPE" == "linux"* ]]; then
         source $DOTFILES_BASE/aliases/linux.sh
+    elif [[ "$OSTYPE" == "msys"* ]]; then
+        source $DOTFILES_BASE/aliases/windows.sh
     fi
 }
 
@@ -30,8 +32,8 @@ alias pr="php '$DOTFILES_BASE/scripts/php/bitbucket-pull-request.php'"
 
 # Psysh
 alias p="$DOTFILES_BASE/psysh --color --config '$DOTFILES_BASE/scripts/php/psysh_user.php'"
-if [[ ! -f "$DOTFILES_BASE/psysh" ]]; then
-    echo "Downloading (psysh) ..."
-    download https://psysh.org/psysh $DOTFILES_BASE
-    chmod +x $DOTFILES_BASE/psysh
-fi
+# if [[ ! -f "$DOTFILES_BASE/psysh" ]]; then
+#     echo "Downloading (psysh) ..."
+#     download https://psysh.org/psysh $DOTFILES_BASE
+#     chmod +x $DOTFILES_BASE/psysh
+# fi
