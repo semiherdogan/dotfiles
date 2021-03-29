@@ -19,7 +19,7 @@ alias switch='git switch'
 alias restore='git restore'
 
 alias dev='git switch dev && git pull'
-alias test-branch='git switch test && git pull'
+alias testb='git switch test && git pull'
 
 add() {
     git add ${@:-.}
