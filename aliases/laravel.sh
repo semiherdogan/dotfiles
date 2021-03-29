@@ -12,6 +12,14 @@ alias sail='vendor/bin/sail'
 
 alias lr='laravel--delete-log-files && exit 0'
 
+# Enable autocomplete for artisan command
+compdef _artisan_command_list_for_autocomplete artisan
+
+_artisan_command_list_for_autocomplete() {
+    # local artisanCommandList=$(artisan list --format=json | jq -r '.commands[] .name')
+    _arguments '1: :(tinker cache:clear migrate horizon:terminate)'
+}
+
 artisan () {
     if [ ! -f "docker-compose.yml" ]; then
         php artisan "$@"
