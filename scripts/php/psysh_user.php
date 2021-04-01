@@ -39,7 +39,7 @@ if (!function_exists('write_clipboard')) {
             $data = implode($arrayGlue, $data);
         }
 
-        shell_exec(sprintf('printf %s | pbcopy', $data));
+        exec(sprintf("echo %s | pbcopy", escapeshellarg($data)));
 
         return $data;
     }
@@ -75,19 +75,32 @@ if (!function_exists('frequency')) {
     }
 }
 
-if (!function_exists('random_string')) {
-    function random_string($length = 16)
+if (!function_exists('generate_password')) {
+    function generate_password($length = 16)
     {
-        $string = '';
+        $charsets = [
+            '98765432',
+            'ASDFGHJKLZXCVBNMQWERTYUP',
+            'asdfghijkzxcvbnmqwertyup',
+            '-+%&?!()=',
+        ];
 
-        while (($len = strlen($string)) < $length) {
-            $size = $length - $len;
+        $result = '';
 
-            $bytes = random_bytes($size);
+        foreach ($charsets as $charset) {
+            $result .= substr($charset, rand(0, strlen($charset) - 1), 1);
 
-            $string .= substr(str_replace(['/', '+', '='], '', base64_encode($bytes)), 0, $size);
+            if (strlen($result) >= $length) {
+                break;
+            }
         }
 
-        return $string;
+        $allCharacters = implode('', $charsets);
+
+        while (strlen($result) < $length) {
+            $result .= substr($allCharacters, rand(0, strlen($allCharacters) - 1), 1);
+        }
+
+        return $result;
     }
 }
