@@ -6,3 +6,5 @@
 scratch.md
 supervisord.log
 supervisord.pid
+docker-compose-semih.yml
+ray.php
