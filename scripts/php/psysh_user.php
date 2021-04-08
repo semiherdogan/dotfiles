@@ -104,3 +104,27 @@ if (!function_exists('generate_password')) {
         return $result;
     }
 }
+
+if (!function_exists('rgb_to_hex')) {
+    function rgb_to_hex() {
+        $rgb = read_clipboard();
+
+        $remove = ['rgb', '(', ')'];
+        foreach ($remove as $r) {
+            $rgb = str_replace($r, '', $rgb);
+        }
+
+        $rgb = trim($rgb);
+
+        $characters = [',', ' '];
+
+        foreach ($characters as $character) {
+            if (strpos($rgb, $character) !== false) {
+                $rgb = explode($character, $rgb);
+                break;
+            }
+        }
+
+        echo sprintf("#%02x%02x%02x\n", ...$rgb);
+    }
+}
