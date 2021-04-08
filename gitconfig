@@ -17,7 +17,6 @@
     s = status --show-stash
     sb = s -sb
     a = add
-    aa = a .
     c = commit -m
     p = pull
     h = push
@@ -37,8 +36,11 @@
     reset-hard = reset --hard HEAD~1
     nah = !git reset --hard && git clean -df
     undo=reset --soft HEAD^
-    changes=diff --name-status -r
-    diffstat=diff --stat -r
+    # changes=diff --name-status -r
+    # diffstat=diff --stat -r
     sortdiff = !sh -c 'git diff "$@" | grep "^[+-]" | sort --key=1.2 | uniq -u -s1'
     new = !sh -c 'git log $1@{1}..$1@{0} "$@"'
     latest-tag = !sh -c 'git fetch -pq && git describe --tags $(git rev-list --tags --max-count=1)'
+    worktree-skip = update-index --skip-worktree
+    worktree-no-skip = update-index --no-skip-worktree
+    worktree-skipped = !sh -c 'git ls-files -v | grep ^S'
