@@ -10,7 +10,9 @@ alias d-stop='docker stop $(docker ps -q)'
 docker-compose () {
     local DOCKER_COMPOSE_FILE='docker-compose.yml'
 
-    if [ -f "docker-compose-local.yml" ]; then
+    if [ -f "docker-compose-semih.yml" ]; then
+        DOCKER_COMPOSE_FILE='docker-compose-semih.yml'
+    elif [ -f "docker-compose-local.yml" ]; then
         DOCKER_COMPOSE_FILE='docker-compose-local.yml'
     elif [ -f "docker-compose-dev.yml" ]; then
         DOCKER_COMPOSE_FILE='docker-compose-dev.yml'
