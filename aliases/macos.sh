@@ -34,7 +34,7 @@ open-local() {
 }
 
 github-open() {
-    open -a /Applications/Firefox\ Developer\ Edition.app `
+    open `
         git remote -v |
         grep fetch |
         awk '{print $2}' |
@@ -50,6 +50,6 @@ php-server-here() {
 }
 
 # Zsh .hushlogin
-if [[ ! -f "~/.hushlogin" ]]; then
-    echo '' > ~/.hushlogin
-fi
+# if [[ ! -f "~/.hushlogin" ]]; then
+#     echo '' > ~/.hushlogin
+# fi
