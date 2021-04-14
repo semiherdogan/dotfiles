@@ -17,7 +17,7 @@ compdef _artisan_command_list_for_autocomplete artisan
 
 _artisan_command_list_for_autocomplete() {
     # local artisanCommandList=$(artisan list --format=json | jq -r '.commands[] .name')
-    _arguments '1: :(tinker cache:clear migrate horizon:terminate)'
+    _arguments '1: :(tinker cache:clear migrate horizon:terminate telescope:clear)'
 }
 
 artisan () {
