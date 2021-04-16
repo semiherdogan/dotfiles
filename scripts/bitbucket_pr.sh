@@ -135,9 +135,37 @@ bpr-pipeline() {
     _bitbucket_api_request GET "pipelines/$PIPELINE_NUMBER" | jq ". | {
         Pipeline: $PIPELINE_NUMBER,
         Creator: .creator.display_name,
-        State: .state.result.name,
+        Repository: .repository.name,
         Target: .target.ref_name,
+        State: .state.name,
+        StateResult: .state.result.name,
         Created: .created_on,
         Completed: .completed_on
     }"
+}
+
+bpr-pipeline-listen() {
+    local PIPELINE_NUMBER=""
+    local PIPELINE_RESPONSE=""
+
+    echo -e "Pending\c"
+
+    while true
+    do
+        PIPELINE_RESPONSE=$(pr-pipeline $PIPELINE_NUMBER)
+        echo -e ".\c"
+
+        if [[ "$PIPELINE_NUMBER" == "" ]]; then
+            PIPELINE_NUMBER=$(echo $PIPELINE_RESPONSE | jq --raw-output '.Pipeline')
+        fi
+
+        if [[ $(echo $PIPELINE_RESPONSE | jq --raw-output '.State') == "COMPLETED" ]]; then
+            break
+        fi
+
+        sleep 1
+    done
+
+    echo ""
+    echo $PIPELINE_RESPONSE | jq '.'
 }
