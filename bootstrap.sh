@@ -9,6 +9,7 @@ source_aliases () {
     source $DOTFILES_BASE/aliases/laravel.sh
     source $DOTFILES_BASE/aliases/shortcuts.sh
     source $DOTFILES_BASE/aliases/helpers.sh
+    source ~/dotfiles/scripts/bitbucket_pr.sh
 
     if [[ -f "$DOTFILES_BASE/aliases/environment.sh" ]]; then
         source $DOTFILES_BASE/aliases/environment.sh

@@ -11,6 +11,8 @@ alias timestamp='echo $(date +%s) && echo -n $(date +%s) | pbcopy && echo "Copie
 
 alias shrug="echo '¯\_(ツ)_/¯' && echo '¯\_(ツ)_/¯' | pbcopy";
 
+alias audio-kill='sudo pkill coreaudiod'
+
 o() {
     if [ $# -eq 0 ]; then
         open .
