@@ -57,8 +57,6 @@ pr-list() {
 }
 
 pr-review() {
-    cd /Users/semiherdogan/Code/kairos-review
-
     local _TO_MERGE_BRANCH=$(
         _pr_request GET "$(_pr_get $1)" | jq --raw-output '.destination.branch.name'
     );
