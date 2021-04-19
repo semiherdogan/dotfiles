@@ -4,25 +4,23 @@
 # https://developer.atlassian.com/bitbucket/api/2/reference/resource/
 #
 # Uses bitbucket auth token ($BITBUCKET_AUTH_TOKEN)
-#
-# Requires "curl" and "jq"
 ##
 
-_BT_CURRENT_PR_NUMBER=
+_CURRENT_PR_NUMBER=
 
-bpr-set() {
-    _BT_CURRENT_PR_NUMBER=$1
+pr-set() {
+    _CURRENT_PR_NUMBER=$1
 }
 
-_bpr_get() {
+_pr_get() {
     if [[ "$1" == "" ]]; then
-        echo "$_BT_CURRENT_PR_NUMBER"
+        echo "$_CURRENT_PR_NUMBER"
     else
         echo "$1"
     fi
 }
 
-_bitbucket_api_request() {
+_get-repo-path() {
     local REPO_URL=$(git config --get remote.origin.url)
     if [[ $REPO_URL == "" ]]; then
         echo "Not a .git repository"
@@ -31,7 +29,11 @@ _bitbucket_api_request() {
         exit 1
     fi
 
-    local REPO_PATH=$(echo $REPO_URL | sed 's/.*://; s/\.git//') # semiherdogan/my-project
+    echo $REPO_URL | sed 's/.*://; s/\.git//'
+}
+
+_bitbucket_api_request() {
+    local REPO_PATH=$(_get-repo-path)
 
     curl -s --location --request $1 \
         "https://api.bitbucket.org/2.0/repositories/$REPO_PATH/$2" \
@@ -39,12 +41,12 @@ _bitbucket_api_request() {
         ${@:3}
 }
 
-_bpr_request() {
+_pr_request() {
     _bitbucket_api_request $1 "pullrequests/$2" ${@:3}
 }
 
-bpr-list() {
-    _bpr_request GET "?state=OPEN" \
+pr-list() {
+    _pr_request GET "?state=OPEN" \
     | jq '.values[] | {
         Id: .id,
         Author: .author.nickname,
@@ -54,58 +56,60 @@ bpr-list() {
     }'
 }
 
-bpr-review() {
+pr-review() {
+    cd /Users/semiherdogan/Code/kairos-review
+
     local _TO_MERGE_BRANCH=$(
-        _bpr_request GET "$(_bpr_get $1)" | jq --raw-output '.destination.branch.name'
+        _pr_request GET "$(_pr_get $1)" | jq --raw-output '.destination.branch.name'
     );
 
     git reset --hard && git clean -df
     git checkout "$_TO_MERGE_BRANCH"
     git pull
 
-    pr-diff "$(_bpr_get $1)" | git apply -
+    pr-diff "$(_pr_get $1)" | git apply -
 }
 
-bpr-diff() {
-    _bpr_request GET "$(_bpr_get $1)/diff"
+pr-diff() {
+    _pr_request GET "$(_pr_get $1)/diff"
 }
 
-bpr-approve() {
-    _bpr_request POST "$(_bpr_get $1)/approve"
+pr-approve() {
+    _pr_request POST "$(_pr_get $1)/approve"
 }
 
-bpr-un-approve() {
-    _bpr_request DELETE "$(_bpr_get $1)/approve"
+pr-un-approve() {
+    _pr_request DELETE "$(_pr_get $1)/approve"
 }
 
-bpr-request-changes() {
-    _bpr_request POST "$(_bpr_get $1)/request-changes"
+pr-request-changes() {
+    _pr_request POST "$(_pr_get $1)/request-changes"
 }
 
-bpr-un-request-changes() {
-    _bpr_request DELETE "$(_bpr_get $1)/request-changes"
+pr-un-request-changes() {
+    _pr_request DELETE "$(_pr_get $1)/request-changes"
 }
 
-bpr-decline() {
-    _bpr_request POST "$(_bpr_get $1)/decline"
+pr-decline() {
+    _pr_request POST "$(_pr_get $1)/decline"
 }
 
-bpr-commits() {
-    _bpr_request GET "$(_bpr_get $1)/commits" | jq '.values[].summary.raw'
+pr-commits() {
+    _pr_request GET "$(_pr_get $1)/commits" | jq '.values[].summary.raw'
 }
 
-bpr-merge() {
-    _bpr_request POST "$(_bpr_get $1)/merge"
+pr-merge() {
+    _pr_request POST "$(_pr_get $1)/merge"
 }
 
-bpr-create() {
+pr-create() {
     local _PR_TITLE="$3"
 
     if [[ "$3" == "" ]]; then
         _PR_TITLE="Merge $1 into $2"
     fi;
 
-    _bpr_request POST "" \
+    _pr_request POST "" \
         --header 'Content-Type: application/json' \
         --data '{
             "title": "'"$_PR_TITLE"'",
@@ -126,7 +130,8 @@ bpr-create() {
         }'
 }
 
-bpr-pipeline() {
+pr-pipeline() {
+    local REPO_PATH=$(_get-repo-path)
     local PIPELINE_NUMBER="$1"
     if [[ "$1" == "" ]]; then
         PIPELINE_NUMBER=$(_bitbucket_api_request GET pipelines/ | jq '.size') # get latest
@@ -140,30 +145,32 @@ bpr-pipeline() {
         State: .state.name,
         StateResult: .state.result.name,
         Created: .created_on,
-        Completed: .completed_on
+        Completed: .completed_on,
+        PipelineUrl: \"https://bitbucket.org/$REPO_PATH/addon/pipelines/home#!/results/$PIPELINE_NUMBER\"
     }"
 }
 
-bpr-pipeline-listen() {
-    local PIPELINE_NUMBER=""
-    local PIPELINE_RESPONSE=""
+pr-pipeline-listen() {
+    local PIPELINE_RESPONSE=$(pr-pipeline $1)
+    local PIPELINE_NUMBER=$(echo $PIPELINE_RESPONSE | jq --raw-output '.Pipeline')
 
-    echo -e "Pending\c"
+    if [[ $(echo $PIPELINE_RESPONSE | jq --raw-output '.State') != "COMPLETED" ]]; then
+        echo $PIPELINE_RESPONSE | jq ". | {
+            Pipeline: .Pipeline,
+            Creator: .Creator,
+            State: .State,
+            Target: .Target,
+            PipelineUrl: .PipelineUrl
+        }"
 
-    while true
+        echo -e "\nPending\c"
+    fi
+
+    while [[ $(echo $PIPELINE_RESPONSE | jq --raw-output '.State') != "COMPLETED" ]]
     do
+        sleep 2
         PIPELINE_RESPONSE=$(pr-pipeline $PIPELINE_NUMBER)
         echo -e ".\c"
-
-        if [[ "$PIPELINE_NUMBER" == "" ]]; then
-            PIPELINE_NUMBER=$(echo $PIPELINE_RESPONSE | jq --raw-output '.Pipeline')
-        fi
-
-        if [[ $(echo $PIPELINE_RESPONSE | jq --raw-output '.State') == "COMPLETED" ]]; then
-            break
-        fi
-
-        sleep 1
     done
 
     echo ""
