@@ -33,8 +33,8 @@ alias pr="php '$DOTFILES_BASE/scripts/php/bitbucket-pull-request.php'"
 
 # Psysh
 alias p="$DOTFILES_BASE/psysh --color --config '$DOTFILES_BASE/scripts/php/psysh_user.php'"
-# if [[ ! -f "$DOTFILES_BASE/psysh" ]]; then
-#     echo "Downloading (psysh) ..."
-#     download https://psysh.org/psysh $DOTFILES_BASE
-#     chmod +x $DOTFILES_BASE/psysh
-# fi
+psysh-update() {
+    echo "Downloading (psysh) ..."
+    download https://psysh.org/psysh $DOTFILES_BASE
+    chmod +x $DOTFILES_BASE/psysh
+}
