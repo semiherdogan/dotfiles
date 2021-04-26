@@ -4,6 +4,10 @@
 
 alias remove--ds_store="find . -type f -name '*.DS_Store' -ls -delete"
 
+php--check-syntax(){
+    find ${1:-.} -iname '*.php' -exec php -l '{}' \; | grep '^No syntax errors' -v
+}
+
 alias pwd-clipboard='pwd && pwd | pbcopy'
 alias json-beautify='pbpaste | jq "."'
 alias json-beautify-to-clipboard='json-beautify && json-beautify | pbcopy'
