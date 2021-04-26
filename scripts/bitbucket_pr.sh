@@ -101,24 +101,27 @@ pr-merge() {
 }
 
 pr-create() {
-    local _PR_TITLE="$3"
+    local CURRENT_BRACH=$(git symbolic-ref --short HEAD)
+    local FROM_BRANCH="$1"
+    local TO_BRANCH="$2"
 
-    if [[ "$3" == "" ]]; then
-        _PR_TITLE="Merge $1 into $2"
-    fi;
+    if [[ "$2" == "" ]]; then
+        FROM_BRANCH="$CURRENT_BRACH"
+        TO_BRANCH="$1"
+    fi
 
     _pr_request POST "" \
         --header 'Content-Type: application/json' \
         --data '{
-            "title": "'"$_PR_TITLE"'",
+            "title": "Merge '"$FROM_BRANCH"' into '"$TO_BRANCH"'",
             "source": {
                 "branch": {
-                    "name": "'"$1"'"
+                    "name": "'"$FROM_BRANCH"'"
                 }
             },
             "destination": {
                 "branch": {
-                    "name": "'"$2"'"
+                    "name": "'"$TO_BRANCH"'"
                 }
             }
         }' \
@@ -151,8 +154,9 @@ pr-pipeline() {
 pr-pipeline-listen() {
     local PIPELINE_RESPONSE=$(pr-pipeline $1)
     local PIPELINE_NUMBER=$(echo $PIPELINE_RESPONSE | jq --raw-output '.Pipeline')
+    local CURRENT_PIPELINE_STATE=$(echo $PIPELINE_RESPONSE | jq --raw-output '.State')
 
-    if [[ $(echo $PIPELINE_RESPONSE | jq --raw-output '.State') != "COMPLETED" ]]; then
+    if [[ $CURRENT_PIPELINE_STATE != "COMPLETED" ]]; then
         echo $PIPELINE_RESPONSE | jq ". | {
             Pipeline: .Pipeline,
             Creator: .Creator,
@@ -164,13 +168,16 @@ pr-pipeline-listen() {
         echo -e "\nPending\c"
     fi
 
-    while [[ $(echo $PIPELINE_RESPONSE | jq --raw-output '.State') != "COMPLETED" ]]
+    while [[ $CURRENT_PIPELINE_STATE != "COMPLETED" ]]
     do
         sleep 2
         PIPELINE_RESPONSE=$(pr-pipeline $PIPELINE_NUMBER)
         echo -e ".\c"
     done
 
-    echo ""
+    if [[ $CURRENT_PIPELINE_STATE != "COMPLETED" ]]; then
+        echo ""
+    fi
+
     echo $PIPELINE_RESPONSE | jq '.'
 }
