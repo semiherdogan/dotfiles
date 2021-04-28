@@ -9,3 +9,4 @@ supervisord.pid
 vendor2/
 docker-compose-semih.yml
 ray.php
+.tinkerwell
