@@ -17,6 +17,7 @@ alias diff='git diff'
 alias checkout='git checkout'
 alias switch='git switch'
 alias restore='git restore'
+alias revert-file-to-previous='git checkout HEAD^'
 
 alias dev='git switch dev && git pull'
 alias testb='git switch test && git pull'
@@ -67,7 +68,7 @@ github-config() {
     git config user.email "hasansemiherdogan@gmail.com"
 }
 
-revert-to() {
+revert-to-hash() {
     # Reset the index and working tree to the desired tree
     # Ensure you have no uncommitted changes that you want to keep
     git reset --hard $1
