@@ -6,30 +6,28 @@
 alias d-ps='docker ps'
 alias d-stop='docker stop $(docker ps -q)'
 
-# Docker Compose (dc)
-docker-compose () {
+# Docker Compose
+d-compose () {
     local DOCKER_COMPOSE_FILE='docker-compose.yml'
 
-    if [ -f "docker-compose-semih.yml" ]; then
-        DOCKER_COMPOSE_FILE='docker-compose-semih.yml'
-    elif [ -f "docker-compose-local.yml" ]; then
+    if [ -f "docker-compose-local.yml" ]; then
         DOCKER_COMPOSE_FILE='docker-compose-local.yml'
     elif [ -f "docker-compose-dev.yml" ]; then
         DOCKER_COMPOSE_FILE='docker-compose-dev.yml'
     fi
 
-    /usr/local/bin/docker-compose -f "$DOCKER_COMPOSE_FILE" "$@"
+    docker compose -f "$DOCKER_COMPOSE_FILE" "$@"
 }
 
-alias dc='docker-compose'
-alias dcup='docker-compose up -d'
-alias d-bash='docker-compose exec app bash'
-alias d-php='docker-compose exec app php'
-alias d-test='docker-compose exec app ./vendor/bin/phpunit'
+alias dc='d-compose'
+alias dcup='d-compose up -d'
+alias d-bash='d-compose exec app bash'
+alias d-php='d-compose exec app php'
+alias d-test='d-compose exec app ./vendor/bin/phpunit'
 
 # Docker redis
-alias d-redis='docker-compose exec cache redis-cli'
-alias d-redis-flushall='docker-compose exec cache redis-cli flushall'
+alias d-redis='d-compose exec cache redis-cli'
+alias d-redis-flushall='d-compose exec cache redis-cli flushall'
 
 # Php versions
 alias php71='docker run --rm -v $(pwd):/app -w /app php:7.1'
