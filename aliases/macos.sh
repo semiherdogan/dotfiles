@@ -36,7 +36,11 @@ desktop-icons-toggle() {
 }
 
 open-local() {
-    open http://localhost:${1:-80}
+    if [[ -f ./.env ]]; then
+        open $(cat .env | grep APP_URL | awk -F= '{print $2}')
+    else
+        open http://localhost:${1:-80}
+    fi
 }
 
 github-open() {
