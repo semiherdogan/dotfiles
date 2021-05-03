@@ -7,6 +7,6 @@ scratch.md
 supervisord.log
 supervisord.pid
 vendor2/
-docker-compose-semih.yml
+docker-compose-local.yml
 ray.php
 .tinkerwell

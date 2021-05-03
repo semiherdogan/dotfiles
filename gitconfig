@@ -13,6 +13,8 @@
     ui = auto
 [push]
     default = current
+[fetch]
+    prune = true
 [alias]
     s = status --show-stash
     sb = s -sb
@@ -36,8 +38,6 @@
     reset-hard = reset --hard HEAD~1
     nah = !git reset --hard && git clean -df
     undo=reset --soft HEAD^
-    # changes=diff --name-status -r
-    # diffstat=diff --stat -r
     sortdiff = !sh -c 'git diff "$@" | grep "^[+-]" | sort --key=1.2 | uniq -u -s1'
     new = !sh -c 'git log $1@{1}..$1@{0} "$@"'
     latest-tag = !sh -c 'git fetch -pq && git describe --tags $(git rev-list --tags --max-count=1)'
