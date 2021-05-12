@@ -151,6 +151,18 @@ pr-pipeline() {
     }"
 }
 
+pr-pipeline-start() {
+    _bitbucket_api_request POST "pipelines/" \
+        --header 'Content-Type: application/json' \
+        --data '{
+            "target": {
+                "ref_type": "branch",
+                "type": "pipeline_ref_target",
+                "ref_name": "'${1:-test}'"
+            }
+        }'
+}
+
 pr-pipeline-listen() {
     local PIPELINE_RESPONSE=$(pr-pipeline $1)
     local PIPELINE_NUMBER=$(echo $PIPELINE_RESPONSE | jq --raw-output '.Pipeline')
