@@ -2,9 +2,10 @@
 # Bitbucket PR
 #
 # https://developer.atlassian.com/bitbucket/api/2/reference/resource/
-#
-# Uses bitbucket auth token ($BITBUCKET_AUTH_TOKEN)
 ##
+
+# Uncomment below line if you don't have global "BITBUCKET_AUTH_TOKEN" variable (and set value to your token)
+# BITBUCKET_AUTH_TOKEN="base64( username:app-password )"
 
 _CURRENT_PR_NUMBER=
 
