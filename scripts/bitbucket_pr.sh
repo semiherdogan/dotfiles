@@ -2,6 +2,10 @@
 # Bitbucket PR
 #
 # https://developer.atlassian.com/bitbucket/api/2/reference/resource/
+#
+# Requirements:
+#    "jq" (https://stedolan.github.io/jq/)
+#    "BITBUCKET_AUTH_TOKEN" you can set it below (line 12)
 ##
 
 # Uncomment below line if you don't have global "BITBUCKET_AUTH_TOKEN" variable (and set value to your token)
