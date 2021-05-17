@@ -87,3 +87,22 @@ composer() {
         docker-compose exec app ${(Q)${(z)COMPOSER_COMMAND}} "$@"
     fi
 }
+
+# Python
+alias py-run="py -m"
+alias py-server="py -m http.server"
+py-env() {
+    local ENV_DIRECTORY="venv"
+    if [ ! -d "venv/" ]; then
+        py -m venv venv
+    fi
+
+    # Checks if "deactivate" function is exists
+    if [[ $(declare -Ff "deactivate") ]]; then 
+        deactivate
+        echo 'Deactivaed.'
+    else
+        source venv/Scripts/activate
+        echo 'Activated.'
+    fi
+}
