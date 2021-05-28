@@ -8,11 +8,11 @@ EOF
 
 laravel-listen-queries() {
     cat << EOF
-\DB::listen(function ($query) {
+\DB::listen(function (\$query) {
     \$sql = \$query->sql;
 
     foreach (\$query->bindings as \$binding) {
-        \$value = is_numeric($binding) ? \$binding : "'".\$binding."'";
+        \$value = is_numeric(\$binding) ? \$binding : "'".\$binding."'";
         \$sql = preg_replace('/\?/', \$value, \$sql, 1);
     }
 
