@@ -189,6 +189,7 @@ pr-pipeline-listen() {
     do
         sleep 2
         PIPELINE_RESPONSE=$(pr-pipeline $PIPELINE_NUMBER)
+        CURRENT_PIPELINE_STATE=$(echo $PIPELINE_RESPONSE | jq --raw-output '.State')
         echo -e ".\c"
     done
 
