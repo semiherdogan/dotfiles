@@ -57,7 +57,7 @@ composer() {
         return 0
     fi
 
-    if docker-compose ps | grep 'Exit' &> /dev/null; then
+    if d-compose ps | grep 'Exit' &> /dev/null; then
         echo "${C_RED}Docker is not running.${NC}"
 
         if [[ "$1" == "-f" ]]; then
@@ -84,7 +84,7 @@ composer() {
     if [[ -f "vendor/bin/sail" ]]; then
         ./vendor/bin/sail composer "$@"
     else
-        docker-compose exec app ${(Q)${(z)COMPOSER_COMMAND}} "$@"
+        d-compose exec app ${(Q)${(z)COMPOSER_COMMAND}} "$@"
     fi
 }
 
@@ -98,7 +98,7 @@ py-env() {
     fi
 
     # Checks if "deactivate" function is exists
-    if [[ $(declare -Ff "deactivate") ]]; then 
+    if [[ $(declare -Ff "deactivate") ]]; then
         deactivate
         echo 'Deactivaed.'
     else

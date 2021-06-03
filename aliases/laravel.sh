@@ -28,7 +28,7 @@ artisan () {
         return 0
     fi
 
-    if docker-compose ps | grep 'Exit' &> /dev/null; then
+    if d-compose ps | grep 'Exit' &> /dev/null; then
         echo "${C_RED}Docker is not running.${NC}"
 
         if [[ "$1" == "-f" || "$2" == "-f" ]]; then
@@ -40,7 +40,7 @@ artisan () {
         return 1
     fi
 
-    if [ ! -n "$(docker-compose ps -q)" ]; then
+    if [ ! -n "$(d-compose ps -q)" ]; then
         echo "${C_RED}Docker is not running.${NC}"
 
         if [[ "$1" == "-f" || "$2" == "-f" ]]; then
@@ -55,7 +55,7 @@ artisan () {
     if [[ -f "vendor/bin/sail" ]]; then
         ./vendor/bin/sail artisan "$@"
     else
-        docker-compose exec app php artisan "$@"
+        d-compose exec app php artisan "$@"
     fi
 }
 
