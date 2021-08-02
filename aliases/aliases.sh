@@ -46,55 +46,13 @@ alias rn-metro='./node_modules/react-native/scripts/launchPackager.command; exit
 alias rn-android-bundle='mkdir -p android/app/src/main/assets/ && react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res'
 alias rn-ios-bundle='react-native bundle --platform ios --dev false --entry-file index.js --bundle-output ios/main.jsbundle --assets-dest ios'
 
-composer() {
-    local COMPOSER_COMMAND="/usr/local/bin/composer"
-    if [ -f "composer.phar" ]; then
-        COMPOSER_COMMAND="php -d memory_limit=-1 composer.phar"
-    fi
-
-    if [ ! -f "docker-compose.yml" ]; then
-        eval "$COMPOSER_COMMAND $@"
-        return 0
-    fi
-
-    if d-compose ps | grep 'Exit' &> /dev/null; then
-        echo "${C_RED}Docker is not running.${NC}"
-
-        if [[ "$1" == "-f" ]]; then
-            shift 1
-            eval "$COMPOSER_COMMAND $@"
-            return 0
-        fi
-
-        return 1
-    fi
-
-    if [ ! -n "$(docker-compose ps -q)" ]; then
-        echo "${C_RED}Docker is not running.${NC}"
-
-        if [[ "$1" == "-f" ]]; then
-            shift 1
-            eval "$COMPOSER_COMMAND $@"
-            return 0
-        fi
-
-        return 1
-    fi
-
-    if [[ -f "vendor/bin/sail" ]]; then
-        ./vendor/bin/sail composer "$@"
-    else
-        d-compose exec app ${(Q)${(z)COMPOSER_COMMAND}} "$@"
-    fi
-}
-
 # Python
-alias py-run="py -m"
-alias py-server="py -m http.server"
+alias py-run="python3 -m"
+alias py-server="python3 -m http.server"
 py-env() {
     local ENV_DIRECTORY="venv"
     if [ ! -d "venv/" ]; then
-        py -m venv venv
+        python3 -m venv venv
     fi
 
     # Checks if "deactivate" function is exists
