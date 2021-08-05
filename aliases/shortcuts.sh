@@ -1,7 +1,7 @@
 # Laravel Local documentation
 # https://github.com/laratoolbox/laravel-local-documentation
 laravel-doc-update() {
-    cd ~/CodeSmh/laravel-documentation &&
+    cd ~/Projects/laravel-documentation &&
     # git pull &&
     php update.php &&
     cd ./docs

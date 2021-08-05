@@ -50,7 +50,8 @@ alias node14='docker run -it --rm --name my-running-script -v "$PWD":/usr/src/ap
 alias node16='docker run -it --rm --name my-running-script -v "$PWD":/usr/src/app -w /usr/src/app node:16'
 
 composer() {
-    local COMPOSER_COMMAND="/usr/local/bin/composer"
+    local COMPOSER_COMMAND="~/Path/composer"
+
     if [ -f "composer.phar" ]; then
         COMPOSER_COMMAND="php -d memory_limit=-1 composer.phar"
     fi

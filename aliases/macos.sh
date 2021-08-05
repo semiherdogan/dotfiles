@@ -58,8 +58,3 @@ php-server-here() {
     LOCAL_SERVER_PORT=${1:-3000}
     open http://localhost:$LOCAL_SERVER_PORT && php -S 127.0.0.1:$LOCAL_SERVER_PORT
 }
-
-# Zsh .hushlogin
-# if [[ ! -f "~/.hushlogin" ]]; then
-#     echo '' > ~/.hushlogin
-# fi

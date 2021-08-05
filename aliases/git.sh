@@ -67,11 +67,6 @@ rebase() {
     git rebase "origin/$1"
 }
 
-github-config() {
-    git config user.name "Semih ERDOGAN"
-    git config user.email "hasansemiherdogan@gmail.com"
-}
-
 revert-to-hash() {
     # Reset the index and working tree to the desired tree
     # Ensure you have no uncommitted changes that you want to keep

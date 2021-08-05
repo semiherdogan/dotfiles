@@ -11,8 +11,8 @@ source_aliases () {
     source $DOTFILES_BASE/aliases/helpers.sh
     source ~/dotfiles/scripts/bitbucket_pr.sh
 
-    if [[ -f "$DOTFILES_BASE/aliases/environment.sh" ]]; then
-        source $DOTFILES_BASE/aliases/environment.sh
+    if [[ -f "$DOTFILES_BASE/environment/bash.sh" ]]; then
+        source "$DOTFILES_BASE/environment/bash.sh"
     fi
 
     if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -35,6 +35,8 @@ alias pr="php '$DOTFILES_BASE/scripts/php/bitbucket-pull-request.php'"
 alias p="$DOTFILES_BASE/psysh --color --config '$DOTFILES_BASE/scripts/php/psysh_user.php'"
 psysh-update() {
     echo "Downloading (psysh) ..."
-    download https://psysh.org/psysh $DOTFILES_BASE
+    curl -s -o  "$DOTFILES_BASE/psysh" https://psysh.org/psysh
     chmod +x $DOTFILES_BASE/psysh
 }
+
+alias bb='php /Users/semiherdogan/Projects/bitbucket-pr/bin/bb'
