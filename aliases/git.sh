@@ -57,7 +57,7 @@ branch-create() {
 
 alias last-commit-diff='git diff HEAD@{1}'
 
-alias yolo-message='curl -s whatthecommit.com/index.txt'
+alias yolo-message='curl -sS whatthecommit.com/index.txt'
 
 merge() {
     git merge "origin/$1"

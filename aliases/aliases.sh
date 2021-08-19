@@ -20,7 +20,7 @@ alias www='cd ~/Code ; ll'
 alias desk='cd ~/Desktop'
 
 alias ips="ifconfig -a | grep -o 'inet6\? \(addr:\)\?\s\?\(\(\([0-9]\+\.\)\{3\}[0-9]\+\)\|[a-fA-F0-9:]\+\)' | awk '{ sub(/inet6? (addr:)? ?/, \"\"); print }'"
-alias curlt='curl -s -o /dev/null -w "%{time_starttransfer}\n"'
+alias curlt='curl -sS -o /dev/null -w "%{time_starttransfer}\n"'
 
 loop () {
     for i in {1..$1}
@@ -64,3 +64,5 @@ py-env() {
         echo 'Activated.'
     fi
 }
+
+alias download-composer-here='curl -sS https://getcomposer.org/installer | php'

@@ -35,8 +35,9 @@ alias pr="php '$DOTFILES_BASE/scripts/php/bitbucket-pull-request.php'"
 alias p="$DOTFILES_BASE/psysh --color --config '$DOTFILES_BASE/scripts/php/psysh_user.php'"
 psysh-update() {
     echo "Downloading (psysh) ..."
-    curl -s -o  "$DOTFILES_BASE/psysh" https://psysh.org/psysh
-    chmod +x $DOTFILES_BASE/psysh
+    curl -sS https://psysh.org/psysh > "$DOTFILES_BASE/psysh"
+    chmod +x "$DOTFILES_BASE/psysh"
+    echo "Ok";
 }
 
 alias bb='php /Users/semiherdogan/Projects/bitbucket-pr/bin/bb'
