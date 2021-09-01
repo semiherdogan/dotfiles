@@ -10,8 +10,6 @@ alias migrate:rollback='artisan migrate:rollback'
 
 alias sail='vendor/bin/sail'
 
-alias lr='laravel--delete-log-files && exit 0'
-
 # Enable autocomplete for artisan command
 if [ -x "$(command -v compdef)" ]; then
     compdef _artisan_command_list_for_autocomplete artisan
@@ -59,6 +57,7 @@ artisan () {
     fi
 }
 
+alias lr='laravel--delete-log-files'
 laravel--delete-log-files () {
     CURRENT_PATH=$(pwd)
     CURRENT_DATE=$(date '+%Y-%m-%d')

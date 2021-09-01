@@ -65,4 +65,4 @@ py-env() {
     fi
 }
 
-alias download-composer-here='curl -sS https://getcomposer.org/installer | php'
+alias composer-here='curl -sS https://getcomposer.org/installer | php'

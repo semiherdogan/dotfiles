@@ -28,7 +28,7 @@ source_aliases
 
 # Script Aliases
 alias ip="php '$DOTFILES_BASE/scripts/php/ip.php'"
-alias download="php '$DOTFILES_BASE/scripts/php/downloader.php'"
+alias php-download="php '$DOTFILES_BASE/scripts/php/downloader.php'"
 alias pr="php '$DOTFILES_BASE/scripts/php/bitbucket-pull-request.php'"
 
 # Psysh
