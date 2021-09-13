@@ -40,4 +40,4 @@ psysh-update() {
     echo "Ok";
 }
 
-alias bb='php /Users/semiherdogan/Projects/bitbucket-pr/bin/bb'
+alias bb='php /Users/semiherdogan/Projects/bb-cli/bb-cli-php/bin/bb'
