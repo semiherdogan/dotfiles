@@ -35,7 +35,7 @@ foreach ($data as $row) {
     $commitHash = trim($row[0]);
     $branchName = trim($row[1]);
 
-    $result = shell_exec("git branch -r --contains $commitHash | grep '$remoteBranchToCheck' | grep -vi 'head'");
+    $result = shell_exec("git branch -r --contains {$commitHash} | grep \"{$remoteBranchToCheck}$\" | grep -vi 'head'");
 
     $isMergedIntoBranch = trim($result) === $remoteBranchToCheck;
 
