@@ -30,24 +30,25 @@ alias d-redis='d-compose exec cache redis-cli'
 alias d-redis-flushall='d-compose exec cache redis-cli flushall'
 
 # Php versions
-alias php71='docker run --rm -v $(pwd):/app -w /app php:7.1'
-alias php72='docker run --rm -v $(pwd):/app -w /app php:7.2'
-alias php73='docker run --rm -v $(pwd):/app -w /app php:7.3'
-alias php74='docker run --rm -v $(pwd):/app -w /app php:7.4'
-alias php80='docker run --rm -v $(pwd):/app -w /app php:8.0'
+alias d-php71='docker run --rm -v $(pwd):/app -w /app php:7.1'
+alias d-php72='docker run --rm -v $(pwd):/app -w /app php:7.2'
+alias d-php73='docker run --rm -v $(pwd):/app -w /app php:7.3'
+alias d-php74='docker run --rm -v $(pwd):/app -w /app php:7.4'
+alias d-php80='docker run --rm -v $(pwd):/app -w /app php:8.0'
 
 # Composer with php versions
-alias composer-71='docker run --rm --volume $(pwd):/app prooph/composer:7.1'
-alias composer-72='docker run --rm --volume $(pwd):/app prooph/composer:7.2'
-alias composer-73='docker run --rm --volume $(pwd):/app prooph/composer:7.3'
-alias composer-74='docker run --rm --volume $(pwd):/opt -w /opt laravelsail/php74-composer:latest composer'
-alias composer-80='docker run --rm --volume $(pwd):/opt -w /opt laravelsail/php80-composer:latest composer'
+alias d-composer71='docker run --rm --volume $(pwd):/app prooph/composer:7.1'
+alias d-composer72='docker run --rm --volume $(pwd):/app prooph/composer:7.2'
+alias d-composer73='docker run --rm --volume $(pwd):/app prooph/composer:7.3'
+alias d-composer74='docker run --rm --volume $(pwd):/opt -w /opt laravelsail/php74-composer:latest composer'
+alias d-composer80='docker run --rm --volume $(pwd):/opt -w /opt laravelsail/php80-composer:latest composer'
 
 # Nodejs
-alias node='node12'
-alias node12='docker run -it --rm --name my-running-script -v "$PWD":/usr/src/app -w /usr/src/app node:12'
-alias node14='docker run -it --rm --name my-running-script -v "$PWD":/usr/src/app -w /usr/src/app node:14'
-alias node16='docker run -it --rm --name my-running-script -v "$PWD":/usr/src/app -w /usr/src/app node:16'
+# alias node='node12'
+alias d-node10='docker run -it --rm --name my-running-script -v "$PWD":/usr/src/app -w /usr/src/app node:10'
+alias d-node12='docker run -it --rm --name my-running-script -v "$PWD":/usr/src/app -w /usr/src/app node:12'
+alias d-node14='docker run -it --rm --name my-running-script -v "$PWD":/usr/src/app -w /usr/src/app node:14'
+alias d-node16='docker run -it --rm --name my-running-script -v "$PWD":/usr/src/app -w /usr/src/app node:16'
 
 composer() {
     local COMPOSER_COMMAND="~/Path/composer"
