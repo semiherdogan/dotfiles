@@ -44,7 +44,6 @@ alias d-composer74='docker run --rm --volume $(pwd):/opt -w /opt laravelsail/php
 alias d-composer80='docker run --rm --volume $(pwd):/opt -w /opt laravelsail/php80-composer:latest composer'
 
 # Nodejs
-# alias node='node12'
 alias d-node10='docker run -it --rm --name my-running-script -v "$PWD":/usr/src/app -w /usr/src/app node:10'
 alias d-node12='docker run -it --rm --name my-running-script -v "$PWD":/usr/src/app -w /usr/src/app node:12'
 alias d-node14='docker run -it --rm --name my-running-script -v "$PWD":/usr/src/app -w /usr/src/app node:14'
