@@ -37,9 +37,6 @@ port-check() {
     lsof -nP -iTCP:$1 | grep LISTEN
 }
 
-# Npm
-alias nr='npm run'
-
 # React native
 alias rn='npx react-native'
 alias rn-metro='./node_modules/react-native/scripts/launchPackager.command; exit'
@@ -66,3 +63,5 @@ py-env() {
 }
 
 alias composer-here='curl -sS https://getcomposer.org/installer | php'
+
+alias yolo-message='curl -sS whatthecommit.com/index.txt'

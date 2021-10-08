@@ -6,7 +6,7 @@
 scratch.md
 supervisord.log
 supervisord.pid
-vendor2/
 docker-compose.override.yml
 ray.php
 .tinkerwell
+.php-cs-fixer.cache

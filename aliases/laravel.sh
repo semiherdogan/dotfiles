@@ -12,26 +12,26 @@ alias sail='vendor/bin/sail'
 
 # Enable autocomplete for artisan command
 if [ -x "$(command -v compdef)" ]; then
-    compdef _artisan_command_list_for_autocomplete artisan
-
     _artisan_command_list_for_autocomplete() {
         # local artisanCommandList=$(artisan list --format=json | jq -r '.commands[] .name')
-        _arguments '1: :(tinker cache:clear migrate horizon:terminate telescope:clear)'
+        _arguments '1: :(tinker cache:clear migrate horizon:terminate telescope:clear route:list)'
     }
+
+    compdef _artisan_command_list_for_autocomplete artisan
 fi
 
 artisan () {
     if [ ! -f "docker-compose.yml" ]; then
-        php artisan "$@"
+        php -d="memory_limit=-1" artisan "$@"
         return 0
     fi
 
     if d-compose ps | grep 'Exit' &> /dev/null; then
         echo "${C_RED}Docker is not running.${NC}"
 
-        if [[ "$1" == "-f" || "$2" == "-f" ]]; then
+        if [[ "$1" == "-f" ]]; then
             shift 1
-            php artisan "$@"
+            php -d="memory_limit=-1" artisan "$@"
             return 0
         fi
 
@@ -41,9 +41,9 @@ artisan () {
     if [ ! -n "$(d-compose ps -q)" ]; then
         echo "${C_RED}Docker is not running.${NC}"
 
-        if [[ "$1" == "-f" || "$2" == "-f" ]]; then
+        if [[ "$1" == "-f" ]]; then
             shift 1
-            php artisan "$@"
+            php -d="memory_limit=-1" artisan "$@"
             return 0
         fi
 
@@ -53,7 +53,7 @@ artisan () {
     if [[ -f "vendor/bin/sail" ]]; then
         ./vendor/bin/sail artisan "$@"
     else
-        d-compose exec app php artisan "$@"
+        d-compose exec app php -d="memory_limit=-1" artisan "$@"
     fi
 }
 

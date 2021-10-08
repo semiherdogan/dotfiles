@@ -11,7 +11,7 @@ php--check-syntax(){
 alias pwd-clipboard='pwd && pwd | pbcopy'
 alias json-beautify='pbpaste | jq "."'
 alias json-beautify-to-clipboard='json-beautify && json-beautify | pbcopy'
-alias timestamp='echo $(date +%s) && echo -n $(date +%s) | pbcopy && echo "Copied."'
+alias unixtime='echo $(date +%s) && echo -n $(date +%s) | pbcopy && echo "Copied."'
 
 alias shrug="echo '¯\_(ツ)_/¯' && echo '¯\_(ツ)_/¯' | pbcopy";
 
