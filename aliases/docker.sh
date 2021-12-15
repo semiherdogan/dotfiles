@@ -12,8 +12,13 @@ d-compose () {
 
     if [ -f "docker-compose.override.yml" ]; then
         DOCKER_COMPOSE_FILE='docker-compose.override.yml'
-    elif [ -f "docker-compose-dev.yml" ]; then
-        DOCKER_COMPOSE_FILE='docker-compose-dev.yml'
+    elif [ -f "docker-compose.dev.yml" ]; then
+        DOCKER_COMPOSE_FILE='docker-compose.dev.yml'
+    fi
+
+    if [[ "$1" == "--show" ]]; then
+        shift 1
+        echo "File: $DOCKER_COMPOSE_FILE"
     fi
 
     docker compose -f "$DOCKER_COMPOSE_FILE" "$@"

@@ -26,13 +26,15 @@ source_aliases () {
 
 source_aliases
 
+alias reload="exec ${SHELL} -l"
+
 # Script Aliases
 alias ip="php '$DOTFILES_BASE/scripts/php/ip.php'"
 alias php-download="php '$DOTFILES_BASE/scripts/php/downloader.php'"
 alias pr="php '$DOTFILES_BASE/scripts/php/bitbucket-pull-request.php'"
 
 # Psysh
-alias p="$DOTFILES_BASE/psysh --color --config '$DOTFILES_BASE/scripts/php/psysh_user.php'"
+alias p="$DOTFILES_BASE/psysh --color --cwd $(pwd) --config '$DOTFILES_BASE/scripts/php/psysh_user.php'"
 psysh-update() {
     echo "Downloading (psysh) ..."
     curl -sS https://psysh.org/psysh > "$DOTFILES_BASE/psysh"

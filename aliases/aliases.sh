@@ -46,10 +46,21 @@ alias rn-ios-bundle='react-native bundle --platform ios --dev false --entry-file
 # Python
 alias py-run="python3 -m"
 alias py-server="python3 -m http.server"
+
+py() {
+    if [[ "$(which python3)" == "$(pwd)/venv/bin/python3" ]]; then
+        echo "venv active"
+        $(pwd)/venv/bin/python3 $@
+    else
+        echo "no venv"
+        /usr/bin/python3 $@
+    fi
+}
+
 py-env() {
     local ENV_DIRECTORY="venv"
-    if [ ! -d "venv/" ]; then
-        python3 -m venv venv
+    if [ ! -d "$ENV_DIRECTORY/" ]; then
+        python3 -m venv $ENV_DIRECTORY
     fi
 
     # Checks if "deactivate" function is exists
@@ -57,8 +68,13 @@ py-env() {
         deactivate
         echo 'Deactivaed.'
     else
-        source venv/Scripts/activate
-        echo 'Activated.'
+        if test -f "venv/Scripts/activate"; then
+            source venv/Scripts/activate
+            echo 'Activated. (venv/Scripts/activate)'
+        elif test -f "venv/bin/activate"; then
+            source venv/bin/activate
+            echo 'Activated. (venv/bin/activate)'
+        fi
     fi
 }
 
