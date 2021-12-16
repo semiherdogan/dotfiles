@@ -81,3 +81,6 @@ py-env() {
 alias composer-here='curl -sS https://getcomposer.org/installer | php'
 
 alias yolo-message='curl -sS whatthecommit.com/index.txt'
+
+alias reload="exec ${SHELL} -l"
+alias localip="ipconfig getifaddr en0"

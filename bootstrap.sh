@@ -26,8 +26,6 @@ source_aliases () {
 
 source_aliases
 
-alias reload="exec ${SHELL} -l"
-
 # Script Aliases
 alias ip="php '$DOTFILES_BASE/scripts/php/ip.php'"
 alias php-download="php '$DOTFILES_BASE/scripts/php/downloader.php'"
