@@ -1,13 +1,15 @@
 ##
+#
 # Git Aliases
+#
 ##
 
 alias g='git'
 alias nah='git reset --hard && git clean -df'
-
 alias pull='git pull'
 alias push='git push'
 alias status='git status'
+alias ss='echo "Current branch: $(git branch --show-current)" && echo "Status: " && git status -s'
 alias fetch='git fetch'
 alias stash='git stash --include-untracked'
 alias stash-list='git stash list'

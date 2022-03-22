@@ -76,14 +76,17 @@ if (!function_exists('frequency')) {
 }
 
 if (!function_exists('generate_password')) {
-    function generate_password($length = 16)
+    function generate_password($length = 16, $addSpecialCharacters = true)
     {
         $charsets = [
             '98765432',
             'ASDFGHJKLZXCVBNMQWERTYUP',
             'asdfghijkzxcvbnmqwertyup',
-            '-+%&?!()=',
         ];
+
+        if ($addSpecialCharacters) {
+            $charsets[] = '-+%&?!()=';
+        }
 
         $result = '';
 
@@ -116,7 +119,7 @@ if (!function_exists('rgb_to_hex')) {
 
         $rgb = trim($rgb);
 
-        $characters = [',', ' '];
+        $characters = [',', ' ', "\t"];
 
         foreach ($characters as $character) {
             if (strpos($rgb, $character) !== false) {

@@ -17,6 +17,8 @@ alias shrug="echo '¯\_(ツ)_/¯' && echo '¯\_(ツ)_/¯' | pbcopy";
 
 alias audio-kill='sudo pkill coreaudiod'
 
+alias clipboard-to-base64='pbpaste | base64 | pbcopy'
+
 o() {
     if [ $# -eq 0 ]; then
         open .
