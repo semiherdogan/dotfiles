@@ -5,7 +5,7 @@
 alias remove--ds_store="find . -type f -name '*.DS_Store' -ls -delete"
 
 php--check-syntax(){
-    find ${1:-.} -iname '*.php' -exec php -l '{}' \; | grep '^No syntax errors' -v
+    find ${1:-.} -iname '*.php' -exec php -l '{}' \; | grep '^No syntax errors' -v
 }
 
 alias pwd-clipboard='pwd && pwd | pbcopy'
@@ -17,7 +17,8 @@ alias shrug="echo '¯\_(ツ)_/¯' && echo '¯\_(ツ)_/¯' | pbcopy";
 
 alias audio-kill='sudo pkill coreaudiod'
 
-alias clipboard-to-base64='pbpaste | base64 | pbcopy'
+alias clipboard-base64-encode='pbpaste | base64 | pbcopy && pbpaste && echo "Copied."'
+alias base64-decode='pbpaste | base64 -d'
 
 o() {
     if [ $# -eq 0 ]; then

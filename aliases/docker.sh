@@ -8,12 +8,16 @@ alias d-stop='docker stop $(docker ps -q)'
 
 # Docker Compose
 d-compose () {
-    local DOCKER_COMPOSE_FILE='docker-compose.yml'
-
+    local DOCKER_COMPOSE_FILE=''
+    
     if [ -f "docker-compose.override.yml" ]; then
         DOCKER_COMPOSE_FILE='docker-compose.override.yml'
     elif [ -f "docker-compose.dev.yml" ]; then
         DOCKER_COMPOSE_FILE='docker-compose.dev.yml'
+    elif [ -f "docker-compose.yml" ]; then
+        DOCKER_COMPOSE_FILE='docker-compose.yml'
+    elif [ -f "docker-compose.test.yml" ]; then
+        DOCKER_COMPOSE_FILE='docker-compose.test.yml'
     fi
 
     if [[ "$1" == "--show" ]]; then

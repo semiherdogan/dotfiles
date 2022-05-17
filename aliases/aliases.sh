@@ -52,8 +52,7 @@ py() {
         echo "venv active"
         $(pwd)/venv/bin/python3 $@
     else
-        echo "no venv"
-        /usr/bin/python3 $@
+        python3 $@
     fi
 }
 
