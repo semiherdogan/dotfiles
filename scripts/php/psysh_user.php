@@ -131,3 +131,21 @@ if (!function_exists('rgb_to_hex')) {
         echo sprintf("#%02x%02x%02x\n", ...$rgb);
     }
 }
+
+if (!function_exists('listenClipboard')) {
+    function listenClipboard() {
+        $prev = '';
+
+        while (true) {
+            $current = trim(exec('pbpaste'));
+
+            if ($prev != $current) {
+                echo $current.PHP_EOL;
+
+                $prev = $current;
+            }
+
+            usleep( 300 * 1000 ); // 300 miliseconds
+        }
+    }
+}
