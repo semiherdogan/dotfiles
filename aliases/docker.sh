@@ -9,7 +9,7 @@ alias d-stop='docker stop $(docker ps -q)'
 # Docker Compose
 d-compose () {
     local DOCKER_COMPOSE_FILE=''
-    
+
     if [ -f "docker-compose.override.yml" ]; then
         DOCKER_COMPOSE_FILE='docker-compose.override.yml'
     elif [ -f "docker-compose.dev.yml" ]; then
@@ -99,4 +99,28 @@ composer() {
     else
         d-compose exec app ${(Q)${(z)COMPOSER_COMMAND}} "$@"
     fi
+}
+
+red() {
+    docker run --rm -it --platform=linux/386 \
+        -v red-console:/root/.red \
+        -v "$HOME/Projects/custom-red-language-scripts":/var/scripts \
+        -e CLIP="$(pbpaste)" \
+        -e INIT="/var/scripts/init.red" \
+        hasansemih/red
+}
+
+red-with-folder() {
+    docker run --rm -it --platform=linux/386 \
+        -v red-console:/root/.red \
+        -v "$HOME/Projects/custom-red-language-scripts":/var/scripts \
+        -v "${PWD}":/var/app \
+        -e CLIP="$(pbpaste)" \
+        -e INIT="/var/scripts/init.red" \
+        hasansemih/red
+}
+
+red-desk() {
+    cd ~/Desktop/red
+    red-with-folder
 }
