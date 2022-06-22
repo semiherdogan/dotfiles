@@ -83,3 +83,23 @@ alias yolo-message='curl -sS whatthecommit.com/index.txt'
 
 alias reload="exec ${SHELL} -l"
 alias localip="ipconfig getifaddr en0"
+
+
+fuel() {
+    local _WEBSITE=https://www.petrolofisi.com.tr/akaryakit-fiyatlari/istanbul-akaryakit-fiyatlari
+    echo $_WEBSITE
+
+    local _DATA=$(curl -s $_WEBSITE)
+
+    local _print() {
+        echo $_DATA | htmlq "#fuelPricesTableDesktop th:nth-child($1)" --text | xargs
+        echo $_DATA | htmlq "#fuelPricesTableDesktop tbody tr:nth-child(1) .data-cell:nth-child($2)" --text | xargs
+        echo ""
+    }
+
+    _print 1 1
+    _print 2 2
+    _print 3 3
+    _print 4 4
+    _print 5 5
+}
