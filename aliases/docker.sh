@@ -34,6 +34,8 @@ alias d-bash='d-compose exec app bash'
 alias d-php='d-compose exec app php'
 alias d-test='d-compose exec app ./vendor/bin/phpunit'
 
+alias d-exec='d-compose exec app'
+
 # Docker redis
 alias d-redis='d-compose exec cache redis-cli'
 alias d-redis-flushall='d-compose exec cache redis-cli flushall'
