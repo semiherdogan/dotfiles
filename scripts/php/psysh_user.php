@@ -63,20 +63,20 @@ if (!function_exists('each')) {
     }
 }
 
-if (!function_exists('frequency')) {
-    function frequency(array $data) : array
-    {
-        $result = [];
-        foreach ($data as $value) {
-            $result[$value] = isset($result[$value]) ? $result[$value] + 1 : 1;
+if (!function_exists('bcrypt')) {
+    function bcrypt($pass, $return = false) {
+        $pass = password_hash($pass,  PASSWORD_BCRYPT);
+
+        if ($return) {
+            return $pass;
         }
 
-        return $result;
+        echo $pass.PHP_EOL;
     }
 }
 
 if (!function_exists('generate_password')) {
-    function generate_password($length = 16, $addSpecialCharacters = true)
+    function generate_password($length = 16, $addSpecialCharacters = true, $return = false)
     {
         $charsets = [
             '98765432',
@@ -104,48 +104,19 @@ if (!function_exists('generate_password')) {
             $result .= substr($allCharacters, rand(0, strlen($allCharacters) - 1), 1);
         }
 
-        return $result;
+        if ($return) {
+            return $result;
+        }
+
+        echo $result.PHP_EOL;
     }
 }
 
-if (!function_exists('rgb_to_hex')) {
-    function rgb_to_hex() {
-        $rgb = read_clipboard();
+if (!function_exists('generate_password_with_hash')) {
+    function generate_password_with_hash($length = 16, $addSpecialCharacters = true) {
+        $pass = generate_password($length, $addSpecialCharacters, $return = true);
 
-        $remove = ['rgb', '(', ')'];
-        foreach ($remove as $r) {
-            $rgb = str_replace($r, '', $rgb);
-        }
-
-        $rgb = trim($rgb);
-
-        $characters = [',', ' ', "\t"];
-
-        foreach ($characters as $character) {
-            if (strpos($rgb, $character) !== false) {
-                $rgb = explode($character, $rgb);
-                break;
-            }
-        }
-
-        echo sprintf("#%02x%02x%02x\n", ...$rgb);
-    }
-}
-
-if (!function_exists('listenClipboard')) {
-    function listenClipboard() {
-        $prev = '';
-
-        while (true) {
-            $current = trim(exec('pbpaste'));
-
-            if ($prev != $current) {
-                echo $current.PHP_EOL;
-
-                $prev = $current;
-            }
-
-            usleep( 300 * 1000 ); // 300 miliseconds
-        }
+        echo $pass.PHP_EOL;
+        echo bcrypt($pass, true).PHP_EOL.PHP_EOL;
     }
 }
