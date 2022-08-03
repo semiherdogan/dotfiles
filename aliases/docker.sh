@@ -30,15 +30,15 @@ d-compose () {
 
 alias dc='d-compose'
 alias dcup='d-compose up -d'
-alias d-bash='d-compose exec app bash'
-alias d-php='d-compose exec app php'
-alias d-test='d-compose exec app ./vendor/bin/phpunit'
-
-alias d-exec='d-compose exec app'
+alias d-exec='d-compose exec'
+alias d-app='d-exec app'
+alias d-bash='d-app bash'
+alias d-php='d-app php'
+alias d-test='d-app app ./vendor/bin/phpunit'
 
 # Docker redis
-alias d-redis='d-compose exec cache redis-cli'
-alias d-redis-flushall='d-compose exec cache redis-cli flushall'
+alias d-redis='d-exec cache redis-cli'
+alias d-redis-flushall='d-exec cache redis-cli flushall'
 
 # Php versions
 alias d-php71='docker run --rm -v $(pwd):/app -w /app php:7.1'
@@ -107,16 +107,6 @@ red() {
     docker run --rm -it --platform=linux/386 \
         -v red-console:/root/.red \
         -v "$HOME/Projects/custom-red-language-scripts":/var/scripts \
-        -e CLIP="$(pbpaste)" \
-        -e INIT="/var/scripts/init.red" \
-        hasansemih/red
-}
-
-red-with-folder() {
-    docker run --rm -it --platform=linux/386 \
-        -v red-console:/root/.red \
-        -v "$HOME/Projects/custom-red-language-scripts":/var/scripts \
-        -v "${PWD}":/var/app \
         -e CLIP="$(pbpaste)" \
         -e INIT="/var/scripts/init.red" \
         hasansemih/red

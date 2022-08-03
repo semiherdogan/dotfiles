@@ -59,6 +59,7 @@ py() {
 py-env() {
     local ENV_DIRECTORY="venv"
     if [ ! -d "$ENV_DIRECTORY/" ]; then
+        echo "Creating enviroment.."
         python3 -m venv $ENV_DIRECTORY
     fi
 
