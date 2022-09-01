@@ -53,7 +53,7 @@ github-open() {
         awk '{print $2}' |
         sed 's/git@/https:\/\//' |
         sed 's/com:/com\//' |
-        sed 's/\.git//'
+        sed 's/\.git$//'
     `
 }
 

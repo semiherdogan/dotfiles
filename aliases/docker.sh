@@ -111,8 +111,3 @@ red() {
         -e INIT="/var/scripts/init.red" \
         hasansemih/red
 }
-
-red-desk() {
-    cd ~/Desktop/red
-    red-with-folder
-}

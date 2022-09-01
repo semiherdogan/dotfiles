@@ -78,13 +78,13 @@ py-env() {
     fi
 }
 
-alias composer-here='curl -sS https://getcomposer.org/installer | php'
+alias composer-here-latest='curl -sS https://getcomposer.org/installer | php'
+alias composer-here-1='wget https://github.com/composer/composer/releases/download/1.9.2/composer.phar'
 
 alias yolo-message='curl -sS whatthecommit.com/index.txt'
 
 alias reload="exec ${SHELL} -l"
 alias localip="ipconfig getifaddr en0"
-
 
 fuel() {
     local _WEBSITE=https://www.petrolofisi.com.tr/akaryakit-fiyatlari/istanbul-akaryakit-fiyatlari

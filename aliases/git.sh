@@ -20,6 +20,11 @@ alias checkout='git checkout'
 alias switch='git switch'
 alias restore='git restore'
 alias revert-file-to-previous='git checkout HEAD^'
+alias amend='git commit --amend'
+clone() {
+    # clone https://github... main
+    git clone --branch "$2" "$1"
+}
 
 alias dev='git switch dev && git pull'
 alias testb='git switch test && git pull'
