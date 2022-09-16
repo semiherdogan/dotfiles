@@ -21,8 +21,13 @@ alias switch='git switch'
 alias restore='git restore'
 alias revert-file-to-previous='git checkout HEAD^'
 alias amend='git commit --amend'
+
 clone() {
-    # clone https://github... main
+    if [[ "$2" == "" ]]; then
+        git clone "$1"
+        return
+    fi
+
     git clone --branch "$2" "$1"
 }
 

@@ -104,3 +104,5 @@ fuel() {
     _print 4 4
     _print 5 5
 }
+
+alias dt='deno task'

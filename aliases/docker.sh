@@ -14,6 +14,8 @@ d-compose () {
         DOCKER_COMPOSE_FILE='docker-compose.override.yml'
     elif [ -f "docker-compose.dev.yml" ]; then
         DOCKER_COMPOSE_FILE='docker-compose.dev.yml'
+    elif [ -f "docker-compose-local.yml" ]; then
+        DOCKER_COMPOSE_FILE='docker-compose-local.yml'
     elif [ -f "docker-compose.yml" ]; then
         DOCKER_COMPOSE_FILE='docker-compose.yml'
     elif [ -f "docker-compose.test.yml" ]; then
