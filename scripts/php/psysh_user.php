@@ -120,3 +120,9 @@ if (!function_exists('generate_password_with_hash')) {
         echo bcrypt($pass, true).PHP_EOL.PHP_EOL;
     }
 }
+
+if (!function_exists('parse_date')) {
+    function parse_date($date) {
+        echo date('Y-m-d H:i:s', $date);
+    }
+}
