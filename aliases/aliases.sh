@@ -79,7 +79,7 @@ py-env() {
 }
 
 alias composer-here-latest='curl -sS https://getcomposer.org/installer | php'
-alias composer-here-1='wget https://github.com/composer/composer/releases/download/1.9.2/composer.phar'
+alias composer-here-1='wget https://github.com/composer/composer/releases/download/1.10.26/composer.phar'
 
 alias yolo-message='curl -sS whatthecommit.com/index.txt'
 
