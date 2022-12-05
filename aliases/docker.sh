@@ -35,7 +35,7 @@ alias dcup='d-compose up -d'
 alias d-exec='d-compose exec'
 alias d-app='d-exec app'
 alias d-bash='d-app bash'
-alias d-php='d-app php'
+alias d-php='d-app php -d "memory_limit = -1"'
 alias d-test='d-app app ./vendor/bin/phpunit'
 
 # Docker redis

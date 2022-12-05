@@ -52,7 +52,7 @@ py() {
         echo "venv active"
         $(pwd)/venv/bin/python3 $@
     else
-        python3 $@
+        /opt/homebrew/bin/python3 $@
     fi
 }
 
@@ -60,7 +60,7 @@ py-env() {
     local ENV_DIRECTORY="venv"
     if [ ! -d "$ENV_DIRECTORY/" ]; then
         echo "Creating enviroment.."
-        python3 -m venv $ENV_DIRECTORY
+        virtualenv $ENV_DIRECTORY
     fi
 
     # Checks if "deactivate" function is exists

@@ -25,7 +25,8 @@
     p = pull
     h = push
     co = checkout
-    l = log --decorate --graph
+    l = log --pretty='%C(yellow)%h %C(cyan)%cd %Cblue%aN%C(auto)%d %Creset%s' --date=relative --date-order
+    # l = !git log --pretty="%C(Yellow)%h  %C(reset)%ad (%C(Green)%cr%C(reset))%x09 %C(Cyan)%an: %C(reset)%s" --date=short
     b = !sh -c 'git -P branch -a'
     wip =  commit -am 'wip'
     aliases = !sh -c 'git config -l | grep alias | cut -c 7-'
