@@ -93,16 +93,12 @@ fuel() {
     local _DATA=$(curl -s $_WEBSITE)
 
     local _print() {
-        echo $_DATA | htmlq "#fuelPricesTableDesktop th:nth-child($1)" --text | xargs
-        echo $_DATA | htmlq "#fuelPricesTableDesktop tbody tr:nth-child(1) .data-cell:nth-child($2)" --text | xargs
+        echo $_DATA | htmlq ".fuel-items .table-prices thead th:nth-child($1)" --text
+        echo $_DATA | htmlq ".fuel-items .table-prices tbody tr:nth-child(1) td:nth-child($1)" --text
         echo ""
     }
 
-    _print 1 1
-    _print 2 2
-    _print 3 3
-    _print 4 4
-    _print 5 5
+    loop 5 '_print $i'
 }
 
 alias dt='deno task'
