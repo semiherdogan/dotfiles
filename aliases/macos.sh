@@ -5,7 +5,9 @@
 alias remove--ds_store="find . -type f -name '*.DS_Store' -ls -delete"
 
 php--check-syntax(){
-    find ${1:-.} -iname '*.php' -exec php -l '{}' \; | grep '^No syntax errors' -v
+    find ${1:-.} -iname '*.php' -not -path './vendor/*' -not -path './node_modules/*'\
+        -exec php -l '{}' \; \
+        | grep '^No syntax errors' -v
 }
 
 alias pwd-clipboard='pwd && pwd | pbcopy'
