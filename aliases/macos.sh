@@ -63,3 +63,16 @@ php-server-here() {
     LOCAL_SERVER_PORT=${1:-3000}
     open http://localhost:$LOCAL_SERVER_PORT && php -S 127.0.0.1:$LOCAL_SERVER_PORT
 }
+
+text-diff() {
+    echo "Copy first text into clipboard and hit enter!"
+    read first
+    pbpaste > /tmp/cliboard1.txt
+
+    echo "Copy second text into clipboard and hit enter!"
+    read second
+    pbpaste > /tmp/cliboard2.txt
+
+    echo ""
+    /usr/bin/diff /tmp/cliboard1.txt /tmp/cliboard2.txt | bat
+}
