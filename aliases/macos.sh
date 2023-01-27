@@ -78,7 +78,7 @@ text-diff() {
 }
 
 github-search() {
-    gh s "$1" | xargs -n1 gh browse -R
+    gh s "$@" | xargs -n1 gh browse -R
 }
 
 generate-passwords() {
