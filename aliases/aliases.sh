@@ -18,6 +18,7 @@ alias sudo='sudo '
 # Folders
 alias www='cd ~/Code ; ll'
 alias desk='cd ~/Desktop'
+alias k='cd ~/Desktop'
 
 alias ips="ifconfig -a | grep -o 'inet6\? \(addr:\)\?\s\?\(\(\([0-9]\+\.\)\{3\}[0-9]\+\)\|[a-fA-F0-9:]\+\)' | awk '{ sub(/inet6? (addr:)? ?/, \"\"); print }'"
 alias curlt='curl -sS -o /dev/null -w "%{time_starttransfer}\n"'

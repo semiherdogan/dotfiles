@@ -76,3 +76,13 @@ text-diff() {
     echo ""
     /usr/bin/diff /tmp/cliboard1.txt /tmp/cliboard2.txt | bat
 }
+
+github-search() {
+    gh s "$1" | xargs -n1 gh browse -R
+}
+
+generate-passwords() {
+    for i in $( pbpaste ); do 
+        pwgen -s -1 ${1:-15} "${@:2}" | sed "s/^/$i /"; 
+    done
+}
