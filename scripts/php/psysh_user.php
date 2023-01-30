@@ -28,7 +28,7 @@ if (!function_exists('f')) {
 if (!function_exists('read_clipboard')) {
     function read_clipboard()
     {
-        return shell_exec('cp --paste0');
+        return shell_exec('cb --paste0');
     }
 }
 

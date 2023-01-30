@@ -11,7 +11,7 @@ php--check-syntax(){
 }
 
 alias pwd-clipboard='pwd && pwd | cb --copy0'
-alias json-beautify='cp --paste0 | jq "."'
+alias json-beautify='cb --paste0 | jq "."'
 alias json-beautify-to-clipboard='json-beautify && json-beautify | cb --copy0'
 alias unixtime='echo $(date +%s) && echo -n $(date +%s) | cb --copy0 && echo "Copied."'
 
@@ -19,8 +19,8 @@ alias shrug="echo '¯\_(ツ)_/¯' && echo '¯\_(ツ)_/¯' | cb --copy0";
 
 alias audio-kill='sudo pkill coreaudiod'
 
-alias clipboard-base64-encode='cp --paste0 | base64 | cb --copy0 && cp show0 && echo "Copied."'
-alias base64-decode='cp --paste0 | base64 -d'
+alias clipboard-base64-encode='cb --paste0 | base64 | cb --copy0 && cb show0 && echo "Copied."'
+alias base64-decode='cb --paste0 | base64 -d'
 
 o() {
     if [ $# -eq 0 ]; then
