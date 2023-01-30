@@ -109,7 +109,7 @@ red() {
     docker run --rm -it --platform=linux/386 \
         -v red-console:/root/.red \
         -v "$HOME/Projects/custom-red-language-scripts":/var/scripts \
-        -e CLIP="$(pbpaste)" \
+        -e CLIP="$(cp --paste0)" \
         -e INIT="/var/scripts/init.red" \
         hasansemih/red
 }

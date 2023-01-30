@@ -28,7 +28,7 @@ if (!function_exists('f')) {
 if (!function_exists('read_clipboard')) {
     function read_clipboard()
     {
-        return shell_exec('pbpaste');
+        return shell_exec('cp --paste0');
     }
 }
 
@@ -39,7 +39,7 @@ if (!function_exists('write_clipboard')) {
             $data = implode($arrayGlue, $data);
         }
 
-        exec(sprintf("echo %s | pbcopy", escapeshellarg($data)));
+        exec(sprintf("echo %s | cb --copy0", escapeshellarg($data)));
 
         return $data;
     }
