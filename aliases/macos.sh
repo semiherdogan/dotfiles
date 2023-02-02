@@ -19,8 +19,8 @@ alias shrug="echo '¯\_(ツ)_/¯' && echo '¯\_(ツ)_/¯' | cb --copy0";
 
 alias audio-kill='sudo pkill coreaudiod'
 
-alias clipboard-base64-encode='cb --paste0 | base64 | cb --copy0 && cb show0 && echo "Copied."'
-alias base64-decode='cb --paste0 | base64 -d'
+alias clipboard-base64-encode='cb --paste0 | base64 |xargs echo | cb --copy0 && cb --show0 && echo "Copied."'
+alias base64-decode='cb --paste0 | base64 --decode'
 
 o() {
     if [ $# -eq 0 ]; then
