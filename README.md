@@ -26,3 +26,5 @@ source ~/dotfiles/bootstrap.sh
 - [diff-so-fancy](https://github.com/so-fancy/diff-so-fancy)
 - [psysh - php repl](https://psysh.org/)
 - [merged-branches](https://github.com/semiherdogan/merged-branches)
+- [httpstat](https://github.com/davecheney/httpstat)
+- [htmlq](https://github.com/mgdm/htmlq)
