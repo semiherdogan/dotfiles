@@ -10,17 +10,17 @@ php--check-syntax(){
         | grep '^No syntax errors' -v
 }
 
-alias pwd-clipboard='pwd && pwd | cb --copy0'
-alias json-beautify='cb --paste0 | jq "."'
-alias json-beautify-to-clipboard='json-beautify && json-beautify | cb --copy0'
-alias unixtime='echo $(date +%s) && echo -n $(date +%s) | cb --copy0 && echo "Copied."'
+alias pwd-clipboard='pwd && pwd | pbcopy'
+alias json-beautify='pbpaste | jq "."'
+alias json-beautify-to-clipboard='json-beautify && json-beautify | pbcopy'
+alias unixtime='echo $(date +%s) && echo -n $(date +%s) | pbcopy && echo "Copied."'
 
-alias shrug="echo '¯\_(ツ)_/¯' && echo '¯\_(ツ)_/¯' | cb --copy0";
+alias shrug="echo '¯\_(ツ)_/¯' && echo '¯\_(ツ)_/¯' | pbcopy";
 
 alias audio-kill='sudo pkill coreaudiod'
 
-alias clipboard-base64-encode='cb --paste0 | base64 |xargs echo | cb --copy0 && cb --show0 && echo "Copied."'
-alias base64-decode='cb --paste0 | base64 --decode'
+alias clipboard-base64-encode='pbpaste | base64 |xargs echo | pbcopy && pbpaste && echo "Copied."'
+alias base64-decode='pbpaste | base64 --decode'
 
 o() {
     if [ $# -eq 0 ]; then
@@ -67,11 +67,11 @@ php-server-here() {
 text-diff() {
     echo "Copy first text into clipboard and hit enter!"
     read first
-    cb --paste0 > /tmp/cliboard1.txt
+    pbpaste > /tmp/cliboard1.txt
 
     echo "Copy second text into clipboard and hit enter!"
     read second
-    cb --paste0 > /tmp/cliboard2.txt
+    pbpaste > /tmp/cliboard2.txt
 
     echo ""
     /usr/bin/diff /tmp/cliboard1.txt /tmp/cliboard2.txt | bat
@@ -82,7 +82,7 @@ github-search() {
 }
 
 generate-passwords() {
-    for i in $( cb --paste0 ); do 
+    for i in $( pbpaste ); do 
         pwgen -s -1 ${1:-15} "${@:2}" | sed "s/^/$i /"; 
     done
 }
