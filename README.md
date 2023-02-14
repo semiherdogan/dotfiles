@@ -28,3 +28,6 @@ source ~/dotfiles/bootstrap.sh
 - [merged-branches](https://github.com/semiherdogan/merged-branches)
 - [httpstat](https://github.com/davecheney/httpstat)
 - [htmlq](https://github.com/mgdm/htmlq)
+
+# apps
+- [OpenInTerminal](https://github.com/Ji4n1ng/OpenInTerminal)

@@ -86,3 +86,7 @@ generate-passwords() {
         pwgen -s -1 ${1:-15} "${@:2}" | sed "s/^/$i /"; 
     done
 }
+
+use-intel(){
+    arch -x86_64 "$@"
+}

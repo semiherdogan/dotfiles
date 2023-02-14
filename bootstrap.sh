@@ -28,16 +28,16 @@ source_aliases
 
 # Script Aliases
 alias ip="php '$DOTFILES_BASE/scripts/php/ip.php'"
-alias php-download="php '$DOTFILES_BASE/scripts/php/downloader.php'"
 alias pr="php '$DOTFILES_BASE/scripts/php/bitbucket-pull-request.php'"
 
 # Psysh
 alias p="$DOTFILES_BASE/psysh --color --cwd $(pwd) --config '$DOTFILES_BASE/scripts/php/psysh_user.php'"
 psysh-update() {
-    echo "Downloading (psysh) ..."
-    curl -sS https://psysh.org/psysh > "$DOTFILES_BASE/psysh"
-    chmod +x "$DOTFILES_BASE/psysh"
+    local download_path="$DOTFILES_BASE/psysh"
+    curl -o "$download_path" https://psysh.org/psysh
+    chmod +x "$download_path"
     echo "Ok";
+    p
 }
 
 _bb_autocomplete() {
@@ -46,7 +46,7 @@ _bb_autocomplete() {
     local branch_commands="list user name"
     local auth_commands="save show"
 
-    _arguments "1: :(pr pipeline branch auth)" "2: :(help $pipeline_commands $pr_commands $branch_commands $auth_commands)"
+    _arguments "1: :(pr pipeline branch auth browse upgrade)" "2: :(help $pipeline_commands $pr_commands $branch_commands $auth_commands)"
 }
 
 compdef _bb_autocomplete bb

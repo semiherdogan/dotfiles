@@ -10,6 +10,10 @@ alias migrate:rollback='artisan migrate:rollback'
 
 alias sail='vendor/bin/sail'
 
+alias pest='vendor/bin/pest'
+alias pest-filter='vendor/bin/pest --filter'
+
+
 # Enable autocomplete for artisan command
 if [ -x "$(command -v compdef)" ]; then
     _artisan_command_list_for_autocomplete() {

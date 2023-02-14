@@ -31,7 +31,7 @@ d-compose () {
 }
 
 alias dc='d-compose'
-alias dcup='d-compose up -d'
+alias dcup='d-compose --show up -d'
 alias d-exec='d-compose exec'
 alias d-app='d-exec app'
 alias d-bash='d-app bash'
