@@ -113,7 +113,7 @@ function laravel-new() {
     docker run --rm \
         -v "$(pwd)":/opt \
         -w /opt \
-        laravelsail/php81-composer:latest \
+        laravelsail/php82-composer:latest \
         bash -c "laravel new $PROJECT_NAME && cd $PROJECT_NAME && php ./artisan sail:install --with=mysql,redis"
 
     cd $PROJECT_NAME
