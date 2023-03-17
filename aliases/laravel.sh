@@ -13,6 +13,10 @@ alias sail='vendor/bin/sail'
 alias pest='vendor/bin/pest'
 alias pest-filter='vendor/bin/pest --filter'
 
+alias pint='vendor/bin/pint'
+alias pint-lint='vendor/bin/pint --test'
+
+
 
 # Enable autocomplete for artisan command
 if [ -x "$(command -v compdef)" ]; then
