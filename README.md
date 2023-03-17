@@ -29,5 +29,10 @@ source ~/dotfiles/bootstrap.sh
 - [httpstat](https://github.com/davecheney/httpstat)
 - [htmlq](https://github.com/mgdm/htmlq)
 
-# apps
+# apps (gui)
 - [OpenInTerminal](https://github.com/Ji4n1ng/OpenInTerminal)
+- [Flux](https://justgetflux.com/)
+- [Rectangle](https://rectangleapp.com/)
+- [FlameShot](https://flameshot.org/)
+- [Alfred](https://www.alfredapp.com/)
+- [Hidden menu bar items](https://github.com/dwarvesf/hidden)
