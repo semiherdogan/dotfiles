@@ -45,15 +45,15 @@ alias rn-android-bundle='mkdir -p android/app/src/main/assets/ && react-native b
 alias rn-ios-bundle='react-native bundle --platform ios --dev false --entry-file index.js --bundle-output ios/main.jsbundle --assets-dest ios'
 
 # Python
-alias py-run="python3 -m"
-alias py-server="python3 -m http.server"
+alias py-run="py -m"
+alias py-server="py -m http.server"
 
 py() {
     if [[ "$(which python3)" == "$(pwd)/venv/bin/python3" ]]; then
         echo "venv active"
         $(pwd)/venv/bin/python3 $@
     else
-        /opt/homebrew/bin/python3 $@
+        /usr/bin/python3 $@
     fi
 }
 
@@ -82,7 +82,7 @@ py-env() {
 alias composer-here-latest='curl -sS https://getcomposer.org/installer | php'
 alias composer-here-1='wget https://github.com/composer/composer/releases/download/1.10.26/composer.phar'
 
-alias yolo-message='curl -sS whatthecommit.com/index.txt'
+alias yolo-message='curl -sS https://whatthecommit.com/index.txt'
 
 alias reload="exec ${SHELL} -l"
 alias localip="ipconfig getifaddr en0"

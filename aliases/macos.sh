@@ -2,6 +2,8 @@
 # macOS
 ##
 
+alias phpstorm='/Applications/PhpStorm.app/Contents/MacOS/phpstorm'
+
 alias remove--ds_store="find . -type f -name '*.DS_Store' -ls -delete"
 
 php--check-syntax(){
@@ -75,6 +77,8 @@ text-diff() {
 
     echo ""
     /usr/bin/diff /tmp/cliboard1.txt /tmp/cliboard2.txt | bat
+
+    rm /tmp/cliboard1.txt /tmp/cliboard2.txt
 }
 
 github-search() {
