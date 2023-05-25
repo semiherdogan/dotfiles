@@ -27,6 +27,11 @@ d-compose () {
         echo "File: $DOCKER_COMPOSE_FILE"
     fi
 
+    if [[ $DOCKER_COMPOSE_FILE == "" ]]; then
+        echo "Docker file not found."
+        exit 1
+    fi
+
     docker compose -f "$DOCKER_COMPOSE_FILE" "$@"
 }
 

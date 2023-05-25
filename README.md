@@ -36,3 +36,5 @@ source ~/dotfiles/bootstrap.sh
 - [FlameShot](https://flameshot.org/)
 - [Alfred](https://www.alfredapp.com/)
 - [Hidden menu bar items](https://github.com/dwarvesf/hidden)
+- [Espanso](https://espanso.org/)
+- [Numi calculator](https://numi.app/)

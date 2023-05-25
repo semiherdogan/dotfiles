@@ -20,7 +20,7 @@ alias pint-lint='vendor/bin/pint --test'
 # if [ -x "$(command -v compdef)" ]; then
 _artisan_command_list_for_autocomplete() {
     # local artisanCommandList=$(artisan list --format=json | jq -r '.commands[] .name')
-    _arguments '1: :(tinker cache:clear migrate horizon:terminate telescope:clear route:list)'
+    _arguments '1: :(tinker cache:clear view:clear migrate migrate:status db:seed db:wipe horizon:terminate telescope:clear route:list)'
 }
 
 compdef _artisan_command_list_for_autocomplete artisan
