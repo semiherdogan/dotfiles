@@ -2,6 +2,9 @@
 # macOS
 ##
 
+export HOMEBREW_NO_AUTO_UPDATE=1
+export HOMEBREW_NO_ANALYTICS=1
+
 alias phpstorm='/Applications/PhpStorm.app/Contents/MacOS/phpstorm'
 
 alias remove--ds_store="find . -type f -name '*.DS_Store' -ls -delete"
@@ -62,8 +65,13 @@ github-open() {
 }
 
 php-server-here() {
-    LOCAL_SERVER_PORT=${1:-3000}
+    LOCAL_SERVER_PORT=${1:-3001}
     open http://localhost:$LOCAL_SERVER_PORT && php -S 127.0.0.1:$LOCAL_SERVER_PORT
+}
+
+python-server-here() {
+    LOCAL_SERVER_PORT=${1:-3002}
+    open http://localhost:$LOCAL_SERVER_PORT && python3 -m http.server $LOCAL_SERVER_PORT
 }
 
 text-diff() {
@@ -86,11 +94,11 @@ github-search() {
 }
 
 generate-passwords() {
-    for i in $( pbpaste ); do 
-        pwgen -s -1 ${1:-15} "${@:2}" | sed "s/^/$i /"; 
+    for i in $( pbpaste ); do
+        pwgen -s -1 ${1:-15} "${@:2}" | sed "s/^/$i /";
     done
 }
 
-use-intel(){
+use-x64(){
     arch -x86_64 "$@"
 }

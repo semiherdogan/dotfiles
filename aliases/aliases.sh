@@ -49,19 +49,18 @@ alias py-run="py -m"
 alias py-server="py -m http.server"
 
 py() {
-    if [[ "$(which python3)" == "$(pwd)/venv/bin/python3" ]]; then
+    if [[ "$(which python3)" == "$(pwd)/$PIPENV_CUSTOM_VENV_NAME/bin/python3" ]]; then
         echo "venv active"
-        $(pwd)/venv/bin/python3 $@
+        $(pwd)/$PIPENV_CUSTOM_VENV_NAME/bin/python3 $@
     else
         /usr/bin/python3 $@
     fi
 }
 
 py-env() {
-    local ENV_DIRECTORY="venv"
-    if [ ! -d "$ENV_DIRECTORY/" ]; then
+    if [ ! -d "$PIPENV_CUSTOM_VENV_NAME/" ]; then
         echo "Creating enviroment.."
-        virtualenv $ENV_DIRECTORY
+        pipenv --python ${1:-3.10}
     fi
 
     # Checks if "deactivate" function is exists
@@ -69,12 +68,12 @@ py-env() {
         deactivate
         echo 'Deactivaed.'
     else
-        if test -f "venv/Scripts/activate"; then
-            source venv/Scripts/activate
-            echo 'Activated. (venv/Scripts/activate)'
-        elif test -f "venv/bin/activate"; then
-            source venv/bin/activate
-            echo 'Activated. (venv/bin/activate)'
+        if test -f "$PIPENV_CUSTOM_VENV_NAME/Scripts/activate"; then
+            source "$PIPENV_CUSTOM_VENV_NAME/Scripts/activate"
+            echo "Activated. ($PIPENV_CUSTOM_VENV_NAME/Scripts/activate)"
+        elif test -f "$PIPENV_CUSTOM_VENV_NAME/bin/activate"; then
+            source $PIPENV_CUSTOM_VENV_NAME/bin/activate
+            echo "Activated. ($PIPENV_CUSTOM_VENV_NAME/bin/activate)"
         fi
     fi
 }

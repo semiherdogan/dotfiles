@@ -16,6 +16,7 @@ source ~/dotfiles/bootstrap.sh
 
 # cli apps
 - [jq](https://stedolan.github.io/jq/)
+- [fx](https://github.com/antonmedv/fx)
 - [bat](https://github.com/sharkdp/bat)
 - [curlie](https://github.com/rs/curlie)
 - [github cli](https://cli.github.com/)
@@ -28,6 +29,8 @@ source ~/dotfiles/bootstrap.sh
 - [merged-branches](https://github.com/semiherdogan/merged-branches)
 - [httpstat](https://github.com/davecheney/httpstat)
 - [htmlq](https://github.com/mgdm/htmlq)
+- [bandwhich](https://github.com/imsnif/bandwhich)
+- [onefetch](https://github.com/o2sh/onefetch)
 
 # apps (gui)
 - [OpenInTerminal](https://github.com/Ji4n1ng/OpenInTerminal)

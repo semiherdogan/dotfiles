@@ -16,3 +16,6 @@ export C_LIGHT_GRAY='\033[0;37m'
 export C_WHITE='\033[1;37m'
 
 export PATH=$PATH:~/.composer/vendor/bin
+
+export PIPENV_VENV_IN_PROJECT=1
+export PIPENV_CUSTOM_VENV_NAME='.venv'
