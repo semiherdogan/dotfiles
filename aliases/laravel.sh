@@ -7,6 +7,8 @@ alias tinker='artisan tinker'
 alias migrate='artisan migrate'
 alias migrate-status='artisan migrate:status'
 alias migrate-rollback='artisan migrate:rollback'
+alias migrate-fresh='artisan db:wipe; artisan migrate --seed'
+alias mf='migrate-fresh'
 
 alias sail='vendor/bin/sail'
 

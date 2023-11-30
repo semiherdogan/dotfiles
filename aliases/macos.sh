@@ -5,8 +5,6 @@
 export HOMEBREW_NO_AUTO_UPDATE=1
 export HOMEBREW_NO_ANALYTICS=1
 
-alias phpstorm='/Applications/PhpStorm.app/Contents/MacOS/phpstorm'
-
 alias remove--ds_store="find . -type f -name '*.DS_Store' -ls -delete"
 
 php--check-syntax(){
@@ -33,16 +31,6 @@ o() {
     else
         open "$@"
     fi;
-}
-
-desktop-icons-toggle() {
-    local SHOW_ICONS=true
-
-    if [[ $(defaults read com.apple.finder CreateDesktop) == "1" ]]; then
-        SHOW_ICONS=false
-    fi
-
-    defaults write com.apple.finder CreateDesktop -bool $SHOW_ICONS && killall Finder
 }
 
 open-local() {
@@ -89,16 +77,12 @@ text-diff() {
     rm /tmp/cliboard1.txt /tmp/cliboard2.txt
 }
 
-github-search() {
-    gh s "$@" | xargs -n1 gh browse -R
-}
-
 generate-passwords() {
     for i in $( pbpaste ); do
         pwgen -s -1 ${1:-15} "${@:2}" | sed "s/^/$i /";
     done
 }
 
-use-x64(){
+use-x64() {
     arch -x86_64 "$@"
 }
