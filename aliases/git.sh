@@ -5,6 +5,7 @@
 ##
 
 alias g='git'
+alias gs='git status'
 alias nah='git reset --hard && git clean -df'
 alias pull='git pull'
 alias push='git push'

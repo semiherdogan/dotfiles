@@ -29,7 +29,7 @@ compdef _artisan_command_list_for_autocomplete artisan
 # fi
 
 artisan () {
-    if [ ! -f "docker-compose.yml" ]; then
+    if [ $(ls -l | grep 'docker-compose' | wc -l) -eq 0 ]; then
         php -d="memory_limit=-1" artisan "$@"
         return 0
     fi
@@ -58,11 +58,7 @@ artisan () {
         return 1
     fi
 
-    if [[ -f "vendor/bin/sail" ]]; then
-        ./vendor/bin/sail artisan "$@"
-    else
-        d-compose exec app php -d="memory_limit=-1" artisan "$@"
-    fi
+    d-compose exec app php -d="memory_limit=-1" artisan "$@"
 }
 
 alias lr='laravel--delete-log-files'

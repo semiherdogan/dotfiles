@@ -20,6 +20,10 @@ alias unixtime='echo $(date +%s) && echo -n $(date +%s) | pbcopy && echo "Copied
 
 alias shrug="echo '¯\_(ツ)_/¯' && echo '¯\_(ツ)_/¯' | pbcopy";
 
+alias phpstorm='open -a /Applications/PhpStorm.app "`pwd`"'
+alias pstorm='phpstorm'
+alias st='phpstorm'
+
 alias audio-kill='sudo pkill coreaudiod'
 
 alias clipboard-base64-encode='pbpaste | base64 |xargs echo | pbcopy && pbpaste && echo "Copied."'
@@ -85,4 +89,14 @@ generate-passwords() {
 
 use-x64() {
     arch -x86_64 "$@"
+}
+
+links-from-har-file() {
+    pbpaste | jq -r '.log.entries|.[].request.url'
+}
+
+brew-update() {
+    brew update
+    echo "Outdated:"
+    brew outdated
 }

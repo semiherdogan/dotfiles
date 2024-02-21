@@ -14,6 +14,8 @@ d-compose () {
         DOCKER_COMPOSE_FILE='docker-compose.override.yml'
     elif [ -f "docker-compose.dev.yml" ]; then
         DOCKER_COMPOSE_FILE='docker-compose.dev.yml'
+    elif [ -f "docker-compose-dev.yml" ]; then
+        DOCKER_COMPOSE_FILE='docker-compose-dev.yml'
     elif [ -f "docker-compose-local.yml" ]; then
         DOCKER_COMPOSE_FILE='docker-compose-local.yml'
     elif [ -f "docker-compose.yml" ]; then
@@ -40,6 +42,7 @@ alias dcup='d-compose --show up -d'
 alias d-exec='d-compose exec'
 alias d-app='d-exec app'
 alias d-bash='d-app bash'
+alias d-sh='d-app sh'
 alias d-php='d-app php -d "memory_limit = -1"'
 alias d-test='d-app app ./vendor/bin/phpunit'
 
@@ -71,13 +74,15 @@ alias c='composer'
 alias cr='composer run'
 
 composer() {
+    # Local composer path
     local COMPOSER_COMMAND="~/Path/composer"
 
     if [ -f "composer.phar" ]; then
         COMPOSER_COMMAND="php -d memory_limit=-1 composer.phar"
     fi
 
-    if [ ! -f "docker-compose.yml" ]; then
+    # Check docker compose file if exists
+    if [ $(ls -l | grep 'docker-compose' | wc -l) -eq 0 ]; then
         eval "$COMPOSER_COMMAND $@"
         return 0
     fi
@@ -94,7 +99,7 @@ composer() {
         return 1
     fi
 
-    if [ ! -n "$(docker-compose ps -q)" ]; then
+    if [ ! -n "$(d-compose ps -q)" ]; then
         echo "${C_RED}Docker is not running.${NC}"
 
         if [[ "$1" == "-f" ]]; then
@@ -106,11 +111,11 @@ composer() {
         return 1
     fi
 
-    if [[ -f "vendor/bin/sail" ]]; then
-        ./vendor/bin/sail composer "$@"
-    else
-        d-compose exec app ${(Q)${(z)COMPOSER_COMMAND}} "$@"
+    if [ ! -f "composer.phar" ]; then
+        COMPOSER_COMMAND="composer"
     fi
+
+    d-compose exec app ${(Q)${(z)COMPOSER_COMMAND}} "$@"
 }
 
 red() {

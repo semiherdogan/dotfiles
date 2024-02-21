@@ -41,7 +41,7 @@ psysh-update() {
 }
 
 _bb_autocomplete() {
-    local pipeline_commands="get latest wait"
+    local pipeline_commands="get latest wait run"
     local pr_commands="list diff commits approve no-approve request-changes no-request-changes decline merge create"
     local branch_commands="list user name"
     local auth_commands="save show"
