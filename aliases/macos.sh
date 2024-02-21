@@ -99,4 +99,11 @@ brew-update() {
     brew update
     echo "Outdated:"
     brew outdated
+
+    echo "Upgrade? (y/N):"
+    read selection
+
+    if [[ $selection == "y" ]]; then
+        brew upgrade
+    fi
 }
