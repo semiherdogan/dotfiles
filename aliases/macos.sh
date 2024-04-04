@@ -20,9 +20,10 @@ alias unixtime='echo $(date +%s) && echo -n $(date +%s) | pbcopy && echo "Copied
 
 alias shrug="echo '¯\_(ツ)_/¯' && echo '¯\_(ツ)_/¯' | pbcopy";
 
-alias phpstorm='open -a /Applications/PhpStorm.app "`pwd`"'
-alias pstorm='phpstorm'
-alias st='phpstorm'
+# App shortcuts
+alias st='open -a /Applications/PhpStorm.app "`pwd`"'
+alias rr='open -a ~/Applications/RustRover.app "`pwd`"'
+alias gl='open -a ~/Applications/GoLand.app "`pwd`"'
 
 alias audio-kill='sudo pkill coreaudiod'
 
@@ -37,7 +38,7 @@ o() {
     fi;
 }
 
-open-local() {
+lo() {
     if [[ -f ./.env ]]; then
         open $(cat .env | grep APP_URL | awk -F= '{print $2}')
     else
@@ -46,14 +47,15 @@ open-local() {
 }
 
 github-open() {
-    open `
-        git remote -v |
-        grep fetch |
-        awk '{print $2}' |
-        sed 's/git@/https:\/\//' |
-        sed 's/com:/com\//' |
-        sed 's/\.git$//'
-    `
+    # open `
+    #     git remote -v |
+    #     grep fetch |
+    #     awk '{print $2}' |
+    #     sed 's/git@/https:\/\//' |
+    #     sed 's/com:/com\//' |
+    #     sed 's/\.git$//'
+    # `
+    gh browse
 }
 
 php-server-here() {

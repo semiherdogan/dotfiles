@@ -115,6 +115,9 @@ composer() {
         COMPOSER_COMMAND="composer"
     fi
 
+    echo "Running inside docker 'app' container"
+    echo "==========="
+
     d-compose exec app ${(Q)${(z)COMPOSER_COMMAND}} "$@"
 }
 
