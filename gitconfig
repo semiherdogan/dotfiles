@@ -12,6 +12,7 @@
 [color]
     ui = auto
 [push]
+    autoSetupRemote = true
     default = current
 [pull]
     rebase = false

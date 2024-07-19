@@ -22,8 +22,10 @@ alias shrug="echo '¯\_(ツ)_/¯' && echo '¯\_(ツ)_/¯' | pbcopy";
 
 # App shortcuts
 alias st='open -a /Applications/PhpStorm.app "`pwd`"'
-alias rr='open -a ~/Applications/RustRover.app "`pwd`"'
-alias gl='open -a ~/Applications/GoLand.app "`pwd`"'
+alias rr='open -a /Applications/RustRover.app "`pwd`"'
+alias gl='open -a /Applications/GoLand.app "`pwd`"'
+
+alias itab='open -a iterm "`pwd`"'
 
 alias audio-kill='sudo pkill coreaudiod'
 
@@ -39,10 +41,15 @@ o() {
 }
 
 lo() {
+    if [ $# -gt 0 ]; then
+        open "http://localhost:$1"
+        return
+    fi;
+
     if [[ -f ./.env ]]; then
         open $(cat .env | grep APP_URL | awk -F= '{print $2}')
     else
-        open http://localhost:${1:-80}
+        open "http://localhost:80"
     fi
 }
 

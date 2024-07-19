@@ -39,10 +39,10 @@ port-check() {
 }
 
 # React native
-alias rn='npx react-native'
-alias rn-metro='./node_modules/react-native/scripts/launchPackager.command; exit'
-alias rn-android-bundle='mkdir -p android/app/src/main/assets/ && react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res'
-alias rn-ios-bundle='react-native bundle --platform ios --dev false --entry-file index.js --bundle-output ios/main.jsbundle --assets-dest ios'
+# alias rn='npx react-native'
+# alias rn-metro='./node_modules/react-native/scripts/launchPackager.command; exit'
+# alias rn-android-bundle='mkdir -p android/app/src/main/assets/ && react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res'
+# alias rn-ios-bundle='react-native bundle --platform ios --dev false --entry-file index.js --bundle-output ios/main.jsbundle --assets-dest ios'
 
 # Python
 alias py-run="py -m"
@@ -53,14 +53,14 @@ py() {
         echo "venv active"
         $(pwd)/$PIPENV_CUSTOM_VENV_NAME/bin/python3 $@
     else
-        /usr/bin/python3 $@
+        /opt/homebrew/bin/python3 $@
     fi
 }
 
 py-env() {
     if [ ! -d "$PIPENV_CUSTOM_VENV_NAME/" ]; then
         echo "Creating enviroment.."
-        pipenv --python ${1:-3.10}
+        pipenv --python ${1:-3.12}
     fi
 
     # Checks if "deactivate" function is exists
@@ -86,19 +86,4 @@ alias yolo-message='curl -sS https://whatthecommit.com/index.txt'
 alias reload="exec ${SHELL} -l"
 alias localip="ipconfig getifaddr en0"
 
-fuel() {
-    local _WEBSITE=https://www.petrolofisi.com.tr/akaryakit-fiyatlari/istanbul-akaryakit-fiyatlari
-    echo $_WEBSITE
-
-    local _DATA=$(curl -s $_WEBSITE)
-
-    local _print() {
-        echo $_DATA | htmlq ".fuel-items .table-prices thead th:nth-child($1)" --text
-        echo $_DATA | htmlq ".fuel-items .table-prices tbody tr:nth-child(1) td:nth-child($1)" --text
-        echo ""
-    }
-
-    loop 5 '_print $i'
-}
-
-alias dt='deno task'
+# alias dt='deno task'

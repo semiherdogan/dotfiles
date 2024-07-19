@@ -22,6 +22,7 @@ alias switch='git switch'
 alias restore='git restore'
 alias revert-file-to-previous='git checkout HEAD^'
 alias amend='git commit --amend'
+alias undo-commit='git reset HEAD~ '
 
 clone() {
     if [[ "$2" == "" ]]; then

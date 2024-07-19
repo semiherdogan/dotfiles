@@ -15,7 +15,6 @@ source ~/dotfiles/bootstrap.sh
 ```
 
 # cli apps
-- [fx](https://github.com/antonmedv/fx)
 - [curlie](https://github.com/rs/curlie)
 - [github cli](https://cli.github.com/)
 - [bitbucket cli](https://github.com/bb-cli/bb-cli)
