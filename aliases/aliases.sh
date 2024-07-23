@@ -49,33 +49,23 @@ alias py-run="py -m"
 alias py-server="py -m http.server"
 
 py() {
-    if [[ "$(which python3)" == "$(pwd)/$PIPENV_CUSTOM_VENV_NAME/bin/python3" ]]; then
-        echo "venv active"
-        $(pwd)/$PIPENV_CUSTOM_VENV_NAME/bin/python3 $@
-    else
-        /opt/homebrew/bin/python3 $@
-    fi
+    local python_path="/opt/homebrew/bin/python3"
+    [[ "$(which python3)" == "$(pwd)/$PIPENV_CUSTOM_VENV_NAME/bin/python3" ]] && python_path="$(pwd)/$PIPENV_CUSTOM_VENV_NAME/bin/python3"
+    $python_path "$@"
 }
 
 py-env() {
-    if [ ! -d "$PIPENV_CUSTOM_VENV_NAME/" ]; then
-        echo "Creating enviroment.."
-        pipenv --python ${1:-3.12}
-    fi
+    # Create environment if it doesn't exist
+    [ ! -d "$PIPENV_CUSTOM_VENV_NAME/" ] && echo "Creating environment.." && pipenv --python ${1:-3.12}
 
-    # Checks if "deactivate" function is exists
-    if [[ $(declare -Ff "deactivate") ]]; then
-        deactivate
-        echo 'Deactivaed.'
-    else
-        if test -f "$PIPENV_CUSTOM_VENV_NAME/Scripts/activate"; then
-            source "$PIPENV_CUSTOM_VENV_NAME/Scripts/activate"
-            echo "Activated. ($PIPENV_CUSTOM_VENV_NAME/Scripts/activate)"
-        elif test -f "$PIPENV_CUSTOM_VENV_NAME/bin/activate"; then
-            source $PIPENV_CUSTOM_VENV_NAME/bin/activate
-            echo "Activated. ($PIPENV_CUSTOM_VENV_NAME/bin/activate)"
-        fi
-    fi
+    # Deactivate if already activated
+    declare -Ff "deactivate" >/dev/null && deactivate && echo 'Deactivated.'
+
+    # Activate environment
+    local activation_script=""
+    [[ -f "$PIPENV_CUSTOM_VENV_NAME/Scripts/activate" ]] && activation_script="$PIPENV_CUSTOM_VENV_NAME/Scripts/activate"
+    [[ -f "$PIPENV_CUSTOM_VENV_NAME/bin/activate" ]] && activation_script="$PIPENV_CUSTOM_VENV_NAME/bin/activate"
+    [[ -n $activation_script ]] && source "$activation_script" && echo "Activated. ($activation_script)"
 }
 
 alias composer-here-latest='curl -sS https://getcomposer.org/installer | php'
@@ -87,3 +77,12 @@ alias reload="exec ${SHELL} -l"
 alias localip="ipconfig getifaddr en0"
 
 # alias dt='deno task'
+
+copilot() {
+    if [ -z "$1" ]; then
+        echo "Please provide a message."
+        return 1
+    fi
+
+    gh copilot explain "$@"
+}

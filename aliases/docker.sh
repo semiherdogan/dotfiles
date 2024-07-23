@@ -6,38 +6,47 @@
 alias d-ps='docker ps'
 alias d-stop-all='docker stop $(docker ps -q)'
 
-# Docker Compose
-# d-compose () {
-#     local DOCKER_COMPOSE_FILE=''
+#  Docker Compose
+d-compose() {
+    local files=(
+        "docker-compose.override.yml"
+        "docker-compose-override.yml"
 
-#     if [ -f "docker-compose.override.yml" ]; then
-#         DOCKER_COMPOSE_FILE='docker-compose.override.yml'
-#     elif [ -f "docker-compose.dev.yml" ]; then
-#         DOCKER_COMPOSE_FILE='docker-compose.dev.yml'
-#     elif [ -f "docker-compose-dev.yml" ]; then
-#         DOCKER_COMPOSE_FILE='docker-compose-dev.yml'
-#     elif [ -f "docker-compose-local.yml" ]; then
-#         DOCKER_COMPOSE_FILE='docker-compose-local.yml'
-#     elif [ -f "docker-compose.yml" ]; then
-#         DOCKER_COMPOSE_FILE='docker-compose.yml'
-#     elif [ -f "docker-compose.test.yml" ]; then
-#         DOCKER_COMPOSE_FILE='docker-compose.test.yml'
-#     fi
+        "docker-compose.dev.yml"
+        "docker-compose-dev.yml"
 
-#     if [[ "$1" == "--show" ]]; then
-#         shift 1
-#         echo "File: $DOCKER_COMPOSE_FILE"
-#     fi
+        "docker-compose-local.yml"
+        "docker-compose.local.yml"
 
-#     if [[ $DOCKER_COMPOSE_FILE == "" ]]; then
-#         echo "Docker file not found."
-#         return 1
-#     fi
+        "docker-compose.yml"
 
-#     docker compose -f "$DOCKER_COMPOSE_FILE" "$@"
-# }
+        "docker-compose.test.yml"
+        "docker-compose-test.yml"
+    )
 
-alias dc='~/Path/dc'
+    local DOCKER_COMPOSE_FILE=''
+
+    for file in "${files[@]}"; do
+        if [ -f "$file" ]; then
+            DOCKER_COMPOSE_FILE="$file"
+            break
+        fi
+    done
+
+    if [[ -z $DOCKER_COMPOSE_FILE ]]; then
+        echo "Docker file not found."
+        return 1
+    fi
+
+    if [[ "$1" == "--show" ]]; then
+        echo "File: $DOCKER_COMPOSE_FILE"
+        shift
+    fi
+
+    docker compose -f "$DOCKER_COMPOSE_FILE" "$@"
+}
+
+alias dc='d-compose'
 alias dcup='dc up -d'
 alias dc-exec='dc exec'
 alias dc-app='dc exec app'
@@ -74,12 +83,8 @@ alias c='composer'
 alias cr='composer run'
 
 composer() {
-    # Local composer path
     local COMPOSER_COMMAND="~/Path/composer"
-
-    if [ -f "composer.phar" ]; then
-        COMPOSER_COMMAND="php -d memory_limit=-1 composer.phar"
-    fi
+    [ -f "composer.phar" ] && COMPOSER_COMMAND="php -d memory_limit=-1 composer.phar"
 
     # Check docker compose file if exists
     if [ $(ls -l | grep 'docker-compose' | wc -l) -eq 0 ]; then
@@ -87,23 +92,12 @@ composer() {
         return 0
     fi
 
-    if dc ps | grep 'Exit' &> /dev/null; then
-        echo "${C_RED}Docker is not running.${NC}"
+    if ! dc ps | grep -q '.'; then
+        echo "Docker is not running."
 
+        # If the force flag is used, run the command regardless
         if [[ "$1" == "-f" ]]; then
-            shift 1
-            eval "$COMPOSER_COMMAND $@"
-            return 0
-        fi
-
-        return 1
-    fi
-
-    if [ ! -n "$(dc ps -q)" ]; then
-        echo "${C_RED}Docker is not running.${NC}"
-
-        if [[ "$1" == "-f" ]]; then
-            shift 1
+            shift
             eval "$COMPOSER_COMMAND $@"
             return 0
         fi
@@ -115,17 +109,5 @@ composer() {
         COMPOSER_COMMAND="composer"
     fi
 
-    # echo "Running inside docker 'app' container"
-    # echo "==========="
-
     dc exec app ${(Q)${(z)COMPOSER_COMMAND}} "$@"
 }
-
-# red() {
-#     docker run --rm -it --platform=linux/386 \
-#         -v red-console:/root/.red \
-#         -v "$HOME/Projects/custom-red-language-scripts":/var/scripts \
-#         -e CLIP="$(cb --paste0)" \
-#         -e INIT="/var/scripts/init.red" \
-#         hasansemih/red
-# }

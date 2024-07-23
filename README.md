@@ -19,7 +19,6 @@ source ~/dotfiles/bootstrap.sh
 - [github cli](https://cli.github.com/)
 - [bitbucket cli](https://github.com/bb-cli/bb-cli)
 - [Slackadays/Clipboard](https://github.com/Slackadays/Clipboard)
-- [stackoverflow cli](https://github.com/samtay/so)
 - [pwgen - password generator](https://formulae.brew.sh/formula/pwgen)
 - [delta](https://github.com/dandavison/delta)
 - [psysh - php repl](https://psysh.org/)
@@ -29,6 +28,7 @@ source ~/dotfiles/bootstrap.sh
 - [onefetch](https://github.com/o2sh/onefetch)
 - [miniserve](https://github.com/svenstaro/miniserve)
 - [zoxide](https://github.com/ajeetdsouza/zoxide)
+- [the-way](https://github.com/out-of-cheese-error/the-way)
 
 # apps (gui)
 - [Alfred](https://www.alfredapp.com/)
