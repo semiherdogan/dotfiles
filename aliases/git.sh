@@ -35,6 +35,9 @@ clone() {
 
 alias dev='git switch dev && git pull'
 alias testb='git switch test && git pull'
+alias releaseb='git switch release && git pull'
+alias main='git switch main && git pull'
+alias master='git switch master && git pull'
 
 add() {
     git add ${@:-.}

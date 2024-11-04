@@ -7,7 +7,7 @@ source_aliases () {
     source $DOTFILES_BASE/aliases/git.sh
     source $DOTFILES_BASE/aliases/docker.sh
     source $DOTFILES_BASE/aliases/laravel.sh
-    source ~/dotfiles/scripts/bitbucket_pr.sh
+    # source ~/dotfiles/scripts/bitbucket_pr.sh
 
     if [[ -f "$DOTFILES_BASE/environment/bash.sh" ]]; then
         source "$DOTFILES_BASE/environment/bash.sh"
@@ -29,14 +29,7 @@ alias ip="php '$DOTFILES_BASE/scripts/php/ip.php'"
 alias pr="php '$DOTFILES_BASE/scripts/php/bitbucket-pull-request.php'"
 
 # Psysh
-alias p="$DOTFILES_BASE/psysh --color --cwd $(pwd) --config '$DOTFILES_BASE/scripts/php/psysh_user.php'"
-psysh-update() {
-    local download_path="$DOTFILES_BASE/psysh"
-    curl -o "$download_path" https://psysh.org/psysh
-    chmod +x "$download_path"
-    echo "Ok";
-    p
-}
+alias p="$DOTFILES_BASE/psysh --color --cwd $(pwd)"
 
 _bb_autocomplete() {
     local pipeline_commands="get latest wait run"

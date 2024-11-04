@@ -7,10 +7,7 @@
 # General
 alias q='exit 0'
 alias ..='cd ../'
-alias ...='cd ../../'
-alias ....='cd ../../../'
 alias ll='ls -lah'
-
 
 # Enable aliases to be sudo’ed
 alias sudo='sudo '
@@ -29,20 +26,6 @@ loop () {
         eval ${@:2}
     done
 }
-
-silent() {
-    "$@" >& /dev/null
-}
-
-port-check() {
-    lsof -nP -iTCP:$1 | grep LISTEN
-}
-
-# React native
-# alias rn='npx react-native'
-# alias rn-metro='./node_modules/react-native/scripts/launchPackager.command; exit'
-# alias rn-android-bundle='mkdir -p android/app/src/main/assets/ && react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res'
-# alias rn-ios-bundle='react-native bundle --platform ios --dev false --entry-file index.js --bundle-output ios/main.jsbundle --assets-dest ios'
 
 # Python
 alias py-run="py -m"
@@ -74,9 +57,6 @@ alias composer-here-1='wget https://github.com/composer/composer/releases/downlo
 alias yolo-message='curl -sS https://whatthecommit.com/index.txt'
 
 alias reload="exec ${SHELL} -l"
-alias localip="ipconfig getifaddr en0"
-
-# alias dt='deno task'
 
 copilot() {
     if [ -z "$1" ]; then

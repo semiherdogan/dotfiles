@@ -35,7 +35,7 @@ artisan () {
     fi
 
     if dc ps | grep 'Exit' &> /dev/null; then
-        echo "${C_RED}Docker is not running.${NC}"
+        echo "Docker is not running."
 
         if [[ "$1" == "-f" ]]; then
             shift 1
@@ -47,7 +47,7 @@ artisan () {
     fi
 
     if [ ! -n "$(dc ps -q)" ]; then
-        echo "${C_RED}Docker is not running.${NC}"
+        echo "Docker is not running."
 
         if [[ "$1" == "-f" ]]; then
             shift 1
@@ -58,7 +58,12 @@ artisan () {
         return 1
     fi
 
-    dc exec app php -d="memory_limit=-1" artisan "$@"
+    if dc ps | grep 'app' &> /dev/null; then
+        dc exec app php -d="memory_limit=-1" artisan "$@"
+        return 0
+    fi
+
+    php -d="memory_limit=-1" artisan "$@"
 }
 
 alias lr='laravel--delete-log-files'

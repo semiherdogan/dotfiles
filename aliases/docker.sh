@@ -54,41 +54,17 @@ alias dc-bash='dc exec app bash'
 alias dc-sh='dc exec app sh'
 alias dc-php='dc exec app php -d "memory_limit = -1"'
 
-# Docker redis
-alias dc-redis='dc exec cache redis-cli'
-alias dc-redis-flushall='dc exec cache redis-cli flushall'
-
-# Php versions
-alias d-php73='docker run --rm -v $(pwd):/app -w /app php:7.3'
-alias d-php74='docker run --rm -v $(pwd):/app -w /app php:7.4'
-alias d-php80='docker run --rm -v $(pwd):/app -w /app php:8.0'
-alias d-php81='docker run --rm -v $(pwd):/app -w /app php:8.1'
-alias d-php82='docker run --rm -v $(pwd):/app -w /app php:8.2'
-
-# Composer with php versions
-alias d-composer73='docker run --rm --volume $(pwd):/app prooph/composer:7.3'
-alias d-composer74='docker run --rm --volume $(pwd):/app prooph/composer:7.4'
-alias d-composer80='docker run --rm --volume $(pwd):/app prooph/composer:8.0'
-alias d-composer81='docker run --rm --volume $(pwd):/app prooph/composer:8.1'
-alias d-composer82='docker run --rm --volume $(pwd):/app prooph/composer:8.2'
-alias d-composer83='docker run --rm --volume $(pwd):/app prooph/composer:8.3'
-
 # Nodejs
-alias d-node10='docker run -it --rm --name my-running-script -v "$PWD":/usr/src/app -w /usr/src/app node:10'
-alias d-node12='docker run -it --rm --name my-running-script -v "$PWD":/usr/src/app -w /usr/src/app node:12'
-alias d-node14='docker run -it --rm --name my-running-script -v "$PWD":/usr/src/app -w /usr/src/app node:14'
-alias d-node16='docker run -it --rm --name my-running-script -v "$PWD":/usr/src/app -w /usr/src/app node:16'
+alias node20='docker run -it --rm --name my-running-script -v "$PWD":/usr/src/app -w /usr/src/app node:20'
 
-alias c='composer'
-alias cr='composer run'
+# Composer
+co() {
+    local COMPOSER_CMD="composer"
+    [ -f "composer.phar" ] && COMPOSER_CMD="php -d memory_limit=-1 composer.phar"
 
-composer() {
-    local COMPOSER_COMMAND="~/Path/composer"
-    [ -f "composer.phar" ] && COMPOSER_COMMAND="php -d memory_limit=-1 composer.phar"
-
-    # Check docker compose file if exists
+    # If docker-compose is not found, run the command locally
     if [ $(ls -l | grep 'docker-compose' | wc -l) -eq 0 ]; then
-        eval "$COMPOSER_COMMAND $@"
+        eval "$COMPOSER_CMD $@"
         return 0
     fi
 
@@ -98,16 +74,18 @@ composer() {
         # If the force flag is used, run the command regardless
         if [[ "$1" == "-f" ]]; then
             shift
-            eval "$COMPOSER_COMMAND $@"
+            eval "$COMPOSER_CMD $@"
             return 0
         fi
 
         return 1
     fi
 
-    if [ ! -f "composer.phar" ]; then
-        COMPOSER_COMMAND="composer"
+    if dc ps | grep 'app' &> /dev/null; then
+        echo "Running composer in the app container."
+        dc exec app ${(Q)${(z)COMPOSER_CMD}} "$@"
+        return 0
     fi
 
-    dc exec app ${(Q)${(z)COMPOSER_COMMAND}} "$@"
+    eval "$COMPOSER_CMD $@"
 }
