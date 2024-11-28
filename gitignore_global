@@ -10,3 +10,6 @@ docker-compose.override.yml
 ray.php
 .tinkerwell
 .php-cs-fixer.cache
+node_modules/
+.next/
+.next_old/

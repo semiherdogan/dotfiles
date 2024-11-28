@@ -33,7 +33,7 @@ alias control-panel-kill='killall -m Control Center'
 alias clipboard-base64-encode='pbpaste | base64 | xargs echo | pbcopy && pbpaste && echo "Copied."'
 alias base64-decode='pbpaste | base64 --decode'
 
-alias flush-dns='sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder'
+alias flush-dns='sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder; echo "DNS cache flushed."'
 
 o() {
     if [ $# -eq 0 ]; then
