@@ -43,6 +43,12 @@ d-compose() {
         shift
     fi
 
+    # if vendor/bin/sail is found, use it
+    if [ -f "vendor/bin/sail" ]; then
+        vendor/bin/sail -f "$DOCKER_COMPOSE_FILE" "$@"
+        return 0
+    fi
+
     docker compose -f "$DOCKER_COMPOSE_FILE" "$@"
 }
 

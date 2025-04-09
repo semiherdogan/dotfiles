@@ -29,9 +29,11 @@ source ~/dotfiles/bootstrap.sh
 - [miniserve](https://github.com/svenstaro/miniserve)
 - [zoxide](https://github.com/ajeetdsouza/zoxide)
 - [the-way](https://github.com/out-of-cheese-error/the-way)
+- [starship.rs](https://starship.rs/)
 
 # apps (gui)
 - [Alfred](https://www.alfredapp.com/)
+- [WezTerm](https://wezterm.org/)
 - [Flux](https://justgetflux.com/)
 - [Espanso](https://espanso.org/)
 - [OpenInTerminal](https://github.com/Ji4n1ng/OpenInTerminal)

@@ -5,6 +5,9 @@
 export HOMEBREW_NO_AUTO_UPDATE=1
 export HOMEBREW_NO_ANALYTICS=1
 
+export HISTCONTROL="ignoreboth"
+
+alias show-hidden='defaults write com.apple.finder AppleShowAllFiles TRUE ; killall Finder'
 alias remove--ds_store="find . -type f -name '*.DS_Store' -ls -delete"
 
 php--check-syntax(){
@@ -27,9 +30,11 @@ alias gl='open -a /Applications/GoLand.app "`pwd`"'
 
 alias itab='open -a iterm "`pwd`"'
 
-alias audio-kill='sudo pkill coreaudiod'
-alias control-panel-kill='killall -m Control Center'
+alias kill-audio='sudo pkill coreaudiod'
+alias kill-control-panel='killall -m Control Center'
+alias kill-touch-bar='sudo pkill touchbarserver'
 
+alias clipboard-oneline='pbpaste | tr -d "\n" | pbcopy && pbpaste && echo "Copied."'
 alias clipboard-base64-encode='pbpaste | base64 | xargs echo | pbcopy && pbpaste && echo "Copied."'
 alias base64-decode='pbpaste | base64 --decode'
 
@@ -118,10 +123,10 @@ brew-update() {
         echo "Ok."
     }
 
-    [[ -f $HOME/v/v ]] && {
-        echo "$GREEN_LINE V Up"
-        $HOME/v/v up
-    }
+    # [[ -f $HOME/v/v ]] && {
+    #     echo "$GREEN_LINE V Up"
+    #     $HOME/v/v up
+    # }
 
     echo ""
     echo "$DIVISION Done."
