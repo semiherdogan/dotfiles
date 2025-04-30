@@ -27,7 +27,6 @@ source ~/dotfiles/bootstrap.sh
 - [bandwhich](https://github.com/imsnif/bandwhich)
 - [onefetch](https://github.com/o2sh/onefetch)
 - [miniserve](https://github.com/svenstaro/miniserve)
-- [zoxide](https://github.com/ajeetdsouza/zoxide)
 - [the-way](https://github.com/out-of-cheese-error/the-way)
 - [starship.rs](https://starship.rs/)
 

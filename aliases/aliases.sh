@@ -38,8 +38,9 @@ py() {
 }
 
 py-env() {
+    local default_version=$(python3 -V | sed -e 's/Python //')
     # Create environment if it doesn't exist
-    [ ! -d "$PIPENV_CUSTOM_VENV_NAME/" ] && echo "Creating environment.." && pipenv --python ${1:-3.12}
+    [ ! -d "$PIPENV_CUSTOM_VENV_NAME/" ] && echo "Creating environment.." && pipenv --python ${1:-$default_version} && echo "Created. ($PIPENV_CUSTOM_VENV_NAME)"
 
     # Deactivate if already activated
     declare -Ff "deactivate" >/dev/null && deactivate && echo 'Deactivated.'
