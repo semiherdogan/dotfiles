@@ -4,7 +4,27 @@
 
 # Docker (d)
 alias d-ps='docker ps'
-alias d-stop-all='docker stop $(docker ps -q)'
+
+d-stop-all() {
+    local containers=$(docker ps -q)
+
+    if [ -z "$containers" ]; then
+        echo "No running containers to stop."
+        return 0
+    fi
+
+    if [[ "$containers" == *" "* ]]; then
+        docker ps --format "table {{.ID}}\t{{.Names}}" | grep -E "^(${containers// /|})" || true
+    else
+        docker ps --format "table {{.ID}}\t{{.Names}}" | grep -E "^$containers" || true
+    fi
+
+    echo ""
+
+    docker stop $(echo $containers) > /dev/null 2>&1
+
+    echo "Stopped all running containers."
+}
 
 #  Docker Compose
 d-compose() {
@@ -19,9 +39,18 @@ d-compose() {
         "docker-compose.local.yml"
 
         "docker-compose.yml"
+        "docker-compose.yaml"
+
+        "compose.yml"
 
         "docker-compose.test.yml"
         "docker-compose-test.yml"
+
+        "docker-compose.stage.yml"
+        "docker-compose-stage.yml"
+
+        docker-compose.prod.yml
+        docker-compose-prod.yml
     )
 
     local DOCKER_COMPOSE_FILE=''

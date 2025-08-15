@@ -1,1 +1,0 @@
-Add this files into `~/Library/Services`

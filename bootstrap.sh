@@ -25,7 +25,6 @@ source_aliases () {
 source_aliases
 
 # Script Aliases
-alias ip="php '$DOTFILES_BASE/scripts/php/ip.php'"
 alias pr="php '$DOTFILES_BASE/scripts/php/bitbucket-pull-request.php'"
 
 # Psysh

@@ -27,6 +27,12 @@ loop () {
     done
 }
 
+epoch2date(){
+	local epoch="${1:-$(pbpaste)}"
+	echo $epoch
+	node -p "new Date(('$epoch'.replace('.', '')+'00000').slice(0, 13) * 1).toISOString().replace('T', ' ').replace(/\..+/, '')"
+}
+
 # Python
 alias py-run="py -m"
 alias py-server="py -m http.server"

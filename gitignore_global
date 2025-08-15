@@ -13,3 +13,4 @@ ray.php
 node_modules/
 .next/
 .next_old/
+bun.lock

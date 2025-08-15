@@ -4,6 +4,7 @@
 
 export HOMEBREW_NO_AUTO_UPDATE=1
 export HOMEBREW_NO_ANALYTICS=1
+export CLIPBOARD_HISTORY=1d
 
 export HISTCONTROL="ignoreboth"
 
@@ -16,9 +17,19 @@ php--check-syntax(){
         | grep '^No syntax errors' -v
 }
 
+alias security-allow='xattr -d com.apple.quarantine'
+
 alias pwd-clipboard='pwd && pwd | pbcopy'
-alias json-beautify='pbpaste | jq "."'
-alias json-beautify-to-clipboard='json-beautify && json-beautify | pbcopy'
+
+alias json-parse="cb p | jq -r | jq"
+alias json-parse-to-clipboard='json-parse && json-parse | cb'
+
+alias json-beautify="json-parse"
+alias json-beautify-to-clipboard='json-parse-to-clipboard'
+
+# alias json-beautify="cb p | jq"
+# alias json-beautify-to-clipboard='json-beautify && json-beautify | cb'
+
 alias unixtime='echo $(date +%s) && echo -n $(date +%s) | pbcopy && echo "Copied."'
 
 alias shrug="echo '¯\_(ツ)_/¯' && echo '¯\_(ツ)_/¯' | pbcopy";
@@ -27,6 +38,7 @@ alias shrug="echo '¯\_(ツ)_/¯' && echo '¯\_(ツ)_/¯' | pbcopy";
 alias st='open -a /Applications/PhpStorm.app "`pwd`"'
 alias rr='open -a /Applications/RustRover.app "`pwd`"'
 alias gl='open -a /Applications/GoLand.app "`pwd`"'
+alias ide='open -a "/Applications/IntelliJ IDEA.app" "`pwd`"'
 
 alias itab='open -a iterm "`pwd`"'
 
@@ -72,7 +84,7 @@ python-server-here() {
 }
 
 generate-passwords() {
-    for i in $( pbpaste ); do
+    for i in $(pbpaste); do
         pwgen -s -1 ${1:-15} "${@:2}" | sed "s/^/$i /";
     done
 }
@@ -109,19 +121,19 @@ brew-update() {
 
     echo ""
 
-    [[ -f $HOME/.bun/bin/bun ]] && {
-        echo "$GREEN_LINE Bun Upgrade"
-        $HOME/.bun/bin/bun upgrade --stable
-    }
+    # [[ -f $HOME/.bun/bin/bun ]] && {
+    #     echo "$GREEN_LINE Bun Upgrade"
+    #     $HOME/.bun/bin/bun upgrade --stable
+    # }
 
-    [[ -f $DOTFILES_BASE/psysh ]] && {
-        echo "$GREEN_LINE PsySH Upgrade"
+    # [[ -f $DOTFILES_BASE/psysh ]] && {
+    #     echo "$GREEN_LINE PsySH Upgrade"
 
-        local download_path="$DOTFILES_BASE/psysh"
-        curl -s -o "$download_path" https://psysh.org/psysh
-        chmod +x "$download_path"
-        echo "Ok."
-    }
+    #     local download_path="$DOTFILES_BASE/psysh"
+    #     curl -s -o "$download_path" https://psysh.org/psysh
+    #     chmod +x "$download_path"
+    #     echo "Ok."
+    # }
 
     # [[ -f $HOME/v/v ]] && {
     #     echo "$GREEN_LINE V Up"
@@ -130,4 +142,15 @@ brew-update() {
 
     echo ""
     echo "$DIVISION Done."
+}
+
+ip() {
+  if [ -n "$1" ]; then
+    # Clean up input: remove http[s]://, www., port, path, query
+    domain=$(echo "$1" | sed -E 's#^https?://##' | sed -E 's#^www\.##' | cut -d/ -f1 | cut -d: -f1)
+    dig +short "$domain" | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1
+  else
+    # Get your own public IP using OpenDNS
+    dig +short myip.opendns.com @resolver1.opendns.com
+  fi
 }
