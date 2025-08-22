@@ -1,7 +1,9 @@
 # dotfiles
+
 My personal dotfiles.
 
 To get started, clone this repository into your home directory:
+
 ```
 git clone https://github.com/semiherdogan/dotfiles ~/dotfiles
 ```
@@ -9,17 +11,20 @@ git clone https://github.com/semiherdogan/dotfiles ~/dotfiles
 Then follow the steps below to set up your shell and git configuration.
 
 - Source `bootstrap.sh` file into `~/.zshrc` or `~/.bashrc` file.
+
 ```
 source ~/dotfiles/bootstrap.sh
 ```
 
 - Add this line into `~/.gitconfig` file.
+
 ```
 [include]
 	path = "~/dotfiles/gitconfig"
 ```
 
 # cli apps
+
 - [curlie](https://github.com/rs/curlie)
 - [github cli](https://cli.github.com/)
 - [bitbucket cli](https://github.com/bb-cli/bb-cli)
@@ -35,10 +40,10 @@ source ~/dotfiles/bootstrap.sh
 - [miniserve](https://github.com/svenstaro/miniserve)
 - [colima](https://github.com/abiosoft/colima)
 - [k9s](https://github.com/derailed/k9s)
-- [github-cli](https://cli.github.com/)
-
+- [uv](https://github.com/astral-sh/uv)
 
 # gui apps
+
 - [Alfred](https://www.alfredapp.com/)
 - [iTerm](https://iterm2.com/)
 - [Flux](https://justgetflux.com/)
