@@ -103,11 +103,4 @@ alias yolo-message='curl -sS https://whatthecommit.com/index.txt'
 
 alias reload="exec ${SHELL} -l"
 
-copilot() {
-    if [ -z "$1" ]; then
-        echo "Please provide a message."
-        return 1
-    fi
-
-    gh copilot explain "$@"
-}
+alias truncate-zed-threads="sqlite3 ~/Library/Application\ Support/Zed/threads/threads.db 'DELETE FROM threads;'"

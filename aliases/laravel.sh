@@ -2,7 +2,8 @@
 # Laravel
 ##
 
-alias a='artisan'
+alias a='php -d="memory_limit=-1" artisan "$@"'
+alias da='docker-artisan'
 alias tinker='artisan tinker'
 alias migrate='artisan migrate'
 alias migrate-status='artisan migrate:status'
@@ -28,7 +29,7 @@ _artisan_command_list_for_autocomplete() {
 compdef _artisan_command_list_for_autocomplete artisan
 # fi
 
-artisan () {
+docker-artisan () {
     if [ $(ls -l | grep 'docker-compose' | wc -l) -eq 0 ]; then
         php -d="memory_limit=-1" artisan "$@"
         return 0

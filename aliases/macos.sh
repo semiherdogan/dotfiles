@@ -8,6 +8,11 @@ export CLIPBOARD_HISTORY=1d
 
 export HISTCONTROL="ignoreboth"
 
+# ocr() {
+#     screencapture -i /tmp/ocr.png
+#     tesseract /tmp/ocr.png stdout -l tur | cb
+# }
+
 alias show-hidden='defaults write com.apple.finder AppleShowAllFiles TRUE ; killall Finder'
 alias remove--ds_store="find . -type f -name '*.DS_Store' -ls -delete"
 
