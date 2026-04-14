@@ -19,6 +19,9 @@ alias pest-filter='vendor/bin/pest --filter'
 alias pint='vendor/bin/pint'
 alias pint-lint='vendor/bin/pint --test'
 
+alias composer-here-latest='curl -sS https://getcomposer.org/installer | php'
+alias composer-here-1='wget https://github.com/composer/composer/releases/download/1.10.26/composer.phar'
+
 # Enable autocomplete for artisan command
 # if [ -x "$(command -v compdef)" ]; then
 _artisan_command_list_for_autocomplete() {

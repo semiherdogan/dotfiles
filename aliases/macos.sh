@@ -41,11 +41,12 @@ alias shrug="echo '¯\_(ツ)_/¯' && echo '¯\_(ツ)_/¯' | pbcopy";
 
 # App shortcuts
 alias st='open -a /Applications/PhpStorm.app "`pwd`"'
-alias rr='open -a /Applications/RustRover.app "`pwd`"'
-alias gl='open -a /Applications/GoLand.app "`pwd`"'
-alias ide='open -a "/Applications/IntelliJ IDEA.app" "`pwd`"'
+# alias rr='open -a /Applications/RustRover.app "`pwd`"'
+# alias gl='open -a /Applications/GoLand.app "`pwd`"'
+# alias ide='open -a "/Applications/IntelliJ IDEA.app" "`pwd`"'
 
 alias itab='open -a iterm "`pwd`"'
+# alias wtab='open -a warp "`pwd`"'
 
 alias kill-audio='sudo pkill coreaudiod'
 alias kill-control-panel='killall -m Control Center'
@@ -56,6 +57,16 @@ alias clipboard-base64-encode='pbpaste | base64 | xargs echo | pbcopy && pbpaste
 alias base64-decode='pbpaste | base64 --decode'
 
 alias flush-dns='sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder; echo "DNS cache flushed."'
+
+listening() {
+    if [ $# -eq 0 ]; then
+        sudo lsof -iTCP -sTCP:LISTEN -n -P
+    elif [ $# -eq 1 ]; then
+        sudo lsof -iTCP -sTCP:LISTEN -n -P | grep -i --color $1
+    else
+        echo "Usage: listening [pattern]"
+    fi
+}
 
 o() {
     if [ $# -eq 0 ]; then

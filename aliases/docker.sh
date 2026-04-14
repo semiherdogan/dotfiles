@@ -62,6 +62,16 @@ d-compose() {
         fi
     done
 
+    # Check in the docker/ folder if not found in the root
+    if [[ -z $DOCKER_COMPOSE_FILE ]]; then
+        for file in "${files[@]}"; do
+            if [ -f "./docker/$file" ]; then
+                DOCKER_COMPOSE_FILE="./docker/$file"
+                break
+            fi
+        done
+    fi
+
     if [[ -z $DOCKER_COMPOSE_FILE ]]; then
         echo "Docker file not found."
         return 1
