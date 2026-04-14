@@ -50,8 +50,6 @@ Run:
 ## Common Dependencies
 
 - [jq](https://jqlang.org/)
-- [Slackadays/Clipboard](https://github.com/Slackadays/Clipboard)
-- [pwgen](https://formulae.brew.sh/formula/pwgen)
 - [delta](https://github.com/dandavison/delta)
 - [gh](https://cli.github.com/)
 - [bb](https://github.com/bb-cli/bb-cli)

@@ -37,7 +37,11 @@ loop () {
     fi
 
     for ((i = 1; i <= count; i++)); do
-        "$@"
+        if [ "$#" -eq 1 ]; then
+            sh -c "$1"
+        else
+            "$@"
+        fi
     done
 }
 

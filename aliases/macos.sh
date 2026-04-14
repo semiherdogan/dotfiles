@@ -10,7 +10,7 @@ export HISTCONTROL="ignoreboth"
 
 # ocr() {
 #     screencapture -i /tmp/ocr.png
-#     tesseract /tmp/ocr.png stdout -l tur | cb
+#     tesseract /tmp/ocr.png stdout -l tur | pbcopy
 # }
 
 alias show-hidden='defaults write com.apple.finder AppleShowAllFiles TRUE ; killall Finder'
@@ -26,14 +26,14 @@ alias security-allow='xattr -d com.apple.quarantine'
 
 alias pwd-clipboard='pwd && pwd | pbcopy'
 
-alias json-parse="cb p | jq -r | jq"
-alias json-parse-to-clipboard='json-parse && json-parse | cb'
+alias json-parse="pbpaste | jq -r | jq"
+alias json-parse-to-clipboard='json-parse && json-parse | pbcopy'
 
 alias json-beautify="json-parse"
 alias json-beautify-to-clipboard='json-parse-to-clipboard'
 
-# alias json-beautify="cb p | jq"
-# alias json-beautify-to-clipboard='json-beautify && json-beautify | cb'
+# alias json-beautify="pbpaste | jq"
+# alias json-beautify-to-clipboard='json-beautify && json-beautify | pbcopy'
 
 alias unixtime='echo $(date +%s) && echo -n $(date +%s) | pbcopy && echo "Copied."'
 
@@ -62,7 +62,7 @@ listening() {
     if [ $# -eq 0 ]; then
         sudo lsof -iTCP -sTCP:LISTEN -n -P
     elif [ $# -eq 1 ]; then
-        sudo lsof -iTCP -sTCP:LISTEN -n -P | grep -i --color $1
+        sudo lsof -iTCP -sTCP:LISTEN -n -P | grep -i --color -- "$1"
     else
         echo "Usage: listening [pattern]"
     fi
@@ -83,34 +83,29 @@ lo() {
     fi;
 
     if [[ -f ./.env ]]; then
-        open "$(grep '^APP_URL=' .env | awk -F= '{print $2}')"
-    else
-        open "http://localhost:80"
+        local app_url
+
+        app_url="$(grep '^APP_URL=' .env | awk -F= '{print $2}')"
+
+        if [ -n "$app_url" ]; then
+            open "$app_url"
+            return
+        fi
     fi
+
+    open "http://localhost:80"
 }
 
 php-server-here() {
-    LOCAL_SERVER_PORT=${1:-3001}
-    open http://localhost:$LOCAL_SERVER_PORT && php -S 127.0.0.1:$LOCAL_SERVER_PORT
+    local local_server_port="${1:-3001}"
+
+    open "http://localhost:$local_server_port" && php -S "127.0.0.1:$local_server_port"
 }
 
 python-server-here() {
-    LOCAL_SERVER_PORT=${1:-3002}
-    open http://localhost:$LOCAL_SERVER_PORT && python3 -m http.server $LOCAL_SERVER_PORT
-}
+    local local_server_port="${1:-3002}"
 
-generate-passwords() {
-    for i in $(pbpaste); do
-        pwgen -s -1 ${1:-15} "${@:2}" | sed "s/^/$i /";
-    done
-}
-
-x64() {
-    arch -x86_64 $@
-}
-
-extract-links-from-har-file() {
-    pbpaste | jq -r '.log.entries|.[].request.url'
+    open "http://localhost:$local_server_port" && python3 -m http.server "$local_server_port"
 }
 
 brew-update() {
@@ -153,10 +148,11 @@ brew-update() {
 
 ip() {
   if [ -n "$1" ]; then
-    # Clean up input: remove http[s]://, www., port, path, query
-    domain=$(echo "$1" | sed -E 's#^https?://##' | sed -E 's#^www\.##' | cut -d/ -f1 | cut -d: -f1)
+    local domain
+
+    domain=$(printf '%s' "$1" | sed -E 's#^https?://##' | sed -E 's#^www\.##' | cut -d/ -f1 | cut -d: -f1)
     dig +short "$domain" | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1
-  else
+    else
     # Get your own public IP using OpenDNS
     dig +short myip.opendns.com @resolver1.opendns.com
   fi

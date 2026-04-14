@@ -47,13 +47,13 @@ add() {
 
 alias wip='commit .'
 commit() {
-    local commit_message="$1"
-
     if [ "$1" = "." ]; then
         shift 1
 
         git add .
     fi
+
+    local commit_message="${*:-wip}"
 
     if [ -z "$commit_message" ]; then
         commit_message='wip'

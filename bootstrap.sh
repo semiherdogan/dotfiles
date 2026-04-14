@@ -35,3 +35,7 @@ source_optional_files() {
 
 source_core_files
 source_optional_files
+
+unset -f source_core_files
+unset -f source_optional_files
+unset -f source_if_exists

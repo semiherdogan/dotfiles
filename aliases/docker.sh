@@ -21,7 +21,7 @@ d-stop-all() {
 
     echo ""
 
-    docker stop $(echo $containers) > /dev/null 2>&1
+    printf '%s\n' "$containers" | xargs docker stop > /dev/null 2>&1
 
     echo "Stopped all running containers."
 }
@@ -119,7 +119,7 @@ alias dc-exec='dc exec'
 alias dc-app='dc exec app'
 alias dc-bash='dc exec app bash'
 alias dc-sh='dc exec app sh'
-alias dc-php='dc exec app php -d "memory_limit = -1"'
+alias dc-php='dc exec app php -d memory_limit=-1'
 
 # Nodejs
 alias node20='docker run -it --rm --name my-running-script -v "$PWD":/usr/src/app -w /usr/src/app node:20'

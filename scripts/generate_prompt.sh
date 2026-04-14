@@ -55,6 +55,6 @@ Before producing the final output:
 - Also answer in turkish language
 "
 
-echo -e "$PROMPT" | cb
+echo -e "$PROMPT" | pbcopy
 
-# echo "Copied to clipboard ✅"
+echo "Copied to clipboard ✅"
