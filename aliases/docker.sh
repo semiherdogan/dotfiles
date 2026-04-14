@@ -26,69 +26,91 @@ d-stop-all() {
     echo "Stopped all running containers."
 }
 
-#  Docker Compose
+#  Docker Compose
 d-compose() {
-    local files=(
-        "docker-compose.override.yml"
-        "docker-compose-override.yml"
-
-        "docker-compose.dev.yml"
-        "docker-compose-dev.yml"
-
-        "docker-compose-local.yml"
-        "docker-compose.local.yml"
-
+    local root
+    local file
+    local compose_dir=''
+    local base_file=''
+    local -a search_roots=(
+        "."
+        "./docker"
+    )
+    local -a base_files=(
         "docker-compose.yml"
         "docker-compose.yaml"
-
         "compose.yml"
-
+    )
+    local -a overlay_files=(
+        "docker-compose.override.yml"
+        "docker-compose-override.yml"
+        "docker-compose.local.yml"
+        "docker-compose-local.yml"
+        "docker-compose.dev.yml"
+        "docker-compose-dev.yml"
+    )
+    local -a standalone_files=(
         "docker-compose.test.yml"
         "docker-compose-test.yml"
-
         "docker-compose.stage.yml"
         "docker-compose-stage.yml"
-
-        docker-compose.prod.yml
-        docker-compose-prod.yml
+        "docker-compose.prod.yml"
+        "docker-compose-prod.yml"
     )
+    local -a compose_args=()
 
-    local DOCKER_COMPOSE_FILE=''
-
-    for file in "${files[@]}"; do
-        if [ -f "$file" ]; then
-            DOCKER_COMPOSE_FILE="$file"
-            break
-        fi
+    for root in "${search_roots[@]}"; do
+        for file in "${base_files[@]}"; do
+            if [ -f "$root/$file" ]; then
+                compose_dir="$root"
+                base_file="$root/$file"
+                break 2
+            fi
+        done
     done
 
-    # Check in the docker/ folder if not found in the root
-    if [[ -z $DOCKER_COMPOSE_FILE ]]; then
-        for file in "${files[@]}"; do
-            if [ -f "./docker/$file" ]; then
-                DOCKER_COMPOSE_FILE="./docker/$file"
-                break
+    if [ -n "$base_file" ]; then
+        compose_args=(-f "$base_file")
+
+        for file in "${overlay_files[@]}"; do
+            if [ -f "$compose_dir/$file" ]; then
+                compose_args+=(-f "$compose_dir/$file")
             fi
+        done
+    else
+        for root in "${search_roots[@]}"; do
+            for file in "${standalone_files[@]}"; do
+                if [ -f "$root/$file" ]; then
+                    compose_args=(-f "$root/$file")
+                    break 2
+                fi
+            done
         done
     fi
 
-    if [[ -z $DOCKER_COMPOSE_FILE ]]; then
-        echo "Docker file not found."
+    if [ "${#compose_args[@]}" -eq 0 ]; then
+        echo "Docker compose file not found."
         return 1
     fi
 
-    if [[ "$1" == "--show" ]]; then
-        echo "File: $DOCKER_COMPOSE_FILE"
+    if [ "$1" = "--show" ]; then
+        printf 'Files:\n'
+
+        for file in "${compose_args[@]}"; do
+            if [ "$file" != "-f" ]; then
+                printf '%s\n' "$file"
+            fi
+        done
+
         shift
     fi
 
-    # if vendor/bin/sail is found, use it
     if [ -f "vendor/bin/sail" ]; then
-        vendor/bin/sail -f "$DOCKER_COMPOSE_FILE" "$@"
+        vendor/bin/sail "${compose_args[@]}" "$@"
         return 0
     fi
 
-    docker compose -f "$DOCKER_COMPOSE_FILE" "$@"
+    docker compose "${compose_args[@]}" "$@"
 }
 
 alias dc='d-compose'
@@ -102,35 +124,61 @@ alias dc-php='dc exec app php -d "memory_limit = -1"'
 # Nodejs
 alias node20='docker run -it --rm --name my-running-script -v "$PWD":/usr/src/app -w /usr/src/app node:20'
 
-# Composer
-co() {
-    local COMPOSER_CMD="composer"
-    [ -f "composer.phar" ] && COMPOSER_CMD="php -d memory_limit=-1 composer.phar"
+_composer_command() {
+    if [ -f "composer.phar" ]; then
+        printf 'php\n-d\nmemory_limit=-1\ncomposer.phar\n'
+        return 0
+    fi
 
-    # If docker-compose is not found, run the command locally
-    if [ $(ls -l | grep 'docker-compose' | wc -l) -eq 0 ]; then
-        eval "$COMPOSER_CMD $@"
+    if command -v composer >/dev/null 2>&1; then
+        printf 'composer\n'
+        return 0
+    fi
+
+    return 1
+}
+
+co() {
+    local force_local=0
+    local line
+    local -a composer_cmd=()
+
+    if [ "$1" = "-f" ]; then
+        force_local=1
+        shift
+    fi
+
+    while IFS= read -r line; do
+        composer_cmd+=("$line")
+    done <<EOF
+$(_composer_command)
+EOF
+
+    if [ "${#composer_cmd[@]}" -eq 0 ]; then
+        echo "Composer is not installed."
+        return 1
+    fi
+
+    if [ "$force_local" -eq 1 ]; then
+        "${composer_cmd[@]}" "$@"
+        return 0
+    fi
+
+    if ! d-compose --show >/dev/null 2>&1; then
+        "${composer_cmd[@]}" "$@"
         return 0
     fi
 
     if ! dc ps | grep -q '.'; then
         echo "Docker is not running."
-
-        # If the force flag is used, run the command regardless
-        if [[ "$1" == "-f" ]]; then
-            shift
-            eval "$COMPOSER_CMD $@"
-            return 0
-        fi
-
         return 1
     fi
 
-    if dc ps | grep 'app' &> /dev/null; then
+    if dc ps | grep 'app' >/dev/null 2>&1; then
         echo "Running composer in the app container."
-        dc exec app ${(Q)${(z)COMPOSER_CMD}} "$@"
+        dc exec app "${composer_cmd[@]}" "$@"
         return 0
     fi
 
-    eval "$COMPOSER_CMD $@"
+    "${composer_cmd[@]}" "$@"
 }

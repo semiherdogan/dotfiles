@@ -83,7 +83,7 @@ lo() {
     fi;
 
     if [[ -f ./.env ]]; then
-        open $(cat .env | grep APP_URL | awk -F= '{print $2}')
+        open "$(grep '^APP_URL=' .env | awk -F= '{print $2}')"
     else
         open "http://localhost:80"
     fi
@@ -140,15 +140,6 @@ brew-update() {
     # [[ -f $HOME/.bun/bin/bun ]] && {
     #     echo "$GREEN_LINE Bun Upgrade"
     #     $HOME/.bun/bin/bun upgrade --stable
-    # }
-
-    # [[ -f $DOTFILES_BASE/psysh ]] && {
-    #     echo "$GREEN_LINE PsySH Upgrade"
-
-    #     local download_path="$DOTFILES_BASE/psysh"
-    #     curl -s -o "$download_path" https://psysh.org/psysh
-    #     chmod +x "$download_path"
-    #     echo "Ok."
     # }
 
     # [[ -f $HOME/v/v ]] && {

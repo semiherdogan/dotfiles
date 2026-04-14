@@ -1,2 +1,3 @@
-/psysh
-/environment
+/environment/
+/local.sh
+/work.sh

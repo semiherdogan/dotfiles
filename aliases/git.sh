@@ -6,26 +6,15 @@
 
 alias g='git'
 alias gs='git status'
-alias nah='git reset --hard && git clean -df'
-alias pull='git pull'
-alias push='git push'
-alias status='git status'
 alias ss='echo "Current branch: $(git branch --show-current)" && echo "Status: " && git status -s'
 alias fetch='git fetch'
 alias stash='git stash --include-untracked'
 alias stash-list='git stash list'
 alias pop='git stash pop'
 alias unstage='git restore --staged'
-alias diff='git diff'
-alias checkout='git checkout'
-alias switch='git switch'
-alias restore='git restore'
-alias revert-file-to-previous='git checkout HEAD^'
-alias amend='git commit --amend'
-alias undo-commit='git reset HEAD~ '
 
 clone() {
-    if [[ "$2" == "" ]]; then
+    if [ -z "$2" ]; then
         git clone "$1"
         return
     fi
@@ -39,25 +28,38 @@ alias releaseb='git switch release && git pull'
 alias main='git switch main && git pull'
 alias master='git switch master && git pull'
 
+nah() {
+    echo "This will discard tracked changes and delete untracked files."
+    read -r "?Continue? [y/N] " reply
+    [ "$reply" = "y" ] || return 1
+
+    git reset --hard && git clean -df
+}
+
 add() {
-    git add ${@:-.}
+    if [ "$#" -eq 0 ]; then
+        git add .
+        return
+    fi
+
+    git add "$@"
 }
 
 alias wip='commit .'
 commit() {
-    if [[ "$1" == "." ]]; then
+    local commit_message="$1"
+
+    if [ "$1" = "." ]; then
         shift 1
 
         git add .
     fi
 
-    commitMessage="$1"
-
-    if [ "$commitMessage" = "" ]; then
-        commitMessage='wip'
+    if [ -z "$commit_message" ]; then
+        commit_message='wip'
     fi
 
-    eval "git commit -m '${commitMessage}'"
+    git commit -m "$commit_message"
 }
 
 alias branch='git -P branch'
@@ -69,27 +71,30 @@ alias branch-delete-remote='git push origin --delete'
 alias branch-authors='git for-each-ref --format="%(color:cyan)%(authordate:format:%Y-%m-%d %H:%M)   %(align:23,left)%(color:yellow)%(authorname)%(end) %(color:reset)%(refname:strip=3)" --sort=authordate refs/remotes'
 
 branch-create() {
-    git fetch -pq && git checkout -b $2 --no-track origin/$1
+    if [ "$#" -ne 2 ]; then
+        echo "Usage: branch-create <remote-branch> <new-branch>"
+        return 1
+    fi
+
+    git fetch -pq && git checkout -b "$2" --no-track "origin/$1"
 }
 
 alias last-commit-diff='git diff HEAD@{1}'
 
-merge() {
+merge-branch() {
+    if [ "$#" -ne 1 ]; then
+        echo "Usage: merge-branch <branch>"
+        return 1
+    fi
+
     git merge "origin/$1"
 }
 
-rebase() {
+rebase-branch() {
+    if [ "$#" -ne 1 ]; then
+        echo "Usage: rebase-branch <branch>"
+        return 1
+    fi
+
     git rebase "origin/$1"
-}
-
-revert-to-hash() {
-    # Reset the index and working tree to the desired tree
-    # Ensure you have no uncommitted changes that you want to keep
-    git reset --hard $1
-
-    # Move the branch pointer back to the previous HEAD
-    git reset --soft HEAD@{1}
-
-    echo "git commit -m 'Revert to $1'"
-    echo 'git push -f'
 }

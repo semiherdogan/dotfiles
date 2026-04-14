@@ -26,16 +26,26 @@ alias curlt='curl -sS -o /dev/null -w "%{time_starttransfer}\n"'
 alias cls='clear'
 
 loop () {
-    for i in {1..$1}
-    do
-        eval ${@:2}
+    local count="$1"
+    local i
+
+    shift
+
+    if [ -z "$count" ] || [ "$#" -eq 0 ]; then
+        echo "Usage: loop <count> <command> [args ...]"
+        return 1
+    fi
+
+    for ((i = 1; i <= count; i++)); do
+        "$@"
     done
 }
 
 epoch2date(){
-	local epoch="${1:-$(pbpaste)}"
-	echo $epoch
-	node -p "new Date(('$epoch'.replace('.', '')+'00000').slice(0, 13) * 1).toISOString().replace('T', ' ').replace(/\..+/, '')"
+    local epoch="${1:-$(pbpaste)}"
+
+    echo "$epoch"
+    node -p "new Date(('$epoch'.replace('.', '') + '00000').slice(0, 13) * 1).toISOString().replace('T', ' ').replace(/\..+/, '')"
 }
 
 alias yolo-message='curl -sS https://whatthecommit.com/index.txt'

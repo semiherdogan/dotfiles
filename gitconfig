@@ -39,8 +39,6 @@
     log1 = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
     log2 = log --pretty=format:'%Cred|%Creset %<(12,trunc)%cr %Cred|%Creset %<(15,trunc)%aN %Cred|%Creset %<(50,trunc)%s %Cgreen|%Creset %h %Cgreen|%Creset %cd %Cgreen|%Creset' --abbrev-commit --date=format:'%Y-%m-%d %H:%M:%S'
     reset-soft = reset --soft HEAD~1
-    reset-hard = reset --hard HEAD~1
-    nah = !git reset --hard && git clean -df
     undo=reset --soft HEAD^
     sortdiff = !sh -c 'git diff "$@" | grep "^[+-]" | sort --key=1.2 | uniq -u -s1'
     new = !sh -c 'git log $1@{1}..$1@{0} "$@"'

@@ -1,55 +1,52 @@
 # dotfiles
 
-My personal dotfiles.
+Shell bootstrap, aliases, git config, and a few helper scripts.
 
-To get started, clone this repository into your home directory:
+## Setup
 
-```
-git clone https://github.com/semiherdogan/dotfiles ~/dotfiles
-```
+Clone the repo anywhere, then source `bootstrap.sh` from your shell startup file:
 
-Then follow the steps below to set up your shell and git configuration.
-
-- Source `bootstrap.sh` file into `~/.zshrc` or `~/.bashrc` file.
-
-```
-source ~/dotfiles/bootstrap.sh
+```sh
+source /absolute/path/to/dotfiles/bootstrap.sh
 ```
 
-- Add this line into `~/.gitconfig` file.
+Include the shared Git config from `~/.gitconfig`:
 
-```
+```ini
 [include]
-	path = "~/dotfiles/gitconfig"
+    path = /absolute/path/to/dotfiles/gitconfig
 ```
 
-# cli apps
+If the repo is not at `~/dotfiles`, update the `core.excludesfile` path inside `gitconfig` too.
 
-- [curlie](https://github.com/rs/curlie)
-- [github cli](https://cli.github.com/)
-- [bitbucket cli](https://github.com/bb-cli/bb-cli)
+## Layout
+
+- `bootstrap.sh`: entrypoint, resolves the repo path dynamically.
+- `aliases/`: tracked shell aliases and functions.
+- `scripts/`: small project helpers.
+- `work.sh`: optional untracked work-specific commands.
+- `local.sh`: optional untracked machine-specific commands.
+
+Use the example files as a starting point:
+
+```sh
+cp /absolute/path/to/dotfiles/work.example.sh /absolute/path/to/dotfiles/work.sh
+cp /absolute/path/to/dotfiles/local.example.sh /absolute/path/to/dotfiles/local.sh
+```
+
+## Validation
+
+Run:
+
+```sh
+/absolute/path/to/dotfiles/bin/check
+```
+
+## Common Dependencies
+
 - [jq](https://jqlang.org/)
 - [Slackadays/Clipboard](https://github.com/Slackadays/Clipboard)
 - [pwgen](https://formulae.brew.sh/formula/pwgen)
 - [delta](https://github.com/dandavison/delta)
-- [psysh - php repl](https://psysh.org/)
-- [merged-branches](https://github.com/semiherdogan/merged-branches)
-- [httpstat](https://github.com/davecheney/httpstat)
-- [bandwhich](https://github.com/imsnif/bandwhich)
-- [onefetch](https://github.com/o2sh/onefetch)
-- [miniserve](https://github.com/svenstaro/miniserve)
-- [colima](https://github.com/abiosoft/colima)
-- [k9s](https://github.com/derailed/k9s)
-- [uv](https://github.com/astral-sh/uv)
-
-# gui apps
-
-- [Alfred](https://www.alfredapp.com/)
-- [iTerm](https://iterm2.com/)
-- [Flux](https://justgetflux.com/)
-- [Espanso](https://espanso.org/)
-- [OpenInTerminal](https://github.com/Ji4n1ng/OpenInTerminal)
-- [Hidden menu bar items](https://github.com/dwarvesf/hidden)
-- [Lunar](https://lunar.fyi/)
-- [CleanShot](https://cleanshot.com/)
-- [Amphetamine](https://apps.apple.com/us/app/amphetamine/id937984704)
+- [gh](https://cli.github.com/)
+- [bb](https://github.com/bb-cli/bb-cli)

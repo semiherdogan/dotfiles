@@ -1,26 +1,50 @@
-DOTFILES_BASE=~/dotfiles
-
-# Source files
-source_aliases () {
-    source $DOTFILES_BASE/aliases/exports.sh
-    source $DOTFILES_BASE/aliases/aliases.sh
-    source $DOTFILES_BASE/aliases/git.sh
-    source $DOTFILES_BASE/aliases/docker.sh
-    source $DOTFILES_BASE/aliases/laravel.sh
-    # source ~/dotfiles/scripts/bitbucket_pr.sh
-    source $DOTFILES_BASE/aliases/ai.sh
-
-    if [[ -f "$DOTFILES_BASE/environment/bash.sh" ]]; then
-        source "$DOTFILES_BASE/environment/bash.sh"
+dotfiles_bootstrap_dir() {
+    if [ -n "${BASH_SOURCE[0]:-}" ]; then
+        dirname "${BASH_SOURCE[0]}"
+        return
     fi
 
-    source $DOTFILES_BASE/aliases/macos.sh
+    if [ -n "${ZSH_VERSION:-}" ]; then
+        dirname "${(%):-%N}"
+        return
+    fi
+
+    pwd
 }
 
-source_aliases
+DOTFILES_BASE="${DOTFILES_BASE:-$(cd "$(dotfiles_bootstrap_dir)" && pwd)}"
+export DOTFILES_BASE
 
-# Script Aliases
-alias pr="php '$DOTFILES_BASE/scripts/php/bitbucket-pull-request.php'"
+source_if_exists() {
+    [ -f "$1" ] && . "$1"
+}
 
-# Psysh
-alias p="$DOTFILES_BASE/psysh --color --cwd $(pwd)"
+source_core_files() {
+    local file
+
+    for file in \
+        aliases/exports.sh \
+        aliases/aliases.sh \
+        aliases/git.sh \
+        aliases/docker.sh \
+        aliases/laravel.sh \
+        aliases/ai.sh \
+        aliases/macos.sh
+    do
+        source_if_exists "$DOTFILES_BASE/$file"
+    done
+}
+
+source_optional_files() {
+    local file
+
+    for file in "$DOTFILES_BASE/work.sh" "$DOTFILES_BASE/local.sh"
+    do
+        source_if_exists "$file"
+    done
+}
+
+source_core_files
+source_optional_files
+
+# alias pr="php '$DOTFILES_BASE/scripts/php/bitbucket-pull-request.php'"
