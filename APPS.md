@@ -11,6 +11,8 @@ Daily-use CLI and GUI apps.
 - [ripgrep](https://github.com/BurntSushi/ripgrep)
 - [ast-grep](https://ast-grep.github.io/)
 - [Starship](https://starship.rs/)
+- [lazygit](https://github.com/jesseduffield/lazygit)
+- [lazydocker](https://github.com/jesseduffield/lazydocker)
 - [Slackadays/Clipboard](https://github.com/Slackadays/Clipboard)
 - [pwgen](https://formulae.brew.sh/formula/pwgen)
 - [delta](https://github.com/dandavison/delta)
