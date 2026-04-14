@@ -8,6 +8,9 @@ Daily-use CLI and GUI apps.
 - [github cli](https://cli.github.com/)
 - [bitbucket cli](https://github.com/bb-cli/bb-cli)
 - [jq](https://jqlang.org/)
+- [ripgrep](https://github.com/BurntSushi/ripgrep)
+- [ast-grep](https://ast-grep.github.io/)
+- [Starship](https://starship.rs/)
 - [Slackadays/Clipboard](https://github.com/Slackadays/Clipboard)
 - [pwgen](https://formulae.brew.sh/formula/pwgen)
 - [delta](https://github.com/dandavison/delta)
@@ -24,6 +27,7 @@ Daily-use CLI and GUI apps.
 
 - [Alfred](https://www.alfredapp.com/)
 - [iTerm](https://iterm2.com/)
+- [WezTerm](https://wezterm.org/)
 - [Flux](https://justgetflux.com/)
 - [Espanso](https://espanso.org/)
 - [OpenInTerminal](https://github.com/Ji4n1ng/OpenInTerminal)
