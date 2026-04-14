@@ -23,6 +23,8 @@ That writes:
     path = /absolute/path/to/dotfiles/gitconfig
 ```
 
+If you already maintain `~/.gitconfig`, keep your extra sections there and only include the shared file from this repo. See [gitconfig.home.example](/Users/semih/dotfiles/gitconfig.home.example) for the shape.
+
 ## Layout
 
 - `bootstrap.sh`: entrypoint, resolves the repo path dynamically.

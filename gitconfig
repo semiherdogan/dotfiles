@@ -7,9 +7,24 @@
     defaultBranch = main
 [core]
     editor = vi
+    pager = delta
     autocrlf = input
 [color]
     ui = auto
+[interactive]
+    diffFilter = delta --color-only
+[delta]
+    navigate = true
+    paging = never
+[merge]
+    conflictstyle = diff3
+[diff]
+    colorMoved = default
+[filter "lfs"]
+    clean = git-lfs clean -- %f
+    smudge = git-lfs smudge -- %f
+    process = git-lfs filter-process
+    required = true
 [push]
     autoSetupRemote = true
     default = current

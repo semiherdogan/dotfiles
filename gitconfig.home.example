@@ -1,0 +1,8 @@
+[include]
+    path = ~/dotfiles/gitconfig
+
+[includeIf "gitdir:~/Code/"]
+    path = ~/.work.gitconfig
+
+[core]
+    excludesfile = ~/dotfiles/gitignore_global
