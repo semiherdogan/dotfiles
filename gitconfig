@@ -7,7 +7,6 @@
     defaultBranch = main
 [core]
     editor = vi
-    excludesfile = "~/dotfiles/gitignore_global"
     autocrlf = input
 [color]
     ui = auto

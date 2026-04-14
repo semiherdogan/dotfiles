@@ -46,5 +46,3 @@ source_optional_files() {
 
 source_core_files
 source_optional_files
-
-# alias pr="php '$DOTFILES_BASE/scripts/php/bitbucket-pull-request.php'"

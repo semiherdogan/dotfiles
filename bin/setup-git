@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+git config --global include.path "$ROOT_DIR/gitconfig"
+git config --global core.excludesfile "$ROOT_DIR/gitignore_global"
+
+echo "Configured git include.path:"
+git config --global --get include.path
+echo "Configured git core.excludesfile:"
+git config --global --get core.excludesfile

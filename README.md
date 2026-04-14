@@ -10,14 +10,18 @@ Clone the repo anywhere, then source `bootstrap.sh` from your shell startup file
 source /absolute/path/to/dotfiles/bootstrap.sh
 ```
 
-Include the shared Git config from `~/.gitconfig`:
+Set up Git with the helper script:
+
+```sh
+/absolute/path/to/dotfiles/bin/setup-git
+```
+
+That writes:
 
 ```ini
 [include]
     path = /absolute/path/to/dotfiles/gitconfig
 ```
-
-If the repo is not at `~/dotfiles`, update the `core.excludesfile` path inside `gitconfig` too.
 
 ## Layout
 
@@ -26,6 +30,7 @@ If the repo is not at `~/dotfiles`, update the `core.excludesfile` path inside `
 - `scripts/`: small project helpers.
 - `work.sh`: optional untracked work-specific commands.
 - `local.sh`: optional untracked machine-specific commands.
+- `bin/setup-git`: configures Git include and global ignore paths for the current repo location.
 
 Use the example files as a starting point:
 
@@ -50,3 +55,7 @@ Run:
 - [delta](https://github.com/dandavison/delta)
 - [gh](https://cli.github.com/)
 - [bb](https://github.com/bb-cli/bb-cli)
+
+## Apps
+
+Daily apps and tools are listed in [APPS.md](APPS.md).

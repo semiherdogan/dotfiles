@@ -2,7 +2,7 @@
 # AI related aliases
 ##
 
-alias p-prompt='bash ~/dotfiles/scripts/generate_prompt.sh'
+alias p-prompt='bash "$DOTFILES_BASE/scripts/generate_prompt.sh"'
 
 codex-commit-message-generate() {
   local diff
