@@ -1,18 +1,7 @@
-dotfiles_bootstrap_dir() {
-    if [ -n "${BASH_SOURCE[0]:-}" ]; then
-        dirname "${BASH_SOURCE[0]}"
-        return
-    fi
+if [ -z "${DOTFILES_BASE:-}" ] || [ ! -d "${DOTFILES_BASE}/aliases" ]; then
+    DOTFILES_BASE="$HOME/dotfiles"
+fi
 
-    if [ -n "${ZSH_VERSION:-}" ]; then
-        dirname "${(%):-%N}"
-        return
-    fi
-
-    pwd
-}
-
-DOTFILES_BASE="${DOTFILES_BASE:-$(cd "$(dotfiles_bootstrap_dir)" && pwd)}"
 export DOTFILES_BASE
 
 source_if_exists() {
