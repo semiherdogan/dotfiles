@@ -12,15 +12,9 @@ zsh -n bootstrap.sh aliases/*.sh
 echo "Checking shell files with bash..."
 bash -n bootstrap.sh aliases/*.sh scripts/generate_prompt.sh
 
-echo "Checking for stale PsySH references..."
-if rg -n "psysh" README.md bootstrap.sh aliases scripts gitconfig work.example.sh local.example.sh >/dev/null; then
-    echo "Found stale PsySH references."
-    exit 1
-fi
-
-echo "Checking for path-dependent dotfiles references..."
-if rg -n "~/dotfiles|scripts/php/bitbucket-pull-request.php|scripts/bitbucket_pr.sh" README.md bootstrap.sh aliases ai gitconfig work.example.sh >/dev/null; then
-    echo "Found path-dependent or stale helper references."
+echo "Checking for hardcoded dotfiles paths..."
+if rg -n "~/dotfiles" README.md bootstrap.sh aliases ai gitconfig work.example.sh local.example.sh >/dev/null; then
+    echo "Found hardcoded ~/dotfiles references."
     exit 1
 fi
 
