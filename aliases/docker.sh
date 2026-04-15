@@ -28,28 +28,21 @@ d-stop-all() {
 
 #  Docker Compose
 d-compose() {
-    local root
     local file
-    local compose_dir=''
-    local base_file=''
-    local -a search_roots=(
-        "."
-        "./docker"
-    )
-    local -a base_files=(
-        "docker-compose.yml"
-        "docker-compose.yaml"
-        "compose.yml"
-    )
-    local -a overlay_files=(
+    local docker_compose_file=''
+    local -a files=(
         "docker-compose.override.yml"
         "docker-compose-override.yml"
+
         "docker-compose.local.yml"
         "docker-compose-local.yml"
         "docker-compose.dev.yml"
         "docker-compose-dev.yml"
-    )
-    local -a standalone_files=(
+
+        "docker-compose.yml"
+        "docker-compose.yaml"
+        "compose.yml"
+
         "docker-compose.test.yml"
         "docker-compose-test.yml"
         "docker-compose.stage.yml"
@@ -57,60 +50,43 @@ d-compose() {
         "docker-compose.prod.yml"
         "docker-compose-prod.yml"
     )
-    local -a compose_args=()
 
-    for root in "${search_roots[@]}"; do
-        for file in "${base_files[@]}"; do
-            if [ -f "$root/$file" ]; then
-                compose_dir="$root"
-                base_file="$root/$file"
-                break 2
-            fi
-        done
+    for file in "${files[@]}"; do
+        if [ -f "$file" ]; then
+            docker_compose_file="$file"
+            break
+        fi
     done
 
-    if [ -n "$base_file" ]; then
-        compose_args=(-f "$base_file")
-
-        for file in "${overlay_files[@]}"; do
-            if [ -f "$compose_dir/$file" ]; then
-                compose_args+=(-f "$compose_dir/$file")
+    if [ -z "$docker_compose_file" ]; then
+        for file in "${files[@]}"; do
+            if [ -f "./docker/$file" ]; then
+                docker_compose_file="./docker/$file"
+                break
             fi
-        done
-    else
-        for root in "${search_roots[@]}"; do
-            for file in "${standalone_files[@]}"; do
-                if [ -f "$root/$file" ]; then
-                    compose_args=(-f "$root/$file")
-                    break 2
-                fi
-            done
         done
     fi
 
-    if [ "${#compose_args[@]}" -eq 0 ]; then
+    if [ -z "$docker_compose_file" ]; then
         echo "Docker compose file not found."
         return 1
     fi
 
     if [ "$1" = "--show" ]; then
-        printf 'Files:\n'
-
-        for file in "${compose_args[@]}"; do
-            if [ "$file" != "-f" ]; then
-                printf '%s\n' "$file"
-            fi
-        done
-
+        printf 'File: %s\n' "$docker_compose_file"
         shift
+
+        if [ "$#" -eq 0 ]; then
+            return 0
+        fi
     fi
 
     if [ -f "vendor/bin/sail" ]; then
-        vendor/bin/sail "${compose_args[@]}" "$@"
+        vendor/bin/sail -f "$docker_compose_file" "$@"
         return 0
     fi
 
-    docker compose "${compose_args[@]}" "$@"
+    docker compose -f "$docker_compose_file" "$@"
 }
 
 alias dc='d-compose'
