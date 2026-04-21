@@ -6,6 +6,9 @@
 
 alias g='git'
 
+alias push='g push'
+alias pull='g pull'
+
 alias ss='echo "Current branch: $(git branch --show-current)" && echo "Status: " && git status -s'
 
 alias dev='git switch dev && git pull'

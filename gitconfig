@@ -22,13 +22,9 @@
 [fetch]
     prune = true
 [alias]
-    st = status --short --branch
     aa = add -A
     ap = add -p
-    cm = commit -m
+    co = checkout
     sw = switch
     d = diff
-    pl = pull --ff-only
-    ps = push
     lg = log --graph --decorate --oneline --abbrev-commit --all
-    aliases = !git config -l | grep '^alias\\.' | cut -c 7-
