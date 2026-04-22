@@ -7,19 +7,17 @@ alias p-prompt='bash "$DOTFILES_BASE/scripts/generate_prompt.sh"'
 p-output() {
   local prompt
   read -r -d '' prompt << 'EOF'
-Generate documentation in AI MEMORY SAFE FORMAT v1.
+Return output in a single fenced code block:
 
-Return the output strictly inside a single code block.
+```text
+...content...
+````
 
-Constraints:
-- Output must be inside triple backticks (``` )
-- Inside the block, DO NOT use markdown syntax (#, ##, lists, etc.)
-- Use only plain text format
-- Use SECTION: headers
-- Use ---- separators between sections
-- Must be streaming-safe and parser-safe
-- Output must be deterministic
-- Content must be copy-paste safe
+Inside rules:
+- no markdown syntax
+- SECTION-based structure
+- ---- separators
+- plain text only
 EOF
 
   echo -e "$prompt" | pbcopy
