@@ -29,6 +29,7 @@ If you already maintain `~/.gitconfig`, keep your extra sections there and only 
 
 - `bootstrap.sh`: entrypoint, resolves the repo path dynamically.
 - `aliases/`: tracked shell aliases and functions.
+- `ai/`: shared AI coding-agent instructions and setup notes.
 - `scripts/`: small project helpers.
 - `work.sh`: optional untracked work-specific commands.
 - `local.sh`: optional untracked machine-specific commands.
