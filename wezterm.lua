@@ -7,11 +7,11 @@ config.initial_cols = 120
 config.initial_rows = 28
 
 config.font = wezterm.font_with_fallback {
-    { family = 'JetBrains Mono', weight = 'DemiBold' },
-    { family = 'SF Mono', weight = 'DemiBold' },
-    { family = 'Menlo', weight = 'DemiBold' },
+    { family = 'JetBrains Mono', weight = 650 },
+    { family = 'SF Mono', weight = 650 },
+    { family = 'Menlo', weight = 'Regular' },
 }
-config.font_size = 13
+config.font_size = 13.5
 config.line_height = 1.2
 
 config.color_scheme = 'Tokyo Night'
@@ -47,8 +47,13 @@ config.keys = {
     { key = 'j', mods = 'CMD|SHIFT', action = act.ActivatePaneDirection 'Down' },
     { key = 'k', mods = 'CMD|SHIFT', action = act.ActivatePaneDirection 'Up' },
     { key = 'l', mods = 'CMD|SHIFT', action = act.ActivatePaneDirection 'Right' },
+    { key = 'LeftArrow', mods = 'ALT', action = act.SendString '\x1bb' },
+    { key = 'RightArrow', mods = 'ALT', action = act.SendString '\x1bf' },
+    { key = 'LeftArrow', mods = 'CMD', action = act.SendString '\x01' },
+    { key = 'RightArrow', mods = 'CMD', action = act.SendString '\x05' },
     { key = 'LeftArrow', mods = 'CMD|ALT', action = act.ActivateTabRelative(-1) },
     { key = 'RightArrow', mods = 'CMD|ALT', action = act.ActivateTabRelative(1) },
+    { key = 'k', mods = 'CMD', action = act.ClearScrollback 'ScrollbackAndViewport' },
     { key = 'f', mods = 'CMD|SHIFT', action = act.Search 'CurrentSelectionOrEmptyString' },
     { key = 'r', mods = 'CMD|SHIFT', action = act.ReloadConfiguration },
 }
