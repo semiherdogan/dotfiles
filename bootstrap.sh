@@ -1,5 +1,9 @@
 if [ -z "${DOTFILES_BASE:-}" ] || [ ! -d "${DOTFILES_BASE}/aliases" ]; then
-    DOTFILES_BASE="$HOME/dotfiles"
+    if [ -n "${ZSH_VERSION:-}" ]; then
+        DOTFILES_BASE="${${(%):-%x}:A:h}"
+    else
+        DOTFILES_BASE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    fi
 fi
 
 export DOTFILES_BASE

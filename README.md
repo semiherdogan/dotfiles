@@ -16,12 +16,6 @@ Set up Git with the helper script:
 /absolute/path/to/dotfiles/bin/setup-git
 ```
 
-Set up AI coding-agent instructions:
-
-```sh
-/absolute/path/to/dotfiles/bin/setup-ai
-```
-
 That writes:
 
 ```ini
@@ -30,6 +24,19 @@ That writes:
 ```
 
 If you already maintain `~/.gitconfig`, keep your extra sections there and only include the shared file from this repo. See [gitconfig.home.example](gitconfig.home.example) for the shape.
+
+Set up AI coding-agent instructions:
+
+```sh
+/absolute/path/to/dotfiles/bin/setup-ai
+```
+
+That writes:
+
+```sh
+~/.codex/AGENTS.md
+~/.claude/CLAUDE.md
+```
 
 ## Layout
 

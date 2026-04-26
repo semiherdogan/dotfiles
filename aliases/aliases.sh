@@ -55,5 +55,3 @@ epoch2date(){
 alias yolo-message='curl -sS https://whatthecommit.com/index.txt'
 
 alias reload="exec ${SHELL} -l"
-
-# alias truncate-zed-threads="sqlite3 ~/Library/Application\ Support/Zed/threads/threads.db 'DELETE FROM threads;'"

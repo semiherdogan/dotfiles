@@ -10,10 +10,10 @@ echo "Checking shell files with zsh..."
 zsh -n bootstrap.sh aliases/*.sh
 
 echo "Checking shell files with bash..."
-bash -n bootstrap.sh aliases/*.sh scripts/generate_prompt.sh bin/setup-ai
+bash -n bootstrap.sh aliases/*.sh scripts/generate_prompt.sh bin/setup-ai bin/setup-git
 
 echo "Checking for hardcoded dotfiles paths..."
-if rg -n "~/dotfiles" README.md bootstrap.sh aliases ai bin/setup-ai gitconfig work.example.sh local.example.sh >/dev/null; then
+if rg -n "~/dotfiles" README.md bootstrap.sh aliases ai bin/setup-ai bin/setup-git gitconfig gitconfig.home.example work.example.sh local.example.sh >/dev/null; then
     echo "Found hardcoded ~/dotfiles references."
     exit 1
 fi

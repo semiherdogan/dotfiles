@@ -8,11 +8,6 @@ export CLIPBOARD_HISTORY=1d
 
 export HISTCONTROL="ignoreboth"
 
-# ocr() {
-#     screencapture -i /tmp/ocr.png
-#     tesseract /tmp/ocr.png stdout -l tur | pbcopy
-# }
-
 alias show-hidden='defaults write com.apple.finder AppleShowAllFiles TRUE ; killall Finder'
 alias remove--ds_store="find . -type f -name '*.DS_Store' -ls -delete"
 
@@ -32,21 +27,14 @@ alias json-parse-to-clipboard='json-parse && json-parse | pbcopy'
 alias json-beautify="json-parse"
 alias json-beautify-to-clipboard='json-parse-to-clipboard'
 
-# alias json-beautify="pbpaste | jq"
-# alias json-beautify-to-clipboard='json-beautify && json-beautify | pbcopy'
-
 alias unixtime='echo $(date +%s) && echo -n $(date +%s) | pbcopy && echo "Copied."'
 
 alias shrug="echo '¯\_(ツ)_/¯' && echo '¯\_(ツ)_/¯' | pbcopy";
 
 # App shortcuts
 alias st='open -a /Applications/PhpStorm.app "`pwd`"'
-# alias rr='open -a /Applications/RustRover.app "`pwd`"'
-# alias gl='open -a /Applications/GoLand.app "`pwd`"'
-# alias ide='open -a "/Applications/IntelliJ IDEA.app" "`pwd`"'
 
 alias itab='open -a iterm "`pwd`"'
-# alias wtab='open -a warp "`pwd`"'
 
 alias kill-audio='sudo pkill coreaudiod'
 alias kill-control-panel='killall -m Control Center'
@@ -132,18 +120,8 @@ brew-update() {
 
     echo ""
 
-    # [[ -f $HOME/.bun/bin/bun ]] && {
-    #     echo "$GREEN_LINE Bun Upgrade"
-    #     $HOME/.bun/bin/bun upgrade --stable
-    # }
-
-    # [[ -f $HOME/v/v ]] && {
-    #     echo "$GREEN_LINE V Up"
-    #     $HOME/v/v up
-    # }
-
     echo ""
-    echo "$DIVISION Done."
+    echo "$GREEN_LINE Done."
 }
 
 ip() {

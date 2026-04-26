@@ -1,8 +1,8 @@
 [include]
-    path = ~/dotfiles/gitconfig
+    path = /absolute/path/to/dotfiles/gitconfig
 
 [includeIf "gitdir:~/Code/"]
     path = ~/.work.gitconfig
 
 [core]
-    excludesfile = ~/dotfiles/gitignore_global
+    excludesfile = /absolute/path/to/dotfiles/gitignore_global
