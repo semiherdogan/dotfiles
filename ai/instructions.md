@@ -19,6 +19,12 @@ Code style:
 - Delete dead code and stale comments when you touch them.
 - Do not add file/function header docblocks unless the project already uses them consistently.
 
+Change discipline:
+- Every changed line should trace directly to the user's request.
+- Do not improve adjacent code, comments, formatting, or structure unless needed for the requested change.
+- Remove only dead code, imports, variables, and helpers made unused by your own changes.
+- Mention unrelated issues instead of fixing them unless asked.
+
 Performance mindset:
 - Always plan changes with performance and fast execution in mind.
 - Before writing code, consider: allocations, I/O, repeated work, container/build overhead.
@@ -38,6 +44,12 @@ Search / code analysis rules:
   1. locate all matches with `sg`
   2. show / summarize findings
   3. then make targeted edits
+
+Verification:
+- For bug fixes, prefer reproducing the issue before changing behavior.
+- For multi-step work, define the verification step before editing.
+- After changes, run the narrowest relevant checks first.
+- If checks cannot be run, say exactly why.
 
 Execution rules:
 - Do not invent tool limitations. If a preferred tool is unavailable, say so explicitly.
