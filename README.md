@@ -16,6 +16,12 @@ Set up Git with the helper script:
 /absolute/path/to/dotfiles/bin/setup-git
 ```
 
+Set up AI coding-agent instructions:
+
+```sh
+/absolute/path/to/dotfiles/bin/setup-ai
+```
+
 That writes:
 
 ```ini
@@ -34,6 +40,7 @@ If you already maintain `~/.gitconfig`, keep your extra sections there and only 
 - `work.sh`: optional untracked work-specific commands.
 - `local.sh`: optional untracked machine-specific commands.
 - `bin/setup-git`: configures Git include and global ignore paths for the current repo location.
+- `bin/setup-ai`: installs shared plus tool-specific AI instructions.
 
 Use the example files as a starting point:
 

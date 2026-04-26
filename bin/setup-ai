@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+AI_DIR="$ROOT_DIR/ai"
+
+install_ai_instructions() {
+    local tool_file="$1"
+    local target="$2"
+    local target_dir
+    local tmp_file
+
+    target_dir="$(dirname "$target")"
+    mkdir -p "$target_dir"
+
+    tmp_file="$(mktemp "${target}.tmp.XXXXXX")"
+    {
+        cat "$AI_DIR/instructions.md"
+        printf '\n\n'
+        cat "$AI_DIR/$tool_file"
+    } > "$tmp_file"
+
+    mv "$tmp_file" "$target"
+}
+
+install_ai_instructions codex.md "$HOME/.codex/AGENTS.md"
+install_ai_instructions claude.md "$HOME/.claude/CLAUDE.md"
+
+echo "Installed Codex instructions to $HOME/.codex/AGENTS.md"
+echo "Installed Claude instructions to $HOME/.claude/CLAUDE.md"
