@@ -38,6 +38,18 @@ That writes:
 ~/.claude/CLAUDE.md
 ```
 
+Set up WezTerm:
+
+```sh
+ln -s /absolute/path/to/dotfiles/wezterm.lua ~/.wezterm.lua
+```
+
+That links:
+
+```sh
+~/.wezterm.lua -> /absolute/path/to/dotfiles/wezterm.lua
+```
+
 ## Layout
 
 - `bootstrap.sh`: entrypoint, resolves the repo path dynamically.
@@ -48,6 +60,7 @@ That writes:
 - `local.sh`: optional untracked machine-specific commands.
 - `bin/setup-git`: configures Git include and global ignore paths for the current repo location.
 - `bin/setup-ai`: installs shared plus tool-specific AI instructions.
+- `wezterm.lua`: WezTerm config, intended to be symlinked to `~/.wezterm.lua`.
 
 Use the example files as a starting point:
 
