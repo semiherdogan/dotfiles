@@ -1,0 +1,55 @@
+add_newline = false
+
+format = """
+$directory$git_branch$git_status$nodejs$golang$rust$php$python$cmd_duration
+$character"""
+
+[aws]
+disabled = true
+
+[gcloud]
+disabled = true
+
+[azure]
+disabled = true
+
+[kubernetes]
+disabled = true
+
+[directory]
+style = "bold cyan"
+truncation_length = 3
+truncate_to_repo = false
+
+[git_branch]
+format = "[$branch]($style) "
+style = "bold purple"
+
+[git_status]
+format = "([$all_status$ahead_behind]($style) )"
+style = "bold yellow"
+
+[nodejs]
+format = "[$symbol($version)]($style) "
+symbol = "node "
+
+[golang]
+format = "[$symbol($version)]($style) "
+symbol = "go "
+
+[rust]
+format = "[$symbol($version)]($style) "
+symbol = "rust "
+
+[php]
+format = "[$symbol($version)]($style) "
+symbol = "php "
+
+[python]
+format = "[$symbol$pyenv_prefix($version)( $virtualenv)]($style) "
+symbol = "py "
+
+[cmd_duration]
+format = "[$duration]($style) "
+min_time = 1000
+style = "dimmed yellow"

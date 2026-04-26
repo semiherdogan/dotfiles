@@ -50,6 +50,19 @@ That links:
 ~/.wezterm.lua -> /absolute/path/to/dotfiles/wezterm.lua
 ```
 
+Set up Starship:
+
+```sh
+mkdir -p ~/.config
+ln -s /absolute/path/to/dotfiles/starship.toml ~/.config/starship.toml
+```
+
+That links:
+
+```sh
+~/.config/starship.toml -> /absolute/path/to/dotfiles/starship.toml
+```
+
 ## Layout
 
 - `bootstrap.sh`: entrypoint, resolves the repo path dynamically.
@@ -61,6 +74,7 @@ That links:
 - `bin/setup-git`: configures Git include and global ignore paths for the current repo location.
 - `bin/setup-ai`: installs shared plus tool-specific AI instructions.
 - `wezterm.lua`: WezTerm config, intended to be symlinked to `~/.wezterm.lua`.
+- `starship.toml`: Starship prompt config, intended to be symlinked to `~/.config/starship.toml`.
 
 Use the example files as a starting point:
 
@@ -83,6 +97,7 @@ Run:
 - [delta](https://github.com/dandavison/delta)
 - [gh](https://cli.github.com/)
 - [bb](https://github.com/bb-cli/bb-cli)
+- [starship](https://starship.rs/)
 
 ## Apps
 
