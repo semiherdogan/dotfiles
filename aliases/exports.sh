@@ -13,3 +13,8 @@ export FORCE_HYPERLINK=1
 
 export PIPENV_VENV_IN_PROJECT=1
 export PIPENV_CUSTOM_VENV_NAME='.venv'
+
+if [ -n "${ZSH_VERSION:-}" ]; then
+    bindkey -M emacs '^R' history-incremental-search-backward
+    bindkey -M viins '^R' history-incremental-search-backward
+fi
