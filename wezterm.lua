@@ -39,6 +39,7 @@ config.native_macos_fullscreen_mode = true
 
 config.keys = {
     { key = 'Enter', mods = 'ALT', action = act.ToggleFullScreen },
+    { key = 'Enter', mods = 'CMD', action = act.ToggleFullScreen },
     { key = 't', mods = 'CMD', action = act.SpawnTab 'CurrentPaneDomain' },
     { key = 'w', mods = 'CMD', action = act.CloseCurrentTab { confirm = false } },
     { key = 'd', mods = 'CMD', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
@@ -49,8 +50,12 @@ config.keys = {
     { key = 'l', mods = 'CMD|SHIFT', action = act.ActivatePaneDirection 'Right' },
     { key = 'LeftArrow', mods = 'ALT', action = act.SendString '\x1bb' },
     { key = 'RightArrow', mods = 'ALT', action = act.SendString '\x1bf' },
+    { key = 'Backspace', mods = 'ALT', action = act.SendString '\x17' },
     { key = 'LeftArrow', mods = 'CMD', action = act.SendString '\x01' },
     { key = 'RightArrow', mods = 'CMD', action = act.SendString '\x05' },
+    { key = 'Backspace', mods = 'CMD', action = act.SendString '\x15' },
+    { key = 'UpArrow', mods = 'CMD', action = act.ScrollToTop },
+    { key = 'DownArrow', mods = 'CMD', action = act.ScrollToBottom },
     { key = 'LeftArrow', mods = 'CMD|ALT', action = act.ActivateTabRelative(-1) },
     { key = 'RightArrow', mods = 'CMD|ALT', action = act.ActivateTabRelative(1) },
     { key = 'k', mods = 'CMD', action = act.ClearScrollback 'ScrollbackAndViewport' },
