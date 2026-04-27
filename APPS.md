@@ -19,16 +19,18 @@ Daily-use CLI and GUI apps.
 - [merged-branches](https://github.com/semiherdogan/merged-branches)
 - [httpstat](https://github.com/davecheney/httpstat)
 - [bandwhich](https://github.com/imsnif/bandwhich)
-- [onefetch](https://github.com/o2sh/onefetch)
 - [miniserve](https://github.com/svenstaro/miniserve)
-- [colima](https://github.com/abiosoft/colima)
 - [k9s](https://github.com/derailed/k9s)
 - [devbox](https://github.com/jetify-com/devbox)
+
+
+## AI Related
+- [Rust Token Killer](https://github.com/rtk-ai/rtk)
+
 
 ## GUI Apps
 
 - [Alfred](https://www.alfredapp.com/)
-- [iTerm](https://iterm2.com/)
 - [WezTerm](https://wezterm.org/)
 - [Flux](https://justgetflux.com/)
 - [Espanso](https://espanso.org/)
