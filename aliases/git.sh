@@ -8,6 +8,7 @@ alias g='git'
 
 alias push='g push'
 alias pull='g pull'
+alias diff='g diff'
 
 alias ss='echo "Current branch: $(git branch --show-current)" && echo "Status: " && git status -s'
 
