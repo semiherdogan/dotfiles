@@ -36,6 +36,8 @@ That writes:
 ```sh
 ~/.codex/AGENTS.md
 ~/.claude/CLAUDE.md
+~/.codex/skills/
+~/.claude/skills/
 ```
 
 Set up WezTerm:
@@ -67,12 +69,12 @@ That links:
 
 - `bootstrap.sh`: entrypoint, resolves the repo path dynamically.
 - `aliases/`: tracked shell aliases and functions.
-- `ai/`: shared AI coding-agent instructions and setup notes.
+- `ai/`: shared AI coding-agent instructions, skills, and setup notes.
 - `scripts/`: small project helpers.
 - `work.sh`: optional untracked work-specific commands.
 - `local.sh`: optional untracked machine-specific commands.
 - `bin/setup-git`: configures Git include and global ignore paths for the current repo location.
-- `bin/setup-ai`: installs shared plus tool-specific AI instructions.
+- `bin/setup-ai`: installs shared plus tool-specific AI instructions and skills.
 - `wezterm.lua`: WezTerm config, intended to be symlinked to `~/.wezterm.lua`.
 - `starship.toml`: Starship prompt config, intended to be symlinked to `~/.config/starship.toml`.
 

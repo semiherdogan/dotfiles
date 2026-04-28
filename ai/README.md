@@ -15,6 +15,12 @@ Tool-specific additions are stored in:
 /absolute/path/to/dotfiles/ai/claude.md
 ```
 
+Shared skills are stored in:
+
+```bash
+/absolute/path/to/dotfiles/ai/skills/
+```
+
 Install them:
 
 ```bash
@@ -26,6 +32,15 @@ That writes:
 ```bash
 ~/.codex/AGENTS.md   # instructions.md + codex.md
 ~/.claude/CLAUDE.md  # instructions.md + claude.md
+~/.codex/skills/     # shared skills
+~/.claude/skills/    # shared skills
 ```
 
 Run it again after changing any file in `ai/`.
+
+## References
+
+These files are personal defaults, but some parts are adapted from public agent-instruction and skill collections:
+
+- [mattpocock/skills](https://github.com/mattpocock/skills): several shared skills in `ai/skills/` are adapted from this repo, with wording shortened and adjusted for this dotfiles setup.
+- [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills): reference material for the general AI coding-agent instruction style used in `ai/instructions.md`.
