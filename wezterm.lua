@@ -1,6 +1,11 @@
 local wezterm = require 'wezterm'
 local act = wezterm.action
 
+local search_selection_case_insensitive = wezterm.action_callback(function(window, pane)
+    local selection = window:get_selection_text_for_pane(pane):gsub('[\r\n]+', ' ')
+    window:perform_action(act.Search { CaseInSensitiveString = selection }, pane)
+end)
+
 local config = wezterm.config_builder()
 
 config.initial_cols = 120
@@ -59,7 +64,8 @@ config.keys = {
     { key = 'LeftArrow', mods = 'CMD|ALT', action = act.ActivateTabRelative(-1) },
     { key = 'RightArrow', mods = 'CMD|ALT', action = act.ActivateTabRelative(1) },
     { key = 'k', mods = 'CMD', action = act.ClearScrollback 'ScrollbackAndViewport' },
-    { key = 'f', mods = 'CMD|SHIFT', action = act.Search 'CurrentSelectionOrEmptyString' },
+    { key = 'f', mods = 'CMD', action = search_selection_case_insensitive },
+    { key = 'f', mods = 'CMD|SHIFT', action = search_selection_case_insensitive },
     { key = 'r', mods = 'CMD|SHIFT', action = act.ReloadConfiguration },
 }
 
