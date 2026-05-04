@@ -10,6 +10,8 @@ Review a GitHub pull request locally and produce a Markdown review the user can 
 Allowed actions:
 - Check local git status.
 - Run `gh pr checkout <number>` when needed.
+- Run `gh pr view <number> --comments` to inspect the PR description and conversation comments.
+- Run read-only `gh api` calls to inspect review summaries and inline review comments.
 - Run `gh pr diff <number>` to inspect the patch.
 - Read changed files and nearby code.
 - Run narrow local checks when useful and available.
@@ -25,10 +27,16 @@ Workflow:
 - Require a PR number if the user has not provided one.
 - Before checkout, inspect `git status --short`. If local changes exist, report them and avoid overwriting them.
 - Checkout the PR with `gh pr checkout <number>` if the branch is not already checked out.
+- Read PR context:
+  - `gh pr view <number> --comments`
+  - `gh api repos/:owner/:repo/pulls/<number>/reviews`
+  - `gh api repos/:owner/:repo/pulls/<number>/comments`
 - Capture the diff with `gh pr diff <number>`.
-- Review from the diff first, then inspect full files for context where needed.
+- Review from the diff and PR comments first, then inspect full files for context where needed.
+- Consider existing reviewer comments before adding a finding. If a concern is already covered, mention it only when adding new evidence or impact.
 - Focus on correctness, regressions, security, data loss, performance, concurrency, API contracts, and missing tests.
 - Prefer concrete findings over style comments.
+- Separate must-fix findings from nice-to-have notes. Do not let nits obscure blocking issues.
 - Verify claims with local code inspection or commands where feasible.
 
 Output format:
@@ -38,12 +46,21 @@ Output format:
 
 ### Findings
 
+#### Must Fix
+
 1. **[severity] Title**
    - File: `path/to/file.ext`
    - Lines: `start-end`
    - Problem: ...
    - Impact: ...
    - Recommendation: ...
+
+#### Nice To Have
+
+1. **Title**
+   - File: `path/to/file.ext`
+   - Lines: `start-end`
+   - Note: ...
 
 ### Tests
 
@@ -56,8 +73,11 @@ Output format:
 ```
 
 Rules:
-- If there are no findings, say `No blocking findings found.`
-- Keep findings ordered by severity.
+- Put correctness, regression, security, data loss, performance, concurrency, broken contracts, and missing critical tests under `Must Fix`.
+- Put readability, minor maintainability, naming, small duplication, and non-blocking cleanup under `Nice To Have`.
+- Omit `Nice To Have` entirely when it would be noise.
+- If there are no must-fix findings, say `No blocking findings found.`
+- Keep must-fix findings ordered by severity.
 - Include file paths and line numbers whenever possible.
 - If checks were not run, state exactly why.
 - Keep the final output copyable Markdown with no tool logs.
