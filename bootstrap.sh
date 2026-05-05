@@ -37,9 +37,22 @@ source_optional_files() {
     done
 }
 
+configure_zsh() {
+    [ -n "${ZSH_VERSION:-}" ] || return
+
+    autoload -Uz compinit && compinit
+    zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
+    zstyle ':completion:*' menu select=2
+    zmodload zsh/complist
+    bindkey -M menuselect '^[[Z' reverse-menu-complete
+    setopt auto_cd
+}
+
+configure_zsh
 source_core_files
 source_optional_files
 
+unset -f configure_zsh
 unset -f source_core_files
 unset -f source_optional_files
 unset -f source_if_exists
