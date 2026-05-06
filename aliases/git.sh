@@ -83,3 +83,12 @@ branch-create() {
 
     git fetch -pq && git checkout -b "$2" --no-track "origin/$1"
 }
+
+release-tag() {
+    if [ "$#" -ne 1 ]; then
+        echo "Usage: release-tag <tag>"
+        return 1
+    fi
+
+    git tag "$1" && git push origin "$1"
+}
