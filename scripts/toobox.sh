@@ -27,19 +27,25 @@ toolbox() {
     case "$command" in
         run)
             shift
-            devbox run --config "$config" --quiet -- "$@"
+            (
+                local shellenv
+
+                shellenv="$(devbox shellenv --config "$toolbox_dir" --quiet)" || exit 1
+                eval "$shellenv"
+                exec "$@"
+            )
             ;;
         update)
-            devbox update --config "$config"
+            devbox update --config "$toolbox_dir"
             ;;
         shell)
-            devbox shell --config "$config"
+            devbox shell --config "$toolbox_dir"
             ;;
         add|rm|list)
             if [ "$command" != "list" ]; then
                 shift
             fi
-            devbox "$command" --config "$config" "$@"
+            devbox "$command" --config "$toolbox_dir" "$@"
             ;;
         search)
             shift
@@ -76,7 +82,13 @@ toolbox() {
             done
             ;;
         *)
-            devbox run --config "$config" --quiet -- "$@"
+            (
+                local shellenv
+
+                shellenv="$(devbox shellenv --config "$toolbox_dir" --quiet)" || exit 1
+                eval "$shellenv"
+                exec "$@"
+            )
             ;;
     esac
 }

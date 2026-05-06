@@ -10,6 +10,28 @@ alias push='g push'
 alias pull='g pull'
 alias diff='g diff'
 
+gpull() {
+    local stash_msg="gpull-wip-$(date +%s)"
+    local stashed=0
+
+    if [ -n "$(git status --porcelain)" ]; then
+        git stash push -u -m "$stash_msg" || return 1
+        stashed=1
+    fi
+
+    git pull "$@" || {
+        [ "$stashed" -eq 1 ] && echo "pull failed; changes are in stash: $stash_msg" >&2
+        return 1
+    }
+
+    if [ "$stashed" -eq 1 ]; then
+        git stash pop --index || {
+            echo "stash pop failed; resolve manually, stash kept: $stash_msg" >&2
+            return 1
+        }
+    fi
+}
+
 alias ss='echo "Current branch: $(git branch --show-current)" && echo "Status: " && git status -s'
 
 alias dev='git switch dev && git pull'
