@@ -22,7 +22,8 @@ source_core_files() {
         aliases/docker.sh \
         aliases/laravel.sh \
         aliases/ai.sh \
-        aliases/macos.sh
+        aliases/macos.sh \
+        scripts/toobox.sh
     do
         source_if_exists "$DOTFILES_BASE/$file"
     done
