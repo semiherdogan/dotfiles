@@ -49,14 +49,16 @@ toolbox() {
             shift
             mkdir -p "$bin_dir"
 
+            local runner="$DOTFILES_BASE/scripts/toolbox-run"
+            [ -x "$runner" ] || {
+                echo "toolbox runner not found at $runner" >&2
+                return 1
+            }
+
             for tool in "$@"; do
                 local target="$bin_dir/$tool"
 
-                cat > "$target" <<EOF
-#!/usr/bin/env bash
-exec devbox run --config "$config" --quiet -- "$tool" "\$@"
-EOF
-                chmod +x "$target"
+                ln -sf "$runner" "$target"
                 echo "linked $tool -> $target"
             done
             ;;
@@ -65,7 +67,7 @@ EOF
             for tool in "$@"; do
                 local target="$bin_dir/$tool"
 
-                if [ -f "$target" ]; then
+                if [ -e "$target" ] || [ -L "$target" ]; then
                     rm "$target"
                     echo "unlinked $tool"
                 else

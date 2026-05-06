@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+tool="${0##*/}"
+
+if [ "$tool" = "toolbox-run" ]; then
+    echo "usage: link this script with the target tool name" >&2
+    exit 1
+fi
+
+exec devbox run --config "$HOME/toolbox/devbox.json" --quiet -- "$tool" "$@"
