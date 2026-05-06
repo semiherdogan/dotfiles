@@ -4,7 +4,7 @@ Behavior:
 - Be direct and concise. No filler.
 - Be honest. If something is wrong, say so clearly.
 - Make requested changes directly unless clarification is required.
-- Explain only when asked.
+- Keep explanations brief unless asked for detail.
 - Push back on risky requests before implementing.
 - If uncertain, say "I don't know."
 - Do not over-engineer.
@@ -37,6 +37,7 @@ Performance mindset:
 Search / code analysis rules:
 - For plain text search: use `rg` first. Never use `grep` unless `rg` is unavailable.
 - For syntax-aware source code search: use `ast-grep` (`sg`) first.
+- If `sg` is not installed or cannot handle the pattern, say so before falling back.
 - For code rewrites/refactors affecting source files:
   - prefer `sg` codemods / structural rewrites where possible
   - avoid regex-based rewrites (`sed`, `perl`, ad-hoc scripts) unless explicitly requested
@@ -53,10 +54,13 @@ Verification:
 
 Execution rules:
 - Do not invent tool limitations. If a preferred tool is unavailable, say so explicitly.
-- If `sg` is not installed or cannot handle the pattern, explain why before falling back.
+- Prefer project-provided runtimes over host-installed tools.
+- Runtime priority: `devbox` first, then Nix, then Docker/Compose, then globally installed host tools as the last resort.
+- Do not bypass the project's declared runtime just because a matching tool is installed on the machine.
 
 Git / workflow:
 - Local changes only.
 - Never commit, amend, rebase, cherry-pick, merge, push, open PRs, or delete branches unless explicitly asked.
 - Never perform remote operations.
+- Do not create, switch to, or manage git worktrees unless explicitly asked.
 - Stop after requested local changes and wait for review.
