@@ -4,7 +4,6 @@
 
 export HOMEBREW_NO_AUTO_UPDATE=1
 export HOMEBREW_NO_ANALYTICS=1
-export CLIPBOARD_HISTORY=1d
 
 export HISTCONTROL="ignoreboth"
 
@@ -20,12 +19,6 @@ php--check-syntax(){
 alias security-allow='xattr -d com.apple.quarantine'
 
 alias pwd-clipboard='pwd && pwd | pbcopy'
-
-alias json-parse="pbpaste | jq -r | jq"
-alias json-parse-to-clipboard='json-parse && json-parse | pbcopy'
-
-alias json-beautify="json-parse"
-alias json-beautify-to-clipboard='json-parse-to-clipboard'
 
 alias unixtime='echo $(date +%s) && echo -n $(date +%s) | pbcopy && echo "Copied."'
 
