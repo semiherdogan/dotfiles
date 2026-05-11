@@ -2,8 +2,6 @@
 # AI related aliases
 ##
 
-alias p-prompt='bash "$DOTFILES_BASE/scripts/generate_prompt.sh"'
-
 p-output() {
   local prompt
   read -r -d '' prompt << 'EOF'

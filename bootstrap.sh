@@ -24,6 +24,7 @@ source_core_files() {
         aliases/ai.sh \
         aliases/macos.sh \
         scripts/cb.sh \
+        scripts/generate_prompt.sh \
         scripts/toobox.sh
     do
         source_if_exists "$DOTFILES_BASE/$file"

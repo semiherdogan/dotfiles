@@ -1,60 +1,63 @@
-#!/bin/bash
+p-prompt() {
+  local role
+  local goal
+  local context
+  local prompt
 
-# Get user inputs
-read -p "Role: " ROLE
-read -p "Goal: " GOAL
-read -p "Context: " CONTEXT
+  if ! command -v pbcopy >/dev/null 2>&1; then
+    echo "p-prompt requires macOS pbcopy." >&2
+    return 1
+  fi
 
-# Create the prompt content
-PROMPT=""
+  printf "Role: "
+  IFS= read -r role
+  printf "Goal: "
+  IFS= read -r goal
+  printf "Context: "
+  IFS= read -r context
 
-[ -n "$ROLE" ] && PROMPT+="**Role:**  \n$ROLE\n\n"
-[ -n "$GOAL" ] && PROMPT+="**Goal:**  \n$GOAL\n\n"
-[ -n "$CONTEXT" ] && PROMPT+="**Context:**  \n$CONTEXT\n\n"
+  prompt="$(
+    {
+      cat <<'EOF'
+# Task Brief
 
-PROMPT+="---
-### Generation Strategy (Required)
-- Generate **multiple distinct candidate responses** for each section.
-- Favor **informative diversity** over familiar or generic phrasing.
-- Avoid default or “safe” formulations unless clearly justified by the context.
+EOF
 
----
-### Verbalized Sampling Step
-Before producing the final output:
-1. Generate **3-5 alternative versions** of the full response (or per section).
-2. Assign a **probability score** to each alternative representing its plausibility or usefulness given the context.
-3. Select the **highest-probability** alternative as the final answer.
-4. Keep alternatives internal unless explicitly asked to show them.
+      if [ -n "$role" ]; then
+        printf "## Role\n%s\n\n" "$role"
+      fi
 
----
-### Thinking Process
-- Think step by step.
-- If critical information is missing, **ask clarifying questions before finalizing**.
-- Do **not** introduce unstated assumptions.
-- Actively check whether choices are driven by familiarity rather than evidence.
+      if [ -n "$goal" ]; then
+        printf "## Goal\n%s\n\n" "$goal"
+      fi
 
----
-### Constraints / Negative Rules
-- Do not use emotional or persuasive language.
-- Do not go beyond the provided information.
-- Do not fabricate statistics or sources.
-- Do not collapse diverse insights into a single generic conclusion.
+      if [ -n "$context" ]; then
+        printf "## Context\n%s\n\n" "$context"
+      fi
 
----
-### Uncertainty Handling
-- Explicitly state uncertainty where applicable.
-- If multiple interpretations exist, briefly enumerate them before selecting one.
+      cat <<'EOF'
+## Output Requirements
+- Answer in Turkish.
+- Be direct, structured, and concise.
+- Use headings and bullets only when they improve readability.
+- Prefer concrete recommendations, examples, or next steps over generic advice.
+- If critical information is missing, ask the minimum number of clarifying questions before finalizing.
 
----
-### Quality Check (Final Step)
-- Verify that the output reflects **multiple plausible perspectives**, not just the most typical one.
-- Confirm factual accuracy and safety are preserved.
-- Ensure diversity improves insight, not noise.
+## Reasoning Rules
+- State assumptions explicitly.
+- Separate facts from inferences.
+- Flag uncertainty instead of guessing.
+- Do not fabricate sources, numbers, or constraints.
+- Keep internal alternatives and reasoning private; return only the best final answer.
 
----
-- Also answer in turkish language
-"
+## Quality Bar
+- The answer should be actionable.
+- Remove filler, repetition, and vague phrasing.
+- Check that the final output matches the goal and context.
+EOF
+    }
+  )"
 
-echo -e "$PROMPT" | pbcopy
-
-echo "Copied to clipboard ✅"
+  printf "%s\n" "$prompt" | pbcopy
+  echo "Prompt copied to clipboard."
+}
