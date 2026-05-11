@@ -98,8 +98,6 @@ Run:
 - [jq](https://jqlang.org/)
 - [delta](https://github.com/dandavison/delta)
 - [gh](https://cli.github.com/)
-- [bb](https://github.com/bb-cli/bb-cli)
-- [starship](https://starship.rs/)
 
 ## Apps
 
