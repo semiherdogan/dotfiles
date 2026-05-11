@@ -23,6 +23,7 @@ source_core_files() {
         aliases/laravel.sh \
         aliases/ai.sh \
         aliases/macos.sh \
+        scripts/cb.sh \
         scripts/toobox.sh
     do
         source_if_exists "$DOTFILES_BASE/$file"
