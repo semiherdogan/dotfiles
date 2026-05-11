@@ -51,6 +51,23 @@ toolbox() {
             shift
             devbox search "$@"
             ;;
+        links)
+            local runner="$DOTFILES_BASE/scripts/toolbox-run"
+            local links
+
+            links="$(
+                find "$bin_dir" -maxdepth 1 -type l -print 2>/dev/null | while IFS= read -r target; do
+                    [ "$(readlink "$target")" = "$runner" ] || continue
+                    basename "$target"
+                done | sort
+            )"
+
+            if [ -n "$links" ]; then
+                printf '%s\n' "$links"
+            else
+                echo "no toolbox links"
+            fi
+            ;;
         link)
             shift
             mkdir -p "$bin_dir"
@@ -94,7 +111,7 @@ toolbox() {
 }
 
 _toolbox_command_list_for_autocomplete() {
-    _arguments '1: :(init run shell add install search list rm update link unlink)'
+    _arguments '1: :(init run shell add install search list rm update link links unlink)'
 }
 
 if command -v compdef >/dev/null 2>&1; then
