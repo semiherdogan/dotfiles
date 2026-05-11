@@ -13,7 +13,6 @@ Daily-use CLI and GUI apps.
 - [Starship](https://starship.rs/)
 - [lazygit](https://github.com/jesseduffield/lazygit)
 - [lazydocker](https://github.com/jesseduffield/lazydocker)
-- [Slackadays/Clipboard](https://github.com/Slackadays/Clipboard)
 - [pwgen](https://formulae.brew.sh/formula/pwgen)
 - [delta](https://github.com/dandavison/delta)
 - [merged-branches](https://github.com/semiherdogan/merged-branches)

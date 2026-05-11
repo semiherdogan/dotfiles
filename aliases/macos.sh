@@ -46,7 +46,7 @@ alias base64-decode='pbpaste | base64 --decode'
 
 alias flush-dns='sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder; echo "DNS cache flushed."'
 
-listening() {
+port-listening() {
     if [ $# -eq 0 ]; then
         sudo lsof -iTCP -sTCP:LISTEN -n -P
     elif [ $# -eq 1 ]; then
