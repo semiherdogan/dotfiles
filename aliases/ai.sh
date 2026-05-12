@@ -3,8 +3,8 @@
 ##
 
 p-output() {
-  local prompt
-  read -r -d '' prompt << 'EOF'
+	local prompt
+	read -r -d '' prompt <<'EOF'
 Return output in a single fenced code block:
 
 ```text
@@ -18,20 +18,20 @@ Inside rules:
 - plain text only
 EOF
 
-  echo -e "$prompt" | pbcopy
-  echo "Copied to clipboard ✅"
+	echo -e "$prompt" | pbcopy
+	echo "Copied to clipboard ✅"
 }
 
 codex-commit-message-generate() {
-  local diff
-  diff="$(rtk git diff --cached)"
+	local diff
+	diff="$(rtk git diff --cached)"
 
-  if [[ -z "$diff" ]]; then
-    echo "No staged changes to generate a commit message."
-    return 1
-  fi
+	if [[ -z "$diff" ]]; then
+		echo "No staged changes to generate a commit message."
+		return 1
+	fi
 
-  codex exec "Generate a conventional commit message for this staged git diff.
+	codex exec "Generate a conventional commit message for this staged git diff.
 
 Requirements:
 - Use conventional commit format: type(scope?): description
@@ -43,6 +43,10 @@ Diff:
 $diff"
 }
 
+ai-skills() {
+	"$DOTFILES_BASE/scripts/ai-skills" "$@"
+}
+
 ## Ollama Cloud
 
 # defaults / shortcuts
@@ -52,24 +56,24 @@ alias ocg='ollama launch claude --model glm-5:cloud'
 
 # general launcher
 oc() {
-  if [ -z "$1" ]; then
-    echo "Kullanim:"
-    echo "  oc <model>"
-    echo "  ocl              # cloud model list"
-    echo "  ocp              # select model from menu"
-    echo "  ocm | ock | ocg  # shortcuts"
-    return 1
-  fi
+	if [ -z "$1" ]; then
+		echo "Kullanim:"
+		echo "  oc <model>"
+		echo "  ocl              # cloud model list"
+		echo "  ocp              # select model from menu"
+		echo "  ocm | ock | ocg  # shortcuts"
+		return 1
+	fi
 
-  local model="$1"
-  [[ "$model" != *":"* ]] && model="${model}:cloud"
+	local model="$1"
+	[[ "$model" != *":"* ]] && model="${model}:cloud"
 
-  ollama launch claude --model "$model"
+	ollama launch claude --model "$model"
 }
 
 # cloud model list
 ocl() {
-  cat <<'EOF'
+	cat <<'EOF'
 Cloud models:
   minimax-m2.7:cloud
   kimi-k2.6:cloud
@@ -82,32 +86,32 @@ EOF
 
 # interactive model picker
 ocp() {
-  local model
-  local models=(
-    "minimax-m2.7:cloud"
-    "kimi-k2.6:cloud"
-    "glm-5.1:cloud"
-    "qwen3.5:cloud"
-    "minimax-m2.7:cloud"
-    "gpt-oss:120b-cloud"
-    "manual entry..."
-  )
+	local model
+	local models=(
+		"minimax-m2.7:cloud"
+		"kimi-k2.6:cloud"
+		"glm-5.1:cloud"
+		"qwen3.5:cloud"
+		"minimax-m2.7:cloud"
+		"gpt-oss:120b-cloud"
+		"manual entry..."
+	)
 
-  if command -v fzf >/dev/null 2>&1; then
-    model=$(printf "%s\n" "${models[@]}" | fzf --prompt="Model: ")
-  else
-    echo "Model:"
-    select model in "${models[@]}"; do
-      break
-    done
-  fi
+	if command -v fzf >/dev/null 2>&1; then
+		model=$(printf "%s\n" "${models[@]}" | fzf --prompt="Model: ")
+	else
+		echo "Model:"
+		select model in "${models[@]}"; do
+			break
+		done
+	fi
 
-  [ -z "$model" ] && return
+	[ -z "$model" ] && return
 
-  if [ "$model" = "manual entry..." ]; then
-    read -r -p "Model name: " model
-    [[ "$model" != *":"* ]] && model="${model}:cloud"
-  fi
+	if [ "$model" = "manual entry..." ]; then
+		read -r -p "Model name: " model
+		[[ "$model" != *":"* ]] && model="${model}:cloud"
+	fi
 
-  ollama launch claude --model "$model"
+	ollama launch claude --model "$model"
 }

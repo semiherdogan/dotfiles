@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+skills_dir="${DOTFILES_BASE:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}/ai/skills"
+
+list_skills() {
+	local file skill desc
+
+	for file in "$skills_dir"/*/SKILL.md; do
+		[ -f "$file" ] || continue
+		skill="${file%/SKILL.md}"
+		skill="${skill##*/}"
+		desc="$(awk '/^description: / { sub(/^description: /, ""); print; exit }' "$file")"
+		printf "%-22s %s\n" "$skill" "$desc"
+	done | sort
+}
+
+show_skill() {
+	local skill file
+
+	for skill in "$@"; do
+		file="$skills_dir/$skill/SKILL.md"
+
+		if [ ! -f "$file" ]; then
+			echo "Skill not found: $skill" >&2
+			return 1
+		fi
+
+		if command -v bat >/dev/null 2>&1; then
+			bat --style=plain --paging=always "$file"
+		elif command -v less >/dev/null 2>&1; then
+			less "$file"
+		else
+			cat "$file"
+		fi
+	done
+}
+
+pick_skill() {
+	local selected skill
+
+	if ! command -v fzf >/dev/null 2>&1; then
+		echo "fzf is not installed." >&2
+		return 1
+	fi
+
+	selected="$(list_skills | fzf --prompt="Skill: ")"
+	[ -n "$selected" ] || return 0
+
+	skill="${selected%% *}"
+	show_skill "$skill"
+}
+
+if [ ! -d "$skills_dir" ]; then
+	echo "Skills directory not found: $skills_dir" >&2
+	exit 1
+fi
+
+case "${1:-}" in
+-h | --help)
+	cat <<'EOF'
+Usage:
+  ai-skills              # list skills
+  ai-skills <name>       # show skill detail
+  ai-skills -p|--pick    # pick a skill with fzf
+EOF
+	;;
+-p | --pick)
+	pick_skill
+	;;
+"")
+	list_skills
+	;;
+*)
+	show_skill "$@"
+	;;
+esac
