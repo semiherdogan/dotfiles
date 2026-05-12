@@ -12,11 +12,12 @@ Behavior:
 - Match existing project style and conventions.
 
 Code style:
+- Write generated code, identifiers, comments, and technical documentation in English unless the project or user explicitly requires another language.
 - Keep comments minimal. No narration of obvious code. No decorative banners.
 - Write a comment only when it explains *why*, a non-obvious constraint, or a gotcha — never *what* the code does.
 - Prefer one-line comments. Multi-line only when a subtle invariant requires it.
 - Do not leave TODO/FIXME unless the user asked for a placeholder.
-- Delete dead code and stale comments when you touch them.
+- Delete stale comments when you touch them.
 - Do not add file/function header docblocks unless the project already uses them consistently.
 
 Change discipline:
@@ -54,13 +55,10 @@ Verification:
 
 Execution rules:
 - Do not invent tool limitations. If a preferred tool is unavailable, say so explicitly.
-- Prefer project-provided runtimes over host-installed tools.
-- Runtime priority: `devbox` first, then Nix, then Docker/Compose, then globally installed host tools as the last resort.
-- Do not bypass the project's declared runtime just because a matching tool is installed on the machine.
+- Prefer project-provided runtimes over host-installed tools: `devbox` first, then Nix, then Docker/Compose, then globally installed host tools as the last resort.
 
 Git / workflow:
 - Local changes only.
 - Never commit, amend, rebase, cherry-pick, merge, push, open PRs, or delete branches unless explicitly asked.
-- Never perform remote operations.
 - Do not create, switch to, or manage git worktrees unless explicitly asked.
 - Stop after requested local changes and wait for review.
