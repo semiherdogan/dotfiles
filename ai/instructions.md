@@ -60,5 +60,4 @@ Execution rules:
 Git / workflow:
 - Local changes only.
 - Never commit, amend, rebase, cherry-pick, merge, push, open PRs, or delete branches unless explicitly asked.
-- Do not create, switch to, or manage git worktrees unless explicitly asked.
 - Stop after requested local changes and wait for review.
