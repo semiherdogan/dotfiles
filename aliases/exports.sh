@@ -11,10 +11,12 @@ export LANG=en_US.UTF-8
 
 export FORCE_HYPERLINK=1
 
-export PIPENV_VENV_IN_PROJECT=1
-export PIPENV_CUSTOM_VENV_NAME='.venv'
-
 if [ -n "${ZSH_VERSION:-}" ]; then
-    bindkey -M emacs '^R' history-incremental-search-backward
-    bindkey -M viins '^R' history-incremental-search-backward
+	bindkey -M emacs '^A' beginning-of-line
+	bindkey -M emacs '^E' end-of-line
+	bindkey -M emacs '^R' history-incremental-search-backward
+
+	bindkey -M viins '^A' beginning-of-line
+	bindkey -M viins '^E' end-of-line
+	bindkey -M viins '^R' history-incremental-search-backward
 fi
