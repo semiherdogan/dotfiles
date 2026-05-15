@@ -30,7 +30,7 @@ config.window_padding = {
     bottom = 8,
 }
 
-config.scrollback_lines = 100000
+config.scrollback_lines = 1000000
 config.audible_bell = 'Disabled'
 config.check_for_updates = false
 
@@ -41,6 +41,8 @@ config.tab_bar_at_bottom = true
 config.window_close_confirmation = 'NeverPrompt'
 config.adjust_window_size_when_changing_font_size = false
 config.native_macos_fullscreen_mode = true
+
+config.automatically_reload_config = false
 
 config.keys = {
     { key = 'Enter', mods = 'ALT', action = act.ToggleFullScreen },
