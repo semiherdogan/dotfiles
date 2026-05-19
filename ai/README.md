@@ -6,7 +6,7 @@ Shared AI instructions are stored in:
 /absolute/path/to/dotfiles/ai/instructions.md
 ```
 
-They define the default behavior for coding agents: direct communication, scoped edits, project style matching, performance awareness, syntax-aware search and verification.
+They define the default behavior for coding agents: direct communication, scoped edits, project style matching, performance awareness, careful search and verification.
 
 Tool-specific additions are stored in:
 

@@ -9,7 +9,6 @@ Daily-use CLI and GUI apps.
 - [bitbucket cli](https://github.com/bb-cli/bb-cli)
 - [jq](https://jqlang.org/)
 - [ripgrep](https://github.com/BurntSushi/ripgrep)
-- [ast-grep](https://ast-grep.github.io/)
 - [Starship](https://starship.rs/)
 - [lazygit](https://github.com/jesseduffield/lazygit)
 - [lazydocker](https://github.com/jesseduffield/lazydocker)

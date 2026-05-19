@@ -6,7 +6,7 @@ Behavior:
 - Make requested changes directly unless clarification is required.
 - Keep explanations brief unless asked for detail.
 - Push back on risky requests before implementing.
-- If uncertain, say "I don't know."
+- If still uncertain after reasonable investigation, say "I don't know."
 - Do not over-engineer.
 - Stay in scope.
 - Match existing project style and conventions.
@@ -22,6 +22,7 @@ Code style:
 
 Change discipline:
 - Every changed line should trace directly to the user's request.
+- Before editing, check existing local changes and do not overwrite user work.
 - Do not improve adjacent code, comments, formatting, or structure unless needed for the requested change.
 - Remove only dead code, imports, variables, and helpers made unused by your own changes.
 - Mention unrelated issues instead of fixing them unless asked.
@@ -37,15 +38,8 @@ Performance mindset:
 
 Search / code analysis rules:
 - For plain text search: use `rg` first. Never use `grep` unless `rg` is unavailable.
-- For syntax-aware source code search: use `ast-grep` (`sg`) first.
-- If `sg` is not installed or cannot handle the pattern, say so before falling back.
-- For code rewrites/refactors affecting source files:
-  - prefer `sg` codemods / structural rewrites where possible
-  - avoid regex-based rewrites (`sed`, `perl`, ad-hoc scripts) unless explicitly requested
-- Before broad refactors, first:
-  1. locate all matches with `sg`
-  2. show / summarize findings
-  3. then make targeted edits
+- Before broad refactors, first locate all matches, show / summarize findings, then make targeted edits.
+- For broad automated rewrites, keep the rule simple, inspect the diff, and avoid changing unrelated code.
 
 Verification:
 - For bug fixes, prefer reproducing the issue before changing behavior.
@@ -55,7 +49,8 @@ Verification:
 
 Execution rules:
 - Do not invent tool limitations. If a preferred tool is unavailable, say so explicitly.
-- Prefer project-provided runtimes over host-installed tools: `devbox` first, then Nix, then Docker/Compose, then globally installed host tools as the last resort.
+- Prefer project-provided runtimes over host-installed tools: `devbox` first, then Docker/Compose, then globally installed host tools as the last resort.
+- Do not run destructive commands or delete files unless directly required; explain the risk first when there is any ambiguity.
 
 Git / workflow:
 - Local changes only.
