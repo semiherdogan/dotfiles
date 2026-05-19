@@ -4,7 +4,7 @@ set -euo pipefail
 
 skills_dir="${DOTFILES_BASE:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}/ai/skills"
 
-list_skills() {
+skill_records() {
 	local file skill desc
 
 	for file in "$skills_dir"/*/SKILL.md; do
@@ -12,14 +12,106 @@ list_skills() {
 		skill="${file%/SKILL.md}"
 		skill="${skill##*/}"
 		desc="$(awk '/^description: / { sub(/^description: /, ""); print; exit }' "$file")"
-		printf "%-22s %s\n" "$skill" "$desc"
+		printf "%s\t%s\n" "$skill" "$desc"
 	done | sort
 }
 
-show_skill() {
-	local skill file
+format_skill_records() {
+	local skill desc line first seen name_width desc_width name_sep desc_sep
 
-	for skill in "$@"; do
+	name_width=22
+	desc_width=74
+	printf -v name_sep "%*s" "$name_width" ""
+	printf -v desc_sep "%*s" "$desc_width" ""
+	name_sep="${name_sep// /-}"
+	desc_sep="${desc_sep// /-}"
+	seen=0
+
+	while IFS=$'\t' read -r skill desc; do
+		if [ "$seen" -eq 1 ]; then
+			printf "%s-+-%s\n" "$name_sep" "$desc_sep"
+		fi
+		seen=1
+		first=1
+		awk -v width="$desc_width" '
+			{
+				line = ""
+				for (i = 1; i <= NF; i++) {
+					if (line == "") {
+						line = $i
+					} else if (length(line) + 1 + length($i) <= width) {
+						line = line " " $i
+					} else {
+						print line
+						line = $i
+					}
+				}
+				if (line != "") {
+					print line
+				}
+			}
+		' <<<"$desc" | while IFS= read -r line; do
+			if [ "$first" -eq 1 ]; then
+				printf "%-${name_width}s | %s\n" "$skill" "$line"
+				first=0
+			else
+				printf "%-${name_width}s | %s\n" "" "$line"
+			fi
+		done
+	done
+}
+
+list_skills() {
+	skill_records | format_skill_records
+}
+
+matching_skill_records() {
+	local query="$1"
+
+	skill_records | awk -F '\t' -v query="$query" 'index($1, query) == 1'
+}
+
+matching_skills() {
+	local query="$1"
+
+	matching_skill_records "$query" | cut -f1
+}
+
+resolve_skill() {
+	local query="$1" skill
+	local -a matches
+
+	if [ -f "$skills_dir/$query/SKILL.md" ]; then
+		printf "%s\n" "$query"
+		return 0
+	fi
+
+	matches=()
+	while IFS= read -r skill; do
+		matches+=("$skill")
+	done < <(matching_skills "$query")
+
+	case "${#matches[@]}" in
+	0)
+		echo "Skill not found: $query" >&2
+		return 1
+		;;
+	1)
+		printf "%s\n" "${matches[0]}"
+		;;
+	*)
+		echo "Multiple skills match: $query" >&2
+		matching_skill_records "$query" | format_skill_records >&2
+		return 1
+		;;
+	esac
+}
+
+show_skill() {
+	local query skill file
+
+	for query in "$@"; do
+		skill="$(resolve_skill "$query")"
 		file="$skills_dir/$skill/SKILL.md"
 
 		if [ ! -f "$file" ]; then
@@ -37,21 +129,6 @@ show_skill() {
 	done
 }
 
-pick_skill() {
-	local selected skill
-
-	if ! command -v fzf >/dev/null 2>&1; then
-		echo "fzf is not installed." >&2
-		return 1
-	fi
-
-	selected="$(list_skills | fzf --prompt="Skill: ")"
-	[ -n "$selected" ] || return 0
-
-	skill="${selected%% *}"
-	show_skill "$skill"
-}
-
 if [ ! -d "$skills_dir" ]; then
 	echo "Skills directory not found: $skills_dir" >&2
 	exit 1
@@ -62,12 +139,8 @@ case "${1:-}" in
 	cat <<'EOF'
 Usage:
   ai-skills              # list skills
-  ai-skills <name>       # show skill detail
-  ai-skills -p|--pick    # pick a skill with fzf
+  ai-skills <name>       # show skill detail, supports prefix search
 EOF
-	;;
--p | --pick)
-	pick_skill
 	;;
 "")
 	list_skills
