@@ -9,13 +9,14 @@ theme = TokyoNight
 background-opacity = 0.96
 background-blur = 16
 
-window-width = 120
-window-height = 28
+window-width = 140
+window-height = 30
 window-padding-x = 8
 window-padding-y = 6
 window-padding-balance = true
 window-new-tab-position = end
 
+macos-titlebar-proxy-icon = hidden
 macos-titlebar-style = hidden
 macos-option-as-alt = false
 

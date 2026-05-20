@@ -16,4 +16,23 @@ Use `/bin/zsh` and pass input as arguments.
 /Users/semih/dotfiles/alfred/scripts/copy-path.sh "$@"
 ```
 
-The Ghostty action opens the selected folder, or the parent directory when the selected item is a file.
+The Ghostty action opens the selected folder, or the parent directory when the selected item is a file, then centers the new window.
+
+## Center Window
+
+`center-window.swift` moves the focused or main window of a running app to the center of the current display.
+
+```sh
+/Users/semih/dotfiles/alfred/scripts/center-window.swift Ghostty
+/Users/semih/dotfiles/alfred/scripts/center-window.swift "Visual Studio Code"
+```
+
+The app must already be running. macOS Accessibility permission is required for the app that runs the script, such as Terminal or Alfred:
+
+`System Settings -> Privacy & Security -> Accessibility`
+
+Use `--debug` to print the selected app, window position, target position, and move result:
+
+```sh
+/Users/semih/dotfiles/alfred/scripts/center-window.swift --debug Ghostty
+```
