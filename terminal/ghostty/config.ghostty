@@ -1,0 +1,34 @@
+font-family = SF Mono
+font-family = Menlo
+font-family = JetBrainsMono Nerd Font
+font-size = 14
+font-thicken = true
+adjust-cell-height = 10%
+
+theme = TokyoNight
+background-opacity = 0.96
+background-blur = 16
+
+window-width = 120
+window-height = 28
+window-padding-x = 8
+window-padding-y = 6
+window-padding-balance = true
+window-new-tab-position = end
+
+macos-titlebar-style = hidden
+macos-option-as-alt = false
+
+copy-on-select = clipboard
+scrollback-limit = 100000000
+bell-features = no-system,no-audio
+
+cursor-style = block
+cursor-style-blink = false
+mouse-hide-while-typing = true
+
+confirm-close-surface = false
+quit-after-last-window-closed = true
+auto-update = off
+
+config-file = ?local.config.ghostty

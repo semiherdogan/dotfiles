@@ -40,30 +40,7 @@ That writes:
 ~/.claude/skills/
 ```
 
-Set up WezTerm:
-
-```sh
-ln -s /absolute/path/to/dotfiles/wezterm.lua ~/.wezterm.lua
-```
-
-That links:
-
-```sh
-~/.wezterm.lua -> /absolute/path/to/dotfiles/wezterm.lua
-```
-
-Set up Starship:
-
-```sh
-mkdir -p ~/.config
-ln -s /absolute/path/to/dotfiles/starship.toml ~/.config/starship.toml
-```
-
-That links:
-
-```sh
-~/.config/starship.toml -> /absolute/path/to/dotfiles/starship.toml
-```
+Terminal emulator and prompt setup lives in [terminal/README.md](terminal/README.md).
 
 ## Layout
 
@@ -71,12 +48,11 @@ That links:
 - `aliases/`: tracked shell aliases and functions.
 - `ai/`: shared AI coding-agent instructions, skills, and setup notes.
 - `scripts/`: small project helpers.
+- `terminal/`: terminal emulator and prompt configs. See [terminal/README.md](terminal/README.md).
 - `work.sh`: optional untracked work-specific commands.
 - `local.sh`: optional untracked machine-specific commands.
 - `bin/setup-git`: configures Git include and global ignore paths for the current repo location.
 - `bin/setup-ai`: installs shared plus tool-specific AI instructions and skills.
-- `wezterm.lua`: WezTerm config, intended to be symlinked to `~/.wezterm.lua`.
-- `starship.toml`: Starship prompt config, intended to be symlinked to `~/.config/starship.toml`.
 
 Use the example files as a starting point:
 
