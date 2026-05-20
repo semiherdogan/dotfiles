@@ -1,5 +1,3 @@
-# Claude-Specific Rules
-
 ## Comments
 
 - Keep code comments short.

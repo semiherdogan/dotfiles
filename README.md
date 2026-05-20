@@ -46,6 +46,7 @@ Terminal emulator and prompt setup lives in [terminal/README.md](terminal/README
 
 - `bootstrap.sh`: entrypoint, resolves the repo path dynamically.
 - `aliases/`: tracked shell aliases and functions.
+- `alfred/`: Alfred workflow scripts and setup notes.
 - `ai/`: shared AI coding-agent instructions, skills, and setup notes.
 - `scripts/`: small project helpers.
 - `terminal/`: terminal emulator and prompt configs. See [terminal/README.md](terminal/README.md).

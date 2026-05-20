@@ -9,7 +9,7 @@ Daily-use CLI and GUI apps.
 - [bitbucket cli](https://github.com/bb-cli/bb-cli)
 - [jq](https://jqlang.org/)
 - [ripgrep](https://github.com/BurntSushi/ripgrep)
-- [Starship](https://starship.rs/)
+- [starship](https://starship.rs/)
 - [lazygit](https://github.com/jesseduffield/lazygit)
 - [lazydocker](https://github.com/jesseduffield/lazydocker)
 - [pwgen](https://formulae.brew.sh/formula/pwgen)
@@ -21,19 +21,3 @@ Daily-use CLI and GUI apps.
 - [k9s](https://github.com/derailed/k9s)
 - [devbox](https://github.com/jetify-com/devbox)
 
-
-## AI Related
-- [Rust Token Killer](https://github.com/rtk-ai/rtk)
-
-
-## GUI Apps
-
-- [Alfred](https://www.alfredapp.com/)
-- [WezTerm](https://wezterm.org/)
-- [Flux](https://justgetflux.com/)
-- [Espanso](https://espanso.org/)
-- [OpenInTerminal](https://github.com/Ji4n1ng/OpenInTerminal)
-- [Hidden menu bar items](https://github.com/dwarvesf/hidden)
-- [Lunar](https://lunar.fyi/)
-- [CleanShot](https://cleanshot.com/)
-- [Amphetamine](https://apps.apple.com/us/app/amphetamine/id937984704)
