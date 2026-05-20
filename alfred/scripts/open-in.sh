@@ -17,7 +17,7 @@ for f in "$@"; do
 			dir=$(cd "$f" && pwd)
 		fi
 
-		open -na "$app.app" --args --working-directory="$dir"
+		open -a "$app.app" --args --working-directory="$dir"
 		# sleep 0.1
 		"$(dirname "$0")/center-window.swift" "$app"
 	else
