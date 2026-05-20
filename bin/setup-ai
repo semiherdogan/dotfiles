@@ -5,6 +5,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 AI_DIR="$ROOT_DIR/ai"
 SKILLS_DIR="$AI_DIR/skills"
+LOCAL_SKILLS_DIR="$AI_DIR/skills-local"
 
 install_ai_instructions() {
     local tool_file="$1"
@@ -30,9 +31,8 @@ install_ai_skills() {
     local marker
     local skill
     local skill_name
+    local skills_dir
     local tmp_marker
-
-    [ -d "$SKILLS_DIR" ] || return 0
 
     marker="$target/.dotfiles-managed"
 
@@ -46,12 +46,16 @@ install_ai_skills() {
     fi
 
     tmp_marker="$(mktemp "${marker}.tmp.XXXXXX")"
-    for skill in "$SKILLS_DIR"/*; do
-        [ -d "$skill" ] || continue
-        skill_name="$(basename "$skill")"
-        rm -rf "$target/$skill_name"
-        cp -R "$skill" "$target/$skill_name"
-        printf '%s\n' "$skill_name" >> "$tmp_marker"
+    for skills_dir in "$SKILLS_DIR" "$LOCAL_SKILLS_DIR"; do
+        [ -d "$skills_dir" ] || continue
+
+        for skill in "$skills_dir"/*; do
+            [ -d "$skill" ] || continue
+            skill_name="$(basename "$skill")"
+            rm -rf "$target/$skill_name"
+            cp -R "$skill" "$target/$skill_name"
+            printf '%s\n' "$skill_name" >> "$tmp_marker"
+        done
     done
 
     mv "$tmp_marker" "$marker"
@@ -64,4 +68,4 @@ install_ai_skills "$HOME/.claude/skills"
 
 echo "Installed Codex instructions to $HOME/.codex/AGENTS.md"
 echo "Installed Claude instructions to $HOME/.claude/CLAUDE.md"
-echo "Installed shared AI skills to $HOME/.codex/skills and $HOME/.claude/skills"
+echo "Installed AI skills to $HOME/.codex/skills and $HOME/.claude/skills"

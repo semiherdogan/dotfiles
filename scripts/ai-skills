@@ -2,22 +2,34 @@
 
 set -euo pipefail
 
-skills_dir="${DOTFILES_BASE:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}/ai/skills"
+root_dir="${DOTFILES_BASE:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+skills_dir="$root_dir/ai/skills"
+local_skills_dir="$root_dir/ai/skills-local"
 
 skill_records() {
-	local file skill desc
+	local file skill desc source
 
-	for file in "$skills_dir"/*/SKILL.md; do
-		[ -f "$file" ] || continue
-		skill="${file%/SKILL.md}"
-		skill="${skill##*/}"
-		desc="$(awk '/^description: / { sub(/^description: /, ""); print; exit }' "$file")"
-		printf "%s\t%s\n" "$skill" "$desc"
-	done | sort
+	{
+		for file in "$skills_dir"/*/SKILL.md; do
+			[ -f "$file" ] || continue
+			skill="${file%/SKILL.md}"
+			skill="${skill##*/}"
+			desc="$(awk '/^description: / { sub(/^description: /, ""); print; exit }' "$file")"
+			printf "%s\t%s\tshared\n" "$skill" "$desc"
+		done
+
+		for file in "$local_skills_dir"/*/SKILL.md; do
+			[ -f "$file" ] || continue
+			skill="${file%/SKILL.md}"
+			skill="${skill##*/}"
+			desc="$(awk '/^description: / { sub(/^description: /, ""); print; exit }' "$file")"
+			printf "%s\t%s\tlocal\n" "$skill" "$desc"
+		done
+	} | awk -F '\t' '{ records[$1] = $0 } END { for (skill in records) print records[skill] }' | sort
 }
 
 format_skill_records() {
-	local skill desc line first seen name_width desc_width name_sep desc_sep
+	local skill desc source display line first seen name_width desc_width name_sep desc_sep
 
 	name_width=22
 	desc_width=74
@@ -27,11 +39,15 @@ format_skill_records() {
 	desc_sep="${desc_sep// /-}"
 	seen=0
 
-	while IFS=$'\t' read -r skill desc; do
+	while IFS=$'\t' read -r skill desc source; do
 		if [ "$seen" -eq 1 ]; then
 			printf "%s-+-%s\n" "$name_sep" "$desc_sep"
 		fi
 		seen=1
+		display="$skill"
+		if [ "$source" = "local" ]; then
+			display="$display [local]"
+		fi
 		first=1
 		awk -v width="$desc_width" '
 			{
@@ -52,7 +68,7 @@ format_skill_records() {
 			}
 		' <<<"$desc" | while IFS= read -r line; do
 			if [ "$first" -eq 1 ]; then
-				printf "%-${name_width}s | %s\n" "$skill" "$line"
+				printf "%-${name_width}s | %s\n" "$display" "$line"
 				first=0
 			else
 				printf "%-${name_width}s | %s\n" "" "$line"
@@ -80,6 +96,11 @@ matching_skills() {
 resolve_skill() {
 	local query="$1" skill
 	local -a matches
+
+	if [ -f "$local_skills_dir/$query/SKILL.md" ]; then
+		printf "%s\n" "$query"
+		return 0
+	fi
 
 	if [ -f "$skills_dir/$query/SKILL.md" ]; then
 		printf "%s\n" "$query"
@@ -112,7 +133,11 @@ show_skill() {
 
 	for query in "$@"; do
 		skill="$(resolve_skill "$query")"
-		file="$skills_dir/$skill/SKILL.md"
+		file="$local_skills_dir/$skill/SKILL.md"
+
+		if [ ! -f "$file" ]; then
+			file="$skills_dir/$skill/SKILL.md"
+		fi
 
 		if [ ! -f "$file" ]; then
 			echo "Skill not found: $skill" >&2
@@ -129,7 +154,7 @@ show_skill() {
 	done
 }
 
-if [ ! -d "$skills_dir" ]; then
+if [ ! -d "$skills_dir" ] && [ ! -d "$local_skills_dir" ]; then
 	echo "Skills directory not found: $skills_dir" >&2
 	exit 1
 fi

@@ -21,6 +21,15 @@ Shared skills are stored in:
 /absolute/path/to/dotfiles/ai/skills/
 ```
 
+Machine-local skills can be stored in:
+
+```bash
+/absolute/path/to/dotfiles/ai/skills-local/
+```
+
+`skills-local` is ignored by git. Local skills are installed after shared skills, so a local
+skill with the same name overrides the shared one on this machine.
+
 Install them:
 
 ```bash
