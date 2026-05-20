@@ -19,6 +19,7 @@ window-new-tab-position = end
 macos-titlebar-proxy-icon = hidden
 macos-titlebar-style = hidden
 macos-option-as-alt = false
+
 keybind = alt+left=esc:b
 keybind = alt+right=esc:f
 
