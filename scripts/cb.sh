@@ -4,6 +4,30 @@ cb() {
     return 1
   fi
 
+  _cb_copied() {
+    if [ -t 2 ]; then
+      printf "\033[42;30m OK \033[0m copied\n" >&2
+    else
+      printf "copied\n" >&2
+    fi
+  }
+
+  _cb_cleared() {
+    if [ -t 2 ]; then
+      printf "\033[42;30m OK \033[0m cleared\n" >&2
+    else
+      printf "cleared\n" >&2
+    fi
+  }
+
+  _cb_input() {
+    if [ ! -t 0 ]; then
+      cat
+    else
+      pbpaste
+    fi
+  }
+
   case "$1" in
     -p|--paste)
       pbpaste
@@ -11,45 +35,48 @@ cb() {
       ;;
 
     -c|--clear)
-      : | pbcopy
+      : | pbcopy && _cb_cleared
       return
       ;;
 
     -j|--json)
-      pbpaste | jq -r 'fromjson? // .' | jq
+      _cb_input | jq -r 'fromjson? // .' | jq
       return
       ;;
 
     -J|--json-copy)
-      pbpaste | jq -r 'fromjson? // .' | jq | tee >(pbcopy)
+      json=$(_cb_input | jq -r 'fromjson? // .' | jq) || return
+      printf "%s\n" "$json" | pbcopy || return
+      printf "%s\n" "$json" | jq -C
+      _cb_copied
       return
       ;;
 
     -e|--encode)
       if [ ! -t 0 ]; then
-        cat | base64 | pbcopy
+        cat | base64 | pbcopy && _cb_copied
       else
-        pbpaste | base64 | pbcopy
+        pbpaste | base64 | pbcopy && _cb_copied
       fi
       return
       ;;
 
     -d|--decode)
       if [ ! -t 0 ]; then
-        cat | base64 -D | pbcopy
+        cat | base64 -D | pbcopy && _cb_copied
       else
-        pbpaste | base64 -D | pbcopy
+        pbpaste | base64 -D | pbcopy && _cb_copied
       fi
       return
       ;;
 
     -E|--encode-paste)
-      pbpaste | base64 | tee >(pbcopy)
+      pbpaste | base64 | tee >(pbcopy) && _cb_copied
       return
       ;;
 
     -D|--decode-paste)
-      pbpaste | base64 -D | tee >(pbcopy)
+      pbpaste | base64 -D | tee >(pbcopy) && _cb_copied
       return
       ;;
 
@@ -85,9 +112,9 @@ EOF
   esac
 
   if [ ! -t 0 ]; then
-    cat | pbcopy
+    cat | pbcopy && _cb_copied
   elif [ $# -gt 0 ]; then
-    printf "%s" "$*" | pbcopy
+    printf "%s" "$*" | pbcopy && _cb_copied
   else
     pbpaste
   fi

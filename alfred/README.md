@@ -12,11 +12,11 @@ Use `/bin/zsh` and pass input as arguments.
 /Users/semih/dotfiles/alfred/scripts/open-in.sh "Visual Studio Code" "$@"
 /Users/semih/dotfiles/alfred/scripts/open-in.sh "VSCodium" "$@"
 /Users/semih/dotfiles/alfred/scripts/open-in.sh "Sublime Text" "$@"
-/Users/semih/dotfiles/alfred/scripts/open-in.sh "Ghostty" "$@"
+/Users/semih/dotfiles/alfred/scripts/open-terminal.sh "Ghostty" "$@"
 /Users/semih/dotfiles/alfred/scripts/copy-path.sh "$@"
 ```
 
-The Ghostty action opens the selected folder, or the parent directory when the selected item is a file, then centers the new window.
+The Ghostty action toggles the app when it is already running. When opening a new window, it uses the selected folder, or the parent directory when the selected item is a file, then centers the new window.
 
 ## Center Window
 

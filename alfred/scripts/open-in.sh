@@ -10,17 +10,5 @@ fi
 shift
 
 for f in "$@"; do
-	if [ "$app" = Ghostty ]; then
-		if [ -f "$f" ]; then
-			dir=$(cd "$(dirname "$f")" && pwd)
-		else
-			dir=$(cd "$f" && pwd)
-		fi
-
-		open -a "$app.app" --args --working-directory="$dir"
-		# sleep 0.1
-		"$(dirname "$0")/center-window.swift" "$app"
-	else
-		open -a "$app" "$f"
-	fi
+	open -a "$app" "$f"
 done
