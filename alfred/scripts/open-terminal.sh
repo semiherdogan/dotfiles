@@ -13,10 +13,7 @@ if [ ! -x "$toggle_app" ]; then
 	toggle_app="$script_dir/toggle-app.swift"
 fi
 
-center_window="$script_dir/center-window"
-if [ ! -x "$center_window" ]; then
-	center_window="$script_dir/center-window.swift"
-fi
+center_window="$script_dir/center-window.swift"
 
 toggle_args=("$app")
 toggle_stderr=/dev/null
