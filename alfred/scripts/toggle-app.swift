@@ -7,7 +7,7 @@ import Foundation
 
 let arguments = CommandLine.arguments.dropFirst()
 let debug = arguments.contains("--debug")
-let appName = arguments.first { !$0.hasPrefix("--") } ?? "Ghostty"
+let appName = arguments.first { !$0.hasPrefix("--") } ?? "Kitty"
 
 let runningApp = NSWorkspace.shared.runningApplications.first {
   $0.localizedName == appName || $0.bundleIdentifier?.localizedCaseInsensitiveContains(appName) == true

@@ -2,6 +2,13 @@
 
 Terminal emulator and prompt configs.
 
+## Kitty
+
+```sh
+mkdir -p ~/.config/kitty
+ln -s /absolute/path/to/dotfiles/terminal/kitty.conf ~/.config/kitty/kitty.conf
+```
+
 ## Ghostty
 
 ```sh

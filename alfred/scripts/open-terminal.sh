@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 
-app="${1:-Ghostty}"
+app="${1:-Kitty}"
 
 if [ "$#" -gt 0 ]; then
 	shift

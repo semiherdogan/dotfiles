@@ -7,7 +7,7 @@ import Foundation
 
 let arguments = CommandLine.arguments.dropFirst()
 let debug = arguments.contains("--debug")
-let appName = arguments.first { !$0.hasPrefix("--") } ?? "Ghostty"
+let appName = arguments.first { !$0.hasPrefix("--") } ?? "Kitty"
 let trustOptions = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
 
 guard AXIsProcessTrustedWithOptions(trustOptions) else {
@@ -53,15 +53,30 @@ func copyCGSize(_ element: AXUIElement, _ attribute: CFString) -> CGSize? {
   return AXValueGetValue(value as! AXValue, .cgSize, &size) ? size : nil
 }
 
-let window =
-  copyAttribute(app, axFocusedWindow) as! AXUIElement?
-  ?? copyAttribute(app, axMainWindow) as! AXUIElement?
-  ?? (copyAttribute(app, axWindows) as? [AXUIElement])?.first
+func firstMovableWindow() -> (AXUIElement, CGPoint, CGSize)? {
+  let window =
+    copyAttribute(app, axFocusedWindow) as! AXUIElement?
+    ?? copyAttribute(app, axMainWindow) as! AXUIElement?
+    ?? (copyAttribute(app, axWindows) as? [AXUIElement])?.first
 
-guard let window,
-      let position = copyCGPoint(window, axPosition),
-      let size = copyCGSize(window, axSize)
-else {
+  guard let window,
+        let position = copyCGPoint(window, axPosition),
+        let size = copyCGSize(window, axSize)
+  else {
+    return nil
+  }
+
+  return (window, position, size)
+}
+
+var movableWindow: (AXUIElement, CGPoint, CGSize)?
+for _ in 0..<20 {
+  movableWindow = firstMovableWindow()
+  if movableWindow != nil { break }
+  Thread.sleep(forTimeInterval: 0.1)
+}
+
+guard let (window, position, size) = movableWindow else {
   fputs("Could not read a movable window for \(appName).\n", stderr)
   exit(1)
 }

@@ -1,8 +1,47 @@
+"$schema" = "https://starship.rs/config-schema.json"
+
 add_newline = false
+palette = "kanagawa_wave"
 
 format = """
-$directory$git_branch$git_status$nodejs$golang$rust$php$python$cmd_duration
-$character"""
+[░▒▓](color_wave_blue)\
+$os\
+[](bg:color_cyan fg:color_wave_blue)\
+$directory\
+[](fg:color_cyan)\
+$git_branch\
+$git_status\
+$fill\
+$line_break$character"""
+
+right_format = """
+$nodejs$golang$rust$php$python$cmd_duration"""
+
+[palettes.kanagawa_wave]
+color_fg0 = "#DCD7BA"
+color_fg1 = "#C8C093"
+color_bg0 = "#16161D"
+color_bg1 = "#1F1F28"
+color_bg2 = "#2A2A37"
+color_bg3 = "#54546D"
+color_red = "#C34043"
+color_green = "#76946A"
+color_yellow = "#C0A36E"
+color_blue = "#7E9CD8"
+color_purple = "#957FB8"
+color_cyan = "#6A9589"
+color_orange = "#FFA066"
+color_bright_red = "#E82424"
+color_bright_green = "#98BB6C"
+color_bright_yellow = "#E6C384"
+color_bright_blue = "#7FB4CA"
+color_bright_purple = "#938AA9"
+color_bright_cyan = "#7AA89F"
+color_git_add = "#76946A"
+color_git_change = "#DCA561"
+color_git_delete = "#C34043"
+color_comment = "#727169"
+color_wave_blue = "#2D4F67"
 
 [aws]
 disabled = true
@@ -16,48 +55,86 @@ disabled = true
 [kubernetes]
 disabled = true
 
+[os]
+disabled = false
+format = "[ $symbol ]($style)"
+style = "bg:color_wave_blue fg:color_fg0"
+
+[os.symbols]
+Macos = "󰀵"
+Linux = "󰌽"
+Ubuntu = "󰕈"
+Debian = "󰣚"
+Arch = "󰣇"
+Fedora = "󰣛"
+Windows = "󰍲"
+
 [directory]
-style = "bold cyan"
+format = "[ $path ]($style)[$read_only]($read_only_style)"
+style = "bg:color_cyan fg:color_fg0"
+read_only = " 󰌾"
+read_only_style = "bg:color_cyan fg:color_bright_red"
 truncation_length = 3
+truncation_symbol = "…/"
 truncate_to_repo = false
 
 [git_branch]
-format = "[$branch]($style) "
-style = "bold purple"
+format = "[ $symbol$branch(:$remote_branch) ]($style)"
+style = "fg:color_orange"
+symbol = "󰘬 "
+truncation_length = 30
 
 [git_status]
 format = "([$all_status$ahead_behind]($style) )"
-style = "bold yellow"
+style = "fg:color_git_change"
+conflicted = "󰽪 $count "
+ahead = "⇡ $count "
+behind = "⇣ $count "
+diverged = "⇕ $count "
+untracked = "󰅗 $count "
+stashed = "󰘷 $count "
+modified = " $count "
+staged = " $count "
+renamed = " $count "
+deleted = "󰚃 $count "
 
 [nodejs]
-format = "[$symbol($version)]($style) "
+format = "[ $symbol($version) ]($style)"
+style = "fg:color_green"
 symbol = "node "
 
 [golang]
-format = "[$symbol($version)]($style) "
+format = "[ $symbol($version) ]($style)"
+style = "fg:color_cyan"
 symbol = "go "
 
 [rust]
-format = "[$symbol($version)]($style) "
+format = "[ $symbol($version) ]($style)"
+style = "fg:color_orange"
 symbol = "rust "
 
 [php]
-format = "[$symbol($version)]($style) "
+format = "[ $symbol($version) ]($style)"
+style = "fg:color_purple"
 symbol = "php "
 
 [python]
-format = "[$symbol$pyenv_prefix($version)( $virtualenv)]($style) "
+format = "[ $symbol$pyenv_prefix($version)( $virtualenv) ]($style)"
+style = "fg:color_yellow"
 symbol = "py "
 
 [cmd_duration]
-format = "[$duration]($style) "
+format = "[ $duration ]($style)"
 min_time = 1000
-style = "dimmed yellow"
+style = "fg:color_comment"
+
+[fill]
+symbol = " "
 
 [character]
-success_symbol = "[>](bold green)"
-error_symbol = "[>](bold red)"
-vimcmd_symbol = "[<](bold green)"
-vimcmd_visual_symbol = "[<](bold yellow)"
-vimcmd_replace_symbol = "[<](bold purple)"
-vimcmd_replace_one_symbol = "[<](bold purple)"
+success_symbol = "[❯](bold fg:color_green)"
+error_symbol = "[❯](bold fg:color_red)"
+vimcmd_symbol = "[❮](bold fg:color_green)"
+vimcmd_visual_symbol = "[❮](bold fg:color_yellow)"
+vimcmd_replace_symbol = "[❮](bold fg:color_purple)"
+vimcmd_replace_one_symbol = "[❮](bold fg:color_purple)"

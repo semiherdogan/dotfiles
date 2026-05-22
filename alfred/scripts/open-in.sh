@@ -9,6 +9,13 @@ fi
 
 shift
 
+case "${app:l}" in
+	kitty|ghostty)
+		"$(dirname "$0")/open-terminal.sh" "$app" "$@"
+		exit $?
+		;;
+esac
+
 for f in "$@"; do
 	open -a "$app" "$f"
 done
