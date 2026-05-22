@@ -1,0 +1,85 @@
+"$schema" = "https://starship.rs/config-schema.json"
+
+add_newline = false
+
+format = """
+$directory$git_branch$git_status$cmd_duration
+$character"""
+
+[aws]
+disabled = true
+
+[gcloud]
+disabled = true
+
+[azure]
+disabled = true
+
+[kubernetes]
+disabled = true
+
+[directory]
+style = "cyan"
+truncation_length = 3
+truncate_to_repo = false
+
+[git_branch]
+format = "[$branch]($style) "
+style = "purple"
+
+[git_status]
+format = "([$all_status$ahead_behind]($style) )"
+style = "dimmed cyan"
+conflicted = "!$count "
+ahead = "up $count "
+behind = "down $count "
+diverged = "up/down $count "
+untracked = "?$count "
+stashed = "$$count "
+modified = "~$count "
+staged = "+$count "
+renamed = ">$count "
+deleted = "-$count "
+
+[nodejs]
+disabled = true
+format = "[$symbol($version)]($style) "
+style = "green"
+symbol = "node "
+
+[golang]
+disabled = true
+format = "[$symbol($version)]($style) "
+style = "cyan"
+symbol = "go "
+
+[rust]
+disabled = true
+format = "[$symbol($version)]($style) "
+style = "red"
+symbol = "rust "
+
+[php]
+disabled = true
+format = "[$symbol($version)]($style) "
+style = "purple"
+symbol = "php "
+
+[python]
+disabled = true
+format = "[$symbol$pyenv_prefix($version)( $virtualenv)]($style) "
+style = "yellow"
+symbol = "py "
+
+[cmd_duration]
+format = "[$duration]($style) "
+min_time = 1000
+style = "dimmed white"
+
+[character]
+success_symbol = "[>](green)"
+error_symbol = "[>](red)"
+vimcmd_symbol = "[<](green)"
+vimcmd_visual_symbol = "[<](yellow)"
+vimcmd_replace_symbol = "[<](purple)"
+vimcmd_replace_one_symbol = "[<](purple)"

@@ -15,7 +15,7 @@ $fill\
 $line_break$character"""
 
 right_format = """
-$nodejs$golang$rust$php$python$cmd_duration"""
+$cmd_duration"""
 
 [palettes.kanagawa_wave]
 color_fg0 = "#DCD7BA"
@@ -99,26 +99,31 @@ renamed = " $count "
 deleted = "󰚃 $count "
 
 [nodejs]
+disabled = true
 format = "[ $symbol($version) ]($style)"
 style = "fg:color_green"
 symbol = "node "
 
 [golang]
+disabled = true
 format = "[ $symbol($version) ]($style)"
 style = "fg:color_cyan"
 symbol = "go "
 
 [rust]
+disabled = true
 format = "[ $symbol($version) ]($style)"
 style = "fg:color_orange"
 symbol = "rust "
 
 [php]
+disabled = true
 format = "[ $symbol($version) ]($style)"
 style = "fg:color_purple"
 symbol = "php "
 
 [python]
+disabled = true
 format = "[ $symbol$pyenv_prefix($version)( $virtualenv) ]($style)"
 style = "fg:color_yellow"
 symbol = "py "
