@@ -9,6 +9,8 @@ mkdir -p ~/.config/kitty
 ln -s /absolute/path/to/dotfiles/terminal/kitty.conf ~/.config/kitty/kitty.conf
 ```
 
+Wallpaper source is currently unknown. If you are the original artist and want attribution or removal, please open an issue.
+
 ## WezTerm
 
 ```sh
