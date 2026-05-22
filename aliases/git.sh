@@ -36,6 +36,9 @@ alias ss='echo "Current branch: $(git branch --show-current)" && echo "Status: "
 
 alias dev='git switch dev && git pull'
 
+alias stage='git switch stage && git pull'
+alias stg='stage'
+
 nah() {
 	echo "This will discard tracked changes and delete untracked files."
 	read -r "?Continue? [y/N] " reply
