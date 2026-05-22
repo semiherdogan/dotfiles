@@ -10,7 +10,7 @@ fi
 shift
 
 case "${app:l}" in
-	kitty|ghostty)
+	kitty)
 		"$(dirname "$0")/open-terminal.sh" "$app" "$@"
 		exit $?
 		;;

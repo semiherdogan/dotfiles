@@ -9,15 +9,6 @@ mkdir -p ~/.config/kitty
 ln -s /absolute/path/to/dotfiles/terminal/kitty.conf ~/.config/kitty/kitty.conf
 ```
 
-## Ghostty
-
-```sh
-mkdir -p ~/.config/ghostty
-ln -s /absolute/path/to/dotfiles/terminal/ghostty/config.ghostty ~/.config/ghostty/config.ghostty
-```
-
-Ghostty also reads `~/Library/Application Support/com.mitchellh.ghostty/config.ghostty` on macOS. If both files exist, the macOS-specific file is loaded after the XDG file and overrides matching settings.
-
 ## WezTerm
 
 ```sh

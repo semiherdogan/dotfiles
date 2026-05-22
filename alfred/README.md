@@ -18,7 +18,7 @@ Use `/bin/zsh` and pass input as arguments.
 
 The Kitty action toggles the app when it is already running. When opening a new window, it uses the selected folder, or the parent directory when the selected item is a file, then centers the new window.
 
-`open-in.sh` delegates Kitty and Ghostty to `open-terminal.sh` so selected paths open as terminal working directories.
+`open-in.sh` delegates Kitty to `open-terminal.sh` so selected paths open as terminal working directories.
 
 ## Center Window
 
