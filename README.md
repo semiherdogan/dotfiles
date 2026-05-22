@@ -42,9 +42,16 @@ That writes:
 
 Terminal emulator and prompt setup lives in [terminal/README.md](terminal/README.md).
 
+Install common macOS packages with Homebrew:
+
+```sh
+brew bundle --file /absolute/path/to/dotfiles/Brewfile
+```
+
 ## Layout
 
 - `bootstrap.sh`: entrypoint, resolves the repo path dynamically.
+- `Brewfile`: common Homebrew CLI tools, fonts, and terminal apps.
 - `aliases/`: tracked shell aliases and functions.
 - `alfred/`: Alfred workflow scripts and setup notes.
 - `ai/`: shared AI coding-agent instructions, skills, and setup notes.
@@ -69,13 +76,3 @@ Run:
 ```sh
 /absolute/path/to/dotfiles/bin/check
 ```
-
-## Common Dependencies
-
-- [jq](https://jqlang.org/)
-- [delta](https://github.com/dandavison/delta)
-- [gh](https://cli.github.com/)
-
-## Apps
-
-Daily apps and tools are listed in [APPS.md](APPS.md).
