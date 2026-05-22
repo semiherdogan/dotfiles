@@ -1,6 +1,5 @@
 brew "starship"
 
-brew "fd"
 brew "fzf"
 brew "jq"
 brew "ripgrep"
