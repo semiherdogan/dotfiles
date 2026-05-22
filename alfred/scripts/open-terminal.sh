@@ -15,6 +15,12 @@ fi
 
 center_window="$script_dir/center-window.swift"
 
+center_if_needed() {
+	if [ "${app:l}" != kitty ]; then
+		"$center_window" "$app"
+	fi
+}
+
 toggle_args=("$app")
 toggle_stderr=/dev/null
 
@@ -34,7 +40,7 @@ fi
 
 if [ "$#" -eq 0 ]; then
 	open -a "$app.app"
-	"$center_window" "$app"
+	center_if_needed
 	exit 0
 fi
 
@@ -46,5 +52,5 @@ for f in "$@"; do
 	fi
 
 	open -a "$app.app" --args --working-directory="$dir"
-	"$center_window" "$app"
+	center_if_needed
 done
