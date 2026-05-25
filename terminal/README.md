@@ -9,6 +9,8 @@ mkdir -p ~/.config/kitty
 ln -s /absolute/path/to/dotfiles/terminal/kitty.conf ~/.config/kitty/kitty.conf
 ```
 
+Wallpaper source: [8 Bit Japan Wallpapers](https://wallpapercave.com/8-bit-japan-wallpapers).
+
 ## WezTerm
 
 ```sh
