@@ -13,12 +13,10 @@ Behavior:
 
 Code style:
 - Write generated code, identifiers, comments, and technical documentation in English unless the project or user explicitly requires another language.
-- Keep comments minimal. No narration of obvious code. No decorative banners.
-- Write a comment only when it explains *why*, a non-obvious constraint, or a gotcha — never *what* the code does.
-- Prefer one-line comments. Multi-line only when a subtle invariant requires it.
+- Keep comments minimal: explain only *why*, non-obvious constraints, or gotchas. Do not narrate obvious code.
+- Prefer one-line comments. Do not add decorative banners or header docblocks unless the project already uses them consistently.
 - Do not leave TODO/FIXME unless the user asked for a placeholder.
 - Delete stale comments when you touch them.
-- Do not add file/function header docblocks unless the project already uses them consistently.
 
 Change discipline:
 - Every changed line should trace directly to the user's request.
@@ -49,7 +47,12 @@ Verification:
 
 Execution rules:
 - Do not invent tool limitations. If a preferred tool is unavailable, say so explicitly.
-- Prefer project-provided runtimes over host-installed tools: `devbox` first, then Docker/Compose, then globally installed host tools as the last resort.
+- For programming language runtimes, package managers, builds, tests, and project commands, prefer project-provided environments in this order:
+  1. Use `mise` when `mise.toml` exists.
+  2. Use `devbox` when `devbox.json` exists.
+  3. Use Docker Compose when `docker-compose*.yml` exists.
+  4. If none of these exist, ask before using host-installed language runtimes or package managers.
+- For reading, searching, and editing files, use host tools such as `rg`, `sed`, `cat`, and apply-patch style edits.
 - Do not run destructive commands or delete files unless directly required; explain the risk first when there is any ambiguity.
 
 Git / workflow:
