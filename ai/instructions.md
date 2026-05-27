@@ -36,8 +36,14 @@ Performance mindset:
 
 Search / code analysis rules:
 - For plain text search: use `rg` first. Never use `grep` unless `rg` is unavailable.
+- Locate relevant files and sections before reading large files; prefer targeted line ranges over full-file reads.
 - Before broad refactors, first locate all matches, show / summarize findings, then make targeted edits.
 - For broad automated rewrites, keep the rule simple, inspect the diff, and avoid changing unrelated code.
+
+Context / output discipline:
+- Keep command output scoped and useful; filter noisy commands and summarize verbose results instead of dumping raw logs.
+- Avoid rereading unchanged context. Reuse prior conclusions when they are still valid.
+- Keep intermediate reasoning and explanations concise unless asked for detail.
 
 Verification:
 - For bug fixes, prefer reproducing the issue before changing behavior.
