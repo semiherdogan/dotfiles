@@ -7,10 +7,10 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
 echo "Checking shell files with zsh..."
-zsh -n bootstrap.sh aliases/*.sh scripts/cb.sh scripts/toobox.sh alfred/scripts/*.sh
+zsh -n bootstrap.sh aliases/*.sh scripts/cb.sh alfred/scripts/*.sh
 
 echo "Checking shell files with bash..."
-bash -n bootstrap.sh aliases/*.sh scripts/cb.sh scripts/toobox.sh scripts/toolbox-run scripts/generate_prompt.sh scripts/ai-skills bin/setup-ai bin/setup-git
+bash -n bootstrap.sh aliases/*.sh scripts/cb.sh scripts/generate_prompt.sh scripts/ai-skills bin/setup-ai bin/setup-git
 
 echo "Checking for hardcoded dotfiles paths..."
 if rg -n "~/dotfiles" README.md bootstrap.sh aliases ai bin/setup-ai bin/setup-git gitconfig gitconfig.home.example work.example.sh local.example.sh >/dev/null; then

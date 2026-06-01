@@ -24,8 +24,7 @@ source_core_files() {
         aliases/ai.sh \
         aliases/macos.sh \
         scripts/cb.sh \
-        scripts/generate_prompt.sh \
-        scripts/toobox.sh
+        scripts/generate_prompt.sh
     do
         source_if_exists "$DOTFILES_BASE/$file"
     done
@@ -51,10 +50,22 @@ configure_zsh() {
     setopt auto_cd
 }
 
+activate_mise() {
+    command -v mise >/dev/null 2>&1 || return
+
+    if [ -n "${ZSH_VERSION:-}" ]; then
+        eval "$(mise activate zsh)"
+    elif [ -n "${BASH_VERSION:-}" ]; then
+        eval "$(mise activate bash)"
+    fi
+}
+
 configure_zsh
+activate_mise
 source_core_files
 source_optional_files
 
+unset -f activate_mise
 unset -f configure_zsh
 unset -f source_core_files
 unset -f source_optional_files
