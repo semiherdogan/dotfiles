@@ -16,9 +16,15 @@ brew "wget"
 
 brew "mole"
 
-brew "devbox"
+brew "mise"
+brew "direnv"
 
 brew "pwgen"
 
 cask "font-jetbrains-mono-nerd-font"
 cask "kitty"
+cask "neohtop"
+cask "vscodium"
+# cask "bitwarden"
+# cask "visual-studio-code"
+cask "brave-browser"
