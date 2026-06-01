@@ -12,7 +12,8 @@ Behavior:
 - Match existing project style and conventions.
 
 Code style:
-- Write generated code, identifiers, comments, and technical documentation in English unless the project or user explicitly requires another language.
+- Write newly generated code, identifiers, comments, and technical documentation in English by default. Pre-existing non-English comments do not require matching that language. Use another language only when I explicitly ask, or when a file, product locale, external contract, schema, test fixture, or user-facing content requires it.
+- Precedence: comment language and verbosity rules override "match existing project style" for comments and docs. "Match project style" still applies to formatting, structure, naming conventions, and established public contracts.
 - Keep comments minimal: explain only *why*, non-obvious constraints, or gotchas. Do not narrate obvious code.
 - Prefer one-line comments. Do not add decorative banners or header docblocks unless the project already uses them consistently.
 - Do not leave TODO/FIXME unless the user asked for a placeholder.
