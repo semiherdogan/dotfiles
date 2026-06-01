@@ -54,10 +54,13 @@ Verification:
 Execution rules:
 - Do not invent tool limitations. If a preferred tool is unavailable, say so explicitly.
 - For programming language runtimes, package managers, builds, tests, and project commands, prefer project-provided environments in this order:
-  1. Use `mise` when `mise.toml` exists.
-  2. Use `devbox` when `devbox.json` exists.
-  3. Use Docker Compose when `docker-compose*.yml` exists.
-  4. If none of these exist, ask before using host-installed language runtimes or package managers.
+  1. Use `mise` when `mise.toml` or `.mise.toml` exists.
+  2. Use Docker Compose when `docker-compose*.yml`, `docker-compose*.yaml`, `compose*.yml`, or `compose*.yaml` exists in the project root or `docker/`.
+  3. If none of these exist, ask before using host-installed language runtimes or package managers.
+- To quickly detect the project environment, run:
+  ```sh
+  find . ./docker -maxdepth 1 \( -name 'mise.toml' -o -name '.mise.toml' -o -name 'docker-compose*.yml' -o -name 'docker-compose*.yaml' -o -name 'compose*.yml' -o -name 'compose*.yaml' \) -print 2>/dev/null
+  ```
 - For reading, searching, and editing files, use host tools such as `rg`, `sed`, `cat`, and apply-patch style edits.
 - Do not run destructive commands or delete files unless directly required; explain the risk first when there is any ambiguity.
 
