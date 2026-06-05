@@ -1,0 +1,170 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+usage() {
+	cat <<'EOF'
+Usage:
+  ai-pr-review-prompt [--stdout] <pr-number-or-url>
+
+Build a copyable PR review prompt from GitHub PR context and diff.
+
+Options:
+  --stdout  Print the prompt instead of copying it to the clipboard.
+  -h, --help
+EOF
+}
+
+append_command_section() {
+	local title="$1"
+	shift
+
+	{
+		printf "\n## %s\n\n" "$title"
+		printf '````text\n'
+		if ! "$@" 2>&1; then
+			printf "\n[command failed]\n"
+		fi
+		printf '````\n'
+	} >> "$prompt_file"
+}
+
+append_diff_section() {
+	{
+		printf "\n## PR Diff\n\n"
+		printf '````diff\n'
+		gh pr diff "$pr_number" --patch --color=never
+		printf '````\n'
+	} >> "$prompt_file"
+}
+
+copy_to_clipboard=1
+pr_ref=""
+
+while [ "$#" -gt 0 ]; do
+	case "$1" in
+	-h | --help)
+		usage
+		exit 0
+		;;
+	--stdout)
+		copy_to_clipboard=0
+		;;
+	-*)
+		echo "Unknown option: $1" >&2
+		usage >&2
+		exit 1
+		;;
+	*)
+		if [ -n "$pr_ref" ]; then
+			echo "Only one PR reference is supported." >&2
+			usage >&2
+			exit 1
+		fi
+		pr_ref="$1"
+		;;
+	esac
+	shift
+done
+
+if [ -z "$pr_ref" ]; then
+	usage >&2
+	exit 1
+fi
+
+if ! command -v gh >/dev/null 2>&1; then
+	echo "gh is required." >&2
+	exit 1
+fi
+
+if [ "$copy_to_clipboard" -eq 1 ] && ! command -v pbcopy >/dev/null 2>&1; then
+	echo "pbcopy is required for clipboard output. Use --stdout instead." >&2
+	exit 1
+fi
+
+repo="$(gh repo view --json owner,name -q '.owner.login + "/" + .name')"
+pr_number="$(gh pr view "$pr_ref" --json number -q .number)"
+prompt_file="$(mktemp "${TMPDIR:-/tmp}/ai-pr-review-prompt.XXXXXX")"
+trap 'rm -f "$prompt_file"' EXIT
+
+cat > "$prompt_file" <<EOF
+# PR Review Request
+
+Review GitHub PR #$pr_number in $repo using the supplied PR context, review comments, inline comments, and diff.
+
+Return exactly one fenced code block tagged \`text\`. Do not write anything before or after the code block. Do not include tool logs.
+
+Focus on correctness, regressions, security, data loss, performance, concurrency, broken contracts, and missing critical tests. Prefer concrete findings over style comments. Consider existing reviewer comments before adding a finding; repeat them only when adding new evidence or impact.
+
+Brevity rules:
+- Be concise and direct.
+- Cut filler, pleasantries, repeated context, and generic advice.
+- Use short sentences.
+- Keep only actionable findings.
+- Preserve file paths, line numbers, commands, errors, and API names exactly.
+- Do not drop required reasoning for risky findings.
+
+Use this outer format:
+
+\`\`\`text
+...content...
+\`\`\`
+
+Inside the code block:
+- Use plain text only.
+- Use SECTION-based structure with uppercase section names.
+- Use \`----\` separators between sections.
+- Do not use Markdown headings, bullets, tables, bold text, inline code, links, or nested code fences.
+
+Use this content structure:
+
+REVIEW
+
+FINDINGS
+
+MUST FIX
+
+SEVERITY: high|medium|low
+TITLE: ...
+FILE: path/to/file.ext
+LINES: start-end
+PROBLEM: ...
+IMPACT: ...
+RECOMMENDATION: ...
+
+----
+
+NICE TO HAVE
+
+TITLE: ...
+FILE: path/to/file.ext
+LINES: start-end
+NOTE: ...
+
+----
+
+TESTS
+
+RAN: Not run; review prompt only.
+RESULT: Not applicable.
+
+----
+
+SUMMARY
+
+...
+
+If there are no must-fix findings, write \`MUST FIX: No blocking findings found.\` Omit the \`NICE TO HAVE\` section entirely when it would be noise.
+EOF
+
+append_command_section "PR Context And Conversation" gh pr view "$pr_number" --comments
+append_command_section "Review Summaries" gh api "repos/$repo/pulls/$pr_number/reviews"
+append_command_section "Inline Review Comments" gh api "repos/$repo/pulls/$pr_number/comments"
+append_diff_section
+
+if [ "$copy_to_clipboard" -eq 1 ]; then
+	pbcopy < "$prompt_file"
+	printf "Copied PR review prompt for #%s (%s).\n" "$pr_number" "$repo"
+else
+	cat "$prompt_file"
+fi

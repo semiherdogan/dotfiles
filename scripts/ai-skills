@@ -129,28 +129,11 @@ resolve_skill() {
 }
 
 show_skill() {
-	local query skill file
+	local query skill
 
 	for query in "$@"; do
 		skill="$(resolve_skill "$query")"
-		file="$local_skills_dir/$skill/SKILL.md"
-
-		if [ ! -f "$file" ]; then
-			file="$skills_dir/$skill/SKILL.md"
-		fi
-
-		if [ ! -f "$file" ]; then
-			echo "Skill not found: $skill" >&2
-			return 1
-		fi
-
-		if command -v bat >/dev/null 2>&1; then
-			bat --style=plain --paging=always "$file"
-		elif command -v less >/dev/null 2>&1; then
-			less "$file"
-		else
-			cat "$file"
-		fi
+		skill_records | awk -F '\t' -v skill="$skill" '$1 == skill' | format_skill_records
 	done
 }
 
@@ -164,7 +147,7 @@ case "${1:-}" in
 	cat <<'EOF'
 Usage:
   ai-skills              # list skills
-  ai-skills <name>       # show skill detail, supports prefix search
+  ai-skills <name>       # show matching skill summary, supports prefix search
 EOF
 	;;
 "")
