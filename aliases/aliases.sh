@@ -55,3 +55,6 @@ epoch2date(){
 alias yolo-message='curl -sS https://whatthecommit.com/index.txt'
 
 alias reload="exec ${SHELL} -l"
+
+alias composer-here-latest='curl -sS https://getcomposer.org/installer | php'
+alias composer-here-1='wget https://github.com/composer/composer/releases/download/1.10.26/composer.phar'

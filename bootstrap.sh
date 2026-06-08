@@ -20,7 +20,6 @@ source_core_files() {
         aliases/aliases.sh \
         aliases/git.sh \
         aliases/docker.sh \
-        aliases/laravel.sh \
         aliases/ai.sh \
         aliases/macos.sh \
         scripts/cb.sh \
