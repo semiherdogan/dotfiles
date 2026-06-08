@@ -8,24 +8,20 @@ brew "gh"
 brew "git"
 brew "git-delta"
 
-brew "bandwhich"
 brew "curlie"
-brew "httpstat"
 brew "miniserve"
-brew "wget"
 
 brew "mole"
 
 brew "mise"
-brew "direnv"
 
 brew "pwgen"
+brew "espanso"
 
 cask "font-jetbrains-mono-nerd-font"
 cask "kitty"
 cask "neohtop"
 cask "vscodium"
-# cask "visual-studio-code"
-cask "bitwarden"
+# cask "bitwarden"
 cask "brave-browser"
 cask "aprilnea/tap/openlogi"

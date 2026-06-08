@@ -4,7 +4,7 @@
 
 codex-commit-message-generate() {
 	local diff
-	diff="$(rtk git diff --cached)"
+	diff="$(git diff --cached)"
 
 	if [[ -z "$diff" ]]; then
 		echo "No staged changes to generate a commit message."
