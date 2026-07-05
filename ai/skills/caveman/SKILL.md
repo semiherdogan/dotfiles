@@ -15,8 +15,8 @@ Rules:
 - Keep warnings clear when safety, data loss, or irreversible changes are involved.
 
 Persistence:
-- Stay active after trigger.
-- Stop only when the user asks for normal mode or more detail.
+- Stay active for the current conversation or task after trigger.
+- Return to normal mode when the user asks, starts a different style, or the terse mode would hide important risk or reasoning.
 
 Avoid:
 - Baby talk.

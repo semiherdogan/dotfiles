@@ -1,6 +1,6 @@
 ---
 name: github-pr-review
-description: Use when the user provides a GitHub PR number, asks for a local PR review, or asks to prepare a PR review prompt using GitHub PR context, diff-first inspection, optional temporary worktrees for checks, and a copyable Markdown review output.
+description: Review a GitHub PR locally. Use for PR numbers, local PR reviews, or review prompts; inspect diff and comments first, use temporary worktrees/checks only when needed, and return copyable Markdown.
 ---
 
 # GitHub PR Review
@@ -9,9 +9,7 @@ Review a GitHub pull request locally and produce a Markdown review the user can 
 
 Allowed actions:
 - Check local git status.
-- Run `gh pr view <number> --comments` to inspect the PR description and conversation comments.
-- Run read-only `gh api` calls to inspect review summaries and inline review comments.
-- Run `gh pr diff <number> --patch --color=never` to inspect the patch without switching branches.
+- Use `gh` read-only commands when available to inspect the PR description, comments, reviews, and diff.
 - Create a temporary review worktree outside the current checkout when full files or checks are needed.
 - Read changed files and nearby code in the temporary worktree.
 - Run narrow local checks when useful and available.
@@ -28,17 +26,17 @@ Forbidden actions:
 Workflow:
 - Require a PR number if the user has not provided one.
 - Inspect `git status --short` and preserve any local changes.
-- Read PR context:
-  - `gh pr view <number> --comments`
-  - `gh api repos/:owner/:repo/pulls/<number>/reviews`
-  - `gh api repos/:owner/:repo/pulls/<number>/comments`
-- Capture the diff with `gh pr diff <number> --patch --color=never`.
+- Read PR context with available read-only tooling:
+  - Prefer `gh pr view <number> --comments`.
+  - Use `gh api repos/:owner/:repo/pulls/<number>/reviews` and `gh api repos/:owner/:repo/pulls/<number>/comments` when reviewer context matters.
+  - Capture the patch with `gh pr diff <number> --patch --color=never` when available.
+  - If `gh` or network access is unavailable, use the local branch, existing diff, or user-provided patch and state the limitation.
 - Review from the diff and PR comments first, then inspect full files for context where needed.
 - If full files, lint, or tests are needed, create a temporary worktree outside the current checkout:
   - Prefer the PR merge ref so checks run against the proposed merge result.
   - If the merge ref is unavailable, use the PR head ref and state that the merge result was not checked.
   - Run checks inside the temporary worktree only.
-- Use this worktree pattern when needed:
+- Use this worktree pattern only when `origin` and GitHub refs are available:
   - `git fetch origin pull/<number>/merge:refs/remotes/origin/pr/<number>-merge`
   - `git worktree add --detach <tmp-dir> refs/remotes/origin/pr/<number>-merge`
   - Fallback to `pull/<number>/head` only when the merge ref cannot be fetched.

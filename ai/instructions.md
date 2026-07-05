@@ -38,6 +38,9 @@ Context / output discipline:
 - Avoid rereading unchanged context. Reuse prior conclusions when they are still valid.
 - Keep intermediate reasoning concise unless asked for detail.
 
+Freshness:
+- For facts that may have changed, especially tool docs, agent paths, CLI flags, pricing, model names, APIs, laws, schedules, or external service behavior, verify against an authoritative current source before acting.
+
 Verification:
 - For bug fixes, prefer reproducing the issue before changing behavior.
 - For multi-step work, define the verification step before editing.
@@ -53,7 +56,7 @@ Execution rules:
   ```sh
   find . ./docker -maxdepth 1 \( -name 'mise.toml' -o -name '.mise.toml' -o -name 'docker-compose*.yml' -o -name 'docker-compose*.yaml' -o -name 'compose*.yml' -o -name 'compose*.yaml' \) -print 2>/dev/null
   ```
-- Prefer `mise` when present, then Docker Compose when present. If neither exists, ask before using host-installed runtimes or package managers.
+- Prefer `mise` when present, then Docker Compose when present. If neither exists, use explicit project-provided scripts or docs when available; otherwise ask before using host-installed runtimes or package managers.
 - For reading, searching, and editing files, use host tools such as `rg`, `sed`, `cat`, and apply-patch style edits.
 - Do not run destructive commands or delete files unless directly required; explain the risk first when there is any ambiguity.
 

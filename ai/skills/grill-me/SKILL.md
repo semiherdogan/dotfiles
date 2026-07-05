@@ -11,7 +11,7 @@ Workflow:
 - Ask one question at a time.
 - Prefer the highest-risk unresolved decision first.
 - Explain why the question matters in one sentence when needed.
-- Provide your recommended answer after asking the question.
+- Provide your recommended answer only when it helps the user evaluate the tradeoff without short-circuiting their answer.
 - If the answer is discoverable from the codebase, inspect the code instead of asking.
 - Continue until the plan has clear constraints, tradeoffs, failure modes, and next steps.
 
