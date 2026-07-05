@@ -31,13 +31,25 @@ Set up AI coding-agent instructions:
 /absolute/path/to/dotfiles/bin/setup-ai
 ```
 
-That writes:
+By default, this updates only agent directories that already exist on the current
+machine. Use `--force` to create missing agent directories first.
+
+To create and install only selected agents:
+
+```sh
+/absolute/path/to/dotfiles/bin/setup-ai --force --only codex,pi
+```
+
+Depending on which agent directories exist, that writes:
 
 ```sh
 ~/.codex/AGENTS.md
 ~/.claude/CLAUDE.md
+~/.pi/agent/AGENTS.md
 ~/.codex/skills/
 ~/.claude/skills/
+~/.agents/skills/
+~/.pi/agent/skills/
 ```
 
 Terminal emulator and prompt setup lives in [terminal/README.md](terminal/README.md).

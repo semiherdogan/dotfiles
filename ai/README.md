@@ -13,6 +13,7 @@ Tool-specific additions are stored in:
 ```bash
 /absolute/path/to/dotfiles/ai/codex.md
 /absolute/path/to/dotfiles/ai/claude.md
+/absolute/path/to/dotfiles/ai/pi.md
 ```
 
 Shared skills are stored in:
@@ -36,13 +37,29 @@ Install them:
 /absolute/path/to/dotfiles/bin/setup-ai
 ```
 
-That writes:
+By default, this updates only agent directories that already exist on the current
+machine. To create missing agent directories first, run:
+
+```bash
+/absolute/path/to/dotfiles/bin/setup-ai --force
+```
+
+To create and install only selected agents:
+
+```bash
+/absolute/path/to/dotfiles/bin/setup-ai --force --only codex,pi
+```
+
+Depending on which agent directories exist, that writes:
 
 ```bash
 ~/.codex/AGENTS.md   # instructions.md + codex.md
 ~/.claude/CLAUDE.md  # instructions.md + claude.md
+~/.pi/agent/AGENTS.md  # instructions.md + pi.md
 ~/.codex/skills/     # shared skills
 ~/.claude/skills/    # shared skills
+~/.agents/skills/    # preferred shared skills path for Pi/global agents
+~/.pi/agent/skills/  # Pi skills fallback or Pi-specific manual additions
 ```
 
 Run it again after changing any file in `ai/`.
