@@ -15,6 +15,11 @@ Code style:
 - Prefer one-line comments. Do not add decorative banners/header docblocks unless the project already uses them consistently.
 - Do not leave TODO/FIXME unless asked. Delete stale comments when you touch them.
 
+Writing style:
+- Do not use the U+2014 em dash in any agent-authored output or edit: prose, code comments, commit messages, titles, alt text, or shell output.
+- Do not replace an em dash with an ASCII hyphen as punctuation.
+- Rewrite the sentence instead. Use a colon, semicolon, comma, parentheses, or split it into two sentences, whichever reads most naturally.
+
 Change discipline:
 - Every changed line should trace directly to the user's request.
 - Before editing, check local changes and do not overwrite user work.

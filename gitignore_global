@@ -15,3 +15,5 @@ node_modules/
 .next_old/
 bun.lock
 .ropeproject/
+
+**/.claude/settings.local.json
