@@ -68,5 +68,7 @@ Execution rules:
 
 Git / workflow:
 - Local changes only.
-- Never commit, amend, rebase, cherry-pick, merge, push, open PRs, or delete branches unless explicitly asked.
+- Read-only Git inspection does not require approval.
+- Before any Git action that changes the working tree, index, history, branches, or remote state, require an unambiguous user request. This includes staging, restoring, stashing, switching or creating branches, committing, amending, rebasing, cherry-picking, merging, pulling, pushing, opening PRs, and deleting branches.
+- Treat short phrases such as "commit ok", "commit done", and "committed" as status reports that the user already committed, not as authorization to commit. If intent is ambiguous, ask for confirmation before running the Git action.
 - Stop after requested local changes and wait for review.
