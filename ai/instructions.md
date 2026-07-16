@@ -34,7 +34,6 @@ Performance mindset:
 - For build/test loops, use incremental caches or optimized modes when appropriate; suggest clean rebuilds only when needed.
 
 Search / code analysis rules:
-- For plain text search: use `rg` first. Never use `grep` unless `rg` is unavailable.
 - Locate relevant files and sections before reading large files; prefer targeted line ranges over full-file reads.
 - Before broad refactors or automated rewrites, locate all matches, summarize findings, keep the rewrite rule simple, inspect the diff, and avoid unrelated changes.
 
@@ -50,6 +49,8 @@ Verification:
 - For bug fixes, prefer reproducing the issue before changing behavior.
 - For multi-step work, define the verification step before editing.
 - After changes, run the narrowest relevant checks first.
+- For YAML files (`.yaml` and `.yml`), use the installed `yq` to validate changes when applicable.
+- For JSON files, use the installed `jq` to validate changes when applicable.
 - If checks cannot be run, say exactly why.
 
 Safety:
@@ -62,7 +63,7 @@ Execution rules:
   find . ./docker -maxdepth 1 \( -name 'mise.toml' -o -name '.mise.toml' -o -name 'docker-compose*.yml' -o -name 'docker-compose*.yaml' -o -name 'compose*.yml' -o -name 'compose*.yaml' \) -print 2>/dev/null
   ```
 - Prefer `mise` when present, then Docker Compose when present. If neither exists, use explicit project-provided scripts or docs when available; otherwise ask before using host-installed runtimes or package managers.
-- For reading, searching, and editing files, use host tools such as `rg`, `sed`, `cat`, and apply-patch style edits.
+- For reading, searching, and editing files, use appropriate host tools and apply-patch style edits.
 - Do not run destructive commands or delete files unless directly required; explain the risk first when there is any ambiguity.
 
 Git / workflow:
