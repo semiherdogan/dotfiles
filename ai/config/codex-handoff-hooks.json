@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$HOME/.codex/skills/handoff/scripts/load_handoff.mjs\"",
+            "statusMessage": "Loading HANDOFF.md"
+          }
+        ]
+      }
+    ]
+  }
+}

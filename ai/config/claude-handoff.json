@@ -1,0 +1,44 @@
+{
+  "env": {
+    "DISABLE_AUTO_COMPACT": "1",
+    "CLAUDE_CONTEXT_WINDOW": "1000000",
+    "CLAUDE_ROLLOVER_WARN_BANDS": "75,85,92"
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "node \"$HOME/.claude/skills/handoff/scripts/statusline.mjs\""
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$HOME/.claude/skills/handoff/scripts/context_monitor.mjs\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$HOME/.claude/skills/handoff/scripts/context_monitor.mjs\""
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$HOME/.claude/skills/handoff/scripts/load_handoff.mjs\""
+          }
+        ]
+      }
+    ]
+  }
+}

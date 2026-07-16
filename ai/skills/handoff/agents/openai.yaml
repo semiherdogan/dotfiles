@@ -1,0 +1,4 @@
+interface:
+  display_name: "Handoff"
+  short_description: "Write a safe cross-session handoff"
+  default_prompt: "Use $handoff to capture the current work in HANDOFF.md before starting a fresh session."
