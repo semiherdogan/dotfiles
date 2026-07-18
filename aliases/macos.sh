@@ -67,10 +67,29 @@ lo() {
 }
 
 html-server-here() {
-	local port="${1:-8085}"
+	local directory="."
+	local port="8085"
+
+	while (( $# > 0 )); do
+		case "$1" in
+			--port)
+				if (( $# < 2 )); then
+					echo "Usage: html-server-here [directory] [--port PORT]" >&2
+					return 1
+				fi
+
+				port="$2"
+				shift 2
+				;;
+			*)
+				directory="$1"
+				shift
+				;;
+		esac
+	done
 
 	open "http://localhost:$port"
-	miniserve -p "$port" .
+	miniserve --index index.html -p "$port" "$directory"
 }
 
 php-server-here() {
