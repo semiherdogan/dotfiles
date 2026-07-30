@@ -115,21 +115,19 @@ brew-update() {
 	brew outdated
 
 	echo ""
-	echo "Upgrade? (y/N):"
-	read -t5 -k1 -s
-	[[ $REPLY != "y" ]] && {
-		echo "$RED_LINE Aborted."
-		return
-	}
-	echo ""
+	# echo "Upgrade? (y/N):"
+	# read -t5 -k1 -s
+	# [[ $REPLY != "y" ]] && {
+	# 	echo "$RED_LINE Aborted."
+	# 	return
+	# }
+	# echo ""
 
 	echo "$GREEN_LINE Brew Upgrade"
 	brew upgrade
 
 	echo "$GREEN_LINE Brew Cleanup"
 	brew cleanup
-
-	echo ""
 
 	echo ""
 	echo "$GREEN_LINE Done."
