@@ -17,8 +17,10 @@ Code style:
 
 Writing style:
 - Do not use the U+2014 em dash in any agent-authored output or edit: prose, code comments, commit messages, titles, alt text, or shell output.
+- The rule follows the text wherever it lands, not just into files. It applies to every tool-call payload and to anything written into a durable or external store: memory records, issue and PR bodies, chat messages, config and data files. The enumeration above is examples, not an exhaustive list.
 - Do not replace an em dash with an ASCII hyphen as punctuation.
 - Rewrite the sentence instead. Use a colon, semicolon, comma, parentheses, or split it into two sentences, whichever reads most naturally.
+- Check before writing, not after. This rule has been broken by treating a tool payload as somehow outside "output".
 
 Change discipline:
 - Every changed line should trace directly to the user's request.
