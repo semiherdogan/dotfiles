@@ -1,0 +1,55 @@
+{
+  "Profiles": [
+    {
+      "Has Hotkey": true,
+      "Rewritable": true,
+      "Guid": "7AADF6BB-232D-4058-AB78-A0AB72B1BE87",
+      "HotKey Characters Ignoring Modifiers": "\t",
+      "Name": "Semih",
+      "HotKey Characters": "\t",
+      "Use Separate Colors for Light and Dark Mode": true,
+      "Window Type": 2,
+      "Keyboard Map": {
+        "0xf703-0x300000": {
+          "Action": 11,
+          "Text": "0x5"
+        },
+        "0xf702-0x280000": {
+          "Action": 10,
+          "Text": "b"
+        },
+        "0xf702-0x300000": {
+          "Action": 11,
+          "Text": "0x1"
+        },
+        "0xf703-0x280000": {
+          "Action": 10,
+          "Text": "f"
+        },
+        "0xf728-0x80000": {
+          "Action": 10,
+          "Text": "d"
+        },
+        "0x7f-0x100000": {
+          "Action": 11,
+          "Text": "0x15"
+        },
+        "0xf728-0x0": {
+          "Action": 11,
+          "Text": "0x4"
+        },
+        "0x7f-0x80000": {
+          "Action": 11,
+          "Text": "0x1b 0x7f"
+        }
+      },
+      "Space": -1,
+      "Transparency": 0.10000000000000001,
+      "HotKey Modifier Flags": 524288,
+      "HotKey Key Code": 48,
+      "Blur Radius": 9.0864458869485301,
+      "Blur": true,
+      "Rows": 60
+    }
+  ]
+}
