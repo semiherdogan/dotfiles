@@ -15,13 +15,13 @@ ONLY_SET=0
 
 usage() {
     cat <<EOF
-Usage: setup-ai [--force] [--only codex,claude,pi]
+Usage: setup-ai [--force] [--only codex,claude,pi,kiro]
 
 Installs AI instructions and skills for agent directories that already exist.
 
 Options:
   --force, -f  Create missing agent directories before installing.
-  --only LIST  Install only selected agents: codex, claude, pi.
+  --only LIST  Install only selected agents: codex, claude, pi, kiro.
   --help, -h   Show this help.
 EOF
 }
@@ -76,7 +76,7 @@ is_selected() {
     for item in $ONLY; do
         IFS="$old_ifs"
         case "$item" in
-            codex | claude | pi)
+            codex | claude | pi | kiro)
                 ;;
             "")
                 echo "Empty agent name in --only list." >&2
@@ -111,6 +111,29 @@ install_ai_instructions() {
 
     tmp_file="$(mktemp "${target}.tmp.XXXXXX")"
     {
+        cat "$AI_DIR/instructions.md"
+        printf '\n\n'
+        cat "$AI_DIR/$tool_file"
+    } > "$tmp_file"
+
+    mv "$tmp_file" "$target"
+}
+
+install_kiro_steering() {
+    local tool_file="$1"
+    local target="$2"
+    local target_dir
+    local tmp_file
+
+    target_dir="$(dirname "$target")"
+    mkdir -p "$target_dir"
+
+    tmp_file="$(mktemp "${target}.tmp.XXXXXX")"
+    {
+        printf '%s\n' '---'
+        printf '%s\n' 'inclusion: always'
+        printf '%s\n' '---'
+        printf '\n'
         cat "$AI_DIR/instructions.md"
         printf '\n\n'
         cat "$AI_DIR/$tool_file"
@@ -320,6 +343,23 @@ install_pi() {
     echo "Installed Pi skills to $pi_base/skills"
 }
 
+install_kiro() {
+    local kiro_base="$HOME/.kiro"
+    local steering_target="$kiro_base/steering/dotfiles-instructions.md"
+    local skills_target="$kiro_base/skills"
+
+    if ! should_install "$kiro_base"; then
+        echo "Skipped Kiro because $kiro_base does not exist. Use --force to create it."
+        return
+    fi
+
+    install_kiro_steering kiro.md "$steering_target"
+    install_ai_skills "$skills_target" kiro
+
+    echo "Installed Kiro steering to $steering_target"
+    echo "Installed Kiro skills to $skills_target"
+}
+
 if is_selected codex; then
     install_agent "Codex" "$HOME/.codex" codex.md "$HOME/.codex/AGENTS.md" "$HOME/.codex/skills" codex
     if should_install "$HOME/.codex"; then
@@ -336,6 +376,10 @@ fi
 
 if is_selected pi; then
     install_pi
+fi
+
+if is_selected kiro; then
+    install_kiro
 fi
 
 if [ "$ONLY_SET" -eq 0 ] && ! should_install "$HOME/.pi/agent"; then

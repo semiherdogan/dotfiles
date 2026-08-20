@@ -40,16 +40,24 @@ To create and install only selected agents:
 /absolute/path/to/dotfiles/bin/setup-ai --force --only codex,pi
 ```
 
+For Kiro only:
+
+```sh
+/absolute/path/to/dotfiles/bin/setup-ai --force --only kiro
+```
+
 Depending on which agent directories exist, that writes:
 
 ```sh
 ~/.codex/AGENTS.md
 ~/.claude/CLAUDE.md
 ~/.pi/agent/AGENTS.md
+~/.kiro/steering/dotfiles-instructions.md
 ~/.codex/skills/
 ~/.claude/skills/
 ~/.agents/skills/
 ~/.pi/agent/skills/
+~/.kiro/skills/
 ```
 
 Terminal emulator and prompt setup lives in [terminal/README.md](terminal/README.md).

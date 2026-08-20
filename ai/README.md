@@ -14,6 +14,7 @@ Tool-specific additions are stored in:
 /absolute/path/to/dotfiles/ai/codex.md
 /absolute/path/to/dotfiles/ai/claude.md
 /absolute/path/to/dotfiles/ai/pi.md
+/absolute/path/to/dotfiles/ai/kiro.md
 ```
 
 Shared skills are stored in:
@@ -56,19 +57,27 @@ To create and install only selected agents:
 /absolute/path/to/dotfiles/bin/setup-ai --force --only codex,pi
 ```
 
+For Kiro only:
+
+```bash
+/absolute/path/to/dotfiles/bin/setup-ai --force --only kiro
+```
+
 Depending on which agent directories exist, that writes:
 
 ```bash
 ~/.codex/AGENTS.md   # instructions.md + codex.md
 ~/.claude/CLAUDE.md  # instructions.md + claude.md
 ~/.pi/agent/AGENTS.md  # instructions.md + pi.md
+~/.kiro/steering/dotfiles-instructions.md  # instructions.md + kiro.md
 ~/.codex/skills/     # shared skills
 ~/.claude/skills/    # shared skills
 ~/.agents/skills/    # preferred shared skills path for Pi/global agents
 ~/.pi/agent/skills/  # Pi skills fallback or Pi-specific manual additions
+~/.kiro/skills/      # shared skills for Kiro
 ```
 
-The `handoff` skill is installed only for Claude and Codex. Setup also merges its managed
+The `handoff` skill is installed only for Claude and Codex, not Kiro. Setup also merges its managed
 hooks into `~/.claude/settings.json` and `~/.codex/hooks.json` without replacing unrelated
 hooks. Claude gets context warnings, a context status line, and automatic handoff loading.
 Codex gets automatic handoff loading and uses its built-in context indicator.
