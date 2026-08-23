@@ -37,7 +37,6 @@ EOF
 
 			cat <<'EOF'
 ## Output Requirements
-- Answer in Turkish.
 - Be direct, structured, and concise.
 - Use headings and bullets only when they improve readability.
 - Prefer concrete recommendations, examples, or next steps over generic advice.
