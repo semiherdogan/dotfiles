@@ -57,6 +57,8 @@ Depending on which agent directories exist, that writes:
 ~/.claude/skills/
 ~/.agents/skills/
 ~/.pi/agent/skills/
+~/.pi/agent/extensions/context-rollover/
+~/.pi/agent/settings.json
 ~/.kiro/skills/
 ```
 
@@ -74,13 +76,13 @@ brew bundle --file /absolute/path/to/dotfiles/Brewfile
 - `Brewfile`: common Homebrew CLI tools, fonts, and terminal apps.
 - `aliases/`: tracked shell aliases and functions.
 - `alfred/`: Alfred workflow scripts and setup notes.
-- `ai/`: shared AI coding-agent instructions, skills, and setup notes.
+- `ai/`: shared AI coding-agent instructions, skills, extensions, and setup notes.
 - `scripts/`: small project helpers.
 - `terminal/`: terminal emulator and prompt configs. See [terminal/README.md](terminal/README.md).
 - `work.sh`: optional untracked work-specific commands.
 - `local.sh`: optional untracked machine-specific commands.
 - `bin/setup-git`: configures Git include and global ignore paths for the current repo location.
-- `bin/setup-ai`: installs shared plus tool-specific AI instructions and skills.
+- `bin/setup-ai`: installs shared plus tool-specific AI instructions, skills, extensions, and settings.
 
 Use the example files as a starting point:
 

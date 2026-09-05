@@ -17,6 +17,18 @@ Tool-specific additions are stored in:
 /absolute/path/to/dotfiles/ai/kiro.md
 ```
 
+Agent-specific extensions are stored by target in:
+
+```bash
+/absolute/path/to/dotfiles/ai/extensions/pi/
+```
+
+Managed settings overlays are stored in:
+
+```bash
+/absolute/path/to/dotfiles/ai/config/
+```
+
 Shared skills are stored in:
 
 ```bash
@@ -74,13 +86,17 @@ Depending on which agent directories exist, that writes:
 ~/.claude/skills/    # shared skills
 ~/.agents/skills/    # preferred shared skills path for Pi/global agents
 ~/.pi/agent/skills/  # Pi skills fallback or Pi-specific manual additions
+~/.pi/agent/extensions/context-rollover/  # global Pi context rollover extension
+~/.pi/agent/settings.json  # existing settings merged with managed Pi settings
 ~/.kiro/skills/      # shared skills for Kiro
 ```
 
-The `handoff` skill is installed only for Claude and Codex, not Kiro. Setup also merges its managed
-hooks into `~/.claude/settings.json` and `~/.codex/hooks.json` without replacing unrelated
-hooks. Claude gets context warnings, a context status line, and automatic handoff loading.
-Codex gets automatic handoff loading and uses its built-in context indicator.
+The `handoff` skill is installed only for Claude and Codex. It does not install hooks.
+
+Pi uses the global `context-rollover` extension instead. It disables automatic compaction through
+a settings merge, shows advisory context usage at a 70% threshold, and provides a user-approved
+`/handoff` workflow. The extension never creates a handoff file or copies the old transcript into
+the fresh session.
 
 Run it again after changing any file in `ai/`.
 
