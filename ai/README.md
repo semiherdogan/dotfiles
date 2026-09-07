@@ -79,19 +79,31 @@ Depending on which agent directories exist, that writes:
 
 ```bash
 ~/.codex/AGENTS.md   # instructions.md + codex.md
-~/.claude/CLAUDE.md  # instructions.md + claude.md
 ~/.pi/agent/AGENTS.md  # instructions.md + pi.md
 ~/.kiro/steering/dotfiles-instructions.md  # instructions.md + kiro.md
 ~/.codex/skills/     # shared skills
-~/.claude/skills/    # shared skills
 ~/.agents/skills/    # preferred shared skills path for Pi/global agents
 ~/.pi/agent/skills/  # Pi skills fallback or Pi-specific manual additions
 ~/.pi/agent/extensions/context-rollover/  # global Pi context rollover extension
+~/.pi/agent/extensions/git-guard/         # blocks agent-run git commands except status, log, diff
+~/.pi/agent/extensions/claude-usage/      # Claude subscription usage status and /usage command
 ~/.pi/agent/settings.json  # existing settings merged with managed Pi settings
 ~/.kiro/skills/      # shared skills for Kiro
 ```
 
+Claude is opt-in. Nothing is written to `~/.claude` unless the run explicitly asks for it:
+
+```sh
+/absolute/path/to/dotfiles/bin/setup-ai --only claude
+```
+
+That installs `~/.claude/CLAUDE.md` (instructions.md + claude.md) and `~/.claude/skills/`.
+
 The `handoff` skill is installed only for Claude and Codex. It does not install hooks.
+
+The `claude-usage` extension only shows its status entry when the selected model is a Claude model
+or the provider is `claude-bridge` or `anthropic`. Usage data comes from the Claude Code keychain
+credentials, so it requires a working `claude` login.
 
 Pi uses the global `context-rollover` extension instead. It disables automatic compaction through
 a settings merge, shows advisory context usage at a 70% threshold, and provides a user-approved

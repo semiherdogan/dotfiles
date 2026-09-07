@@ -18,6 +18,7 @@ usage() {
 Usage: setup-ai [--force] [--only codex,claude,pi,kiro]
 
 Installs AI instructions and skills for agent directories that already exist.
+Claude is never installed by default; request it with --only claude.
 
 Options:
   --force, -f  Create missing agent directories before installing.
@@ -378,7 +379,7 @@ if is_selected codex; then
     install_agent "Codex" "$HOME/.codex" codex.md "$HOME/.codex/AGENTS.md" "$HOME/.codex/skills" codex
 fi
 
-if is_selected claude; then
+if [ "$ONLY_SET" -eq 1 ] && is_selected claude; then
     install_agent "Claude" "$HOME/.claude" claude.md "$HOME/.claude/CLAUDE.md" "$HOME/.claude/skills" claude
 fi
 

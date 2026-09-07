@@ -50,16 +50,22 @@ Depending on which agent directories exist, that writes:
 
 ```sh
 ~/.codex/AGENTS.md
-~/.claude/CLAUDE.md
 ~/.pi/agent/AGENTS.md
 ~/.kiro/steering/dotfiles-instructions.md
 ~/.codex/skills/
-~/.claude/skills/
 ~/.agents/skills/
 ~/.pi/agent/skills/
 ~/.pi/agent/extensions/context-rollover/
+~/.pi/agent/extensions/git-guard/
+~/.pi/agent/extensions/claude-usage/
 ~/.pi/agent/settings.json
 ~/.kiro/skills/
+```
+
+Claude instructions and skills are never installed automatically. Ask for them explicitly:
+
+```sh
+/absolute/path/to/dotfiles/bin/setup-ai --only claude
 ```
 
 Terminal emulator and prompt setup lives in [terminal/README.md](terminal/README.md).
