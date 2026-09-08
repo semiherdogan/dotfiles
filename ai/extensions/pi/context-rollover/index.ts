@@ -52,6 +52,10 @@ async function generateHandoff(
 
 	const conversationText = serializeConversation(convertToLlm(messages));
 	const continuationGoal = goal || "No additional continuation goal was supplied. Preserve the current task's goal.";
+	const systemPrompt =
+		model.baseUrl === "claude-bridge"
+			? `${ctx.getSystemPrompt()}\n\n${HANDOFF_SYSTEM_PROMPT}`
+			: HANDOFF_SYSTEM_PROMPT;
 
 	return ctx.ui.custom<GenerationResult>((tui, theme, _keybindings, done) => {
 		const loader = new BorderedLoader(tui, theme, "Generating handoff...");
@@ -79,7 +83,7 @@ async function generateHandoff(
 		ctx.modelRegistry
 			.complete(
 				model,
-				{ systemPrompt: HANDOFF_SYSTEM_PROMPT, messages: [userMessage] },
+				{ systemPrompt, messages: [userMessage] },
 				{
 					signal: loader.signal,
 					cacheRetention: "none",
