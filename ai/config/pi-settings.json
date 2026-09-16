@@ -1,5 +1,10 @@
 {
   "compaction": {
     "enabled": false
-  }
+  },
+  "packages": [
+    "git:github.com/elidickinson/pi-claude-bridge@main",
+    "https://github.com/ayghri/i-have-adhd",
+    "npm:pi-open-agents"
+  ]
 }

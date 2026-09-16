@@ -8,6 +8,7 @@ SKILLS_DIR="$AI_DIR/skills"
 LOCAL_SKILLS_DIR="$AI_DIR/skills-local"
 SKILL_TARGETS_DIR="$AI_DIR/skill-targets"
 PI_EXTENSIONS_DIR="$AI_DIR/extensions/pi"
+PI_AGENTS_DIR="$AI_DIR/agents/pi"
 PI_SETTINGS="$AI_DIR/config/pi-settings.json"
 FORCE=0
 ONLY=""
@@ -276,6 +277,38 @@ install_managed_directories() {
     mv "$tmp_marker" "$marker"
 }
 
+install_managed_files() {
+    local source="$1"
+    local target="$2"
+    local marker
+    local item
+    local item_name
+    local tmp_marker
+
+    marker="$target/.dotfiles-managed"
+    mkdir -p "$target"
+
+    if [ -f "$marker" ]; then
+        while IFS= read -r item_name; do
+            [ -n "$item_name" ] || continue
+            rm -f "$target/$item_name"
+        done < "$marker"
+    fi
+
+    tmp_marker="$(mktemp "${marker}.tmp.XXXXXX")"
+    if [ -d "$source" ]; then
+        for item in "$source"/*; do
+            [ -f "$item" ] || continue
+            item_name="$(basename "$item")"
+            rm -f "$target/$item_name"
+            cp "$item" "$target/$item_name"
+            printf '%s\n' "$item_name" >> "$tmp_marker"
+        done
+    fi
+
+    mv "$tmp_marker" "$marker"
+}
+
 should_install() {
     local base_dir="$1"
 
@@ -341,8 +374,10 @@ install_pi() {
     fi
 
     install_managed_directories "$PI_EXTENSIONS_DIR" "$pi_base/extensions"
+    install_managed_files "$PI_AGENTS_DIR" "$pi_base/agents"
     merge_json_object "$pi_base/settings.json" "$PI_SETTINGS"
     echo "Installed Pi extensions to $pi_base/extensions"
+    echo "Installed Pi agents to $pi_base/agents"
     echo "Merged Pi settings into $pi_base/settings.json"
 
     if should_install "$agents_base"; then

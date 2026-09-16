@@ -23,6 +23,12 @@ Agent-specific extensions are stored by target in:
 /absolute/path/to/dotfiles/ai/extensions/pi/
 ```
 
+Pi agent definitions are stored in:
+
+```bash
+/absolute/path/to/dotfiles/ai/agents/pi/
+```
+
 Managed settings overlays are stored in:
 
 ```bash
@@ -87,6 +93,7 @@ Depending on which agent directories exist, that writes:
 ~/.pi/agent/extensions/context-rollover/  # global Pi context rollover extension
 ~/.pi/agent/extensions/git-guard/         # blocks agent-run git commands except status, log, diff
 ~/.pi/agent/extensions/claude-usage/      # Claude subscription usage status and /usage command
+~/.pi/agent/agents/       # Pi agent definitions for pi-open-agents
 ~/.pi/agent/settings.json  # existing settings merged with managed Pi settings
 ~/.kiro/skills/      # shared skills for Kiro
 ```
@@ -104,6 +111,15 @@ The `handoff` skill is installed only for Claude and Codex. It does not install 
 The `claude-usage` extension only shows its status entry when the selected model is a Claude model
 or the provider is `claude-bridge` or `anthropic`. Usage data comes from the Claude Code keychain
 credentials, so it requires a working `claude` login.
+
+The `packages` list in `ai/config/pi-settings.json` is authoritative: the settings merge replaces the
+array wholesale, so a package added with `pi install` is reverted on the next `setup-ai` run. Add it
+to the overlay instead.
+
+The Pi agents come from `pi-open-agents` (listed in that `packages` array). `architect` runs on Opus
+and holds the conversation; `implementer` runs on Sonnet and does the file work. A project opts in by
+setting `"defaultAgent": "architect"` in its own `.pi/settings.json`; without that, the agents are
+still selectable with `/agent` but nothing routes automatically.
 
 Pi uses the global `context-rollover` extension instead. It disables automatic compaction through
 a settings merge, shows advisory context usage at a 70% threshold, and provides a user-approved
