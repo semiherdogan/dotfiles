@@ -10,6 +10,7 @@ SKILL_TARGETS_DIR="$AI_DIR/skill-targets"
 PI_EXTENSIONS_DIR="$AI_DIR/extensions/pi"
 PI_AGENTS_DIR="$AI_DIR/agents/pi"
 PI_SETTINGS="$AI_DIR/config/pi-settings.json"
+PI_ADHD_CONFIG="$AI_DIR/config/pi-i-have-adhd.json"
 FORCE=0
 ONLY=""
 ONLY_SET=0
@@ -376,9 +377,11 @@ install_pi() {
     install_managed_directories "$PI_EXTENSIONS_DIR" "$pi_base/extensions"
     install_managed_files "$PI_AGENTS_DIR" "$pi_base/agents"
     merge_json_object "$pi_base/settings.json" "$PI_SETTINGS"
+    merge_json_object "$pi_base/i-have-adhd.json" "$PI_ADHD_CONFIG"
     echo "Installed Pi extensions to $pi_base/extensions"
     echo "Installed Pi agents to $pi_base/agents"
     echo "Merged Pi settings into $pi_base/settings.json"
+    echo "Merged i-have-adhd config into $pi_base/i-have-adhd.json"
 
     if should_install "$agents_base"; then
         install_ai_skills "$agents_base/skills" pi

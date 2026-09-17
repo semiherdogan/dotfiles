@@ -93,8 +93,10 @@ Depending on which agent directories exist, that writes:
 ~/.pi/agent/extensions/context-rollover/  # global Pi context rollover extension
 ~/.pi/agent/extensions/git-guard/         # blocks agent-run git commands except status, log, diff
 ~/.pi/agent/extensions/claude-usage/      # Claude subscription usage status and /usage command
+~/.pi/agent/extensions/skill-newline/     # lets /skill:name expand when its args start on a new line
 ~/.pi/agent/agents/       # Pi agent definitions for pi-open-agents
 ~/.pi/agent/settings.json  # existing settings merged with managed Pi settings
+~/.pi/agent/i-have-adhd.json  # i-have-adhd extension config, always-on for every Pi session
 ~/.kiro/skills/      # shared skills for Kiro
 ```
 
@@ -115,6 +117,10 @@ credentials, so it requires a working `claude` login.
 The `packages` list in `ai/config/pi-settings.json` is authoritative: the settings merge replaces the
 array wholesale, so a package added with `pi install` is reverted on the next `setup-ai` run. Add it
 to the overlay instead.
+
+The `i-have-adhd` package is enabled for every Pi session through `ai/config/pi-i-have-adhd.json`
+(`alwaysOn: true`). A per-session choice still wins, so `/i-have-adhd off` or `stop adhd mode`
+keeps that session disabled. The extension reads the file at startup, so restart Pi after changing it.
 
 The Pi agents come from `pi-open-agents` (listed in that `packages` array). `architect` runs on Opus
 and holds the conversation; `implementer` runs on Sonnet and does the file work. A project opts in by
