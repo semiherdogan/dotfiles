@@ -94,6 +94,7 @@ Depending on which agent directories exist, that writes:
 ~/.pi/agent/extensions/git-guard/         # blocks agent-run git commands except status, log, diff
 ~/.pi/agent/extensions/claude-usage/      # Claude subscription usage status and /usage command
 ~/.pi/agent/extensions/skill-newline/     # lets /skill:name expand when its args start on a new line
+~/.pi/agent/extensions/architect-guard/   # blocks the architect's own edit/write outside *.md and .pi/, so code goes through implementer
 ~/.pi/agent/agents/       # Pi agent definitions for pi-open-agents
 ~/.pi/agent/settings.json  # existing settings merged with managed Pi settings
 ~/.pi/agent/i-have-adhd.json  # i-have-adhd extension config, always-on for every Pi session
@@ -127,7 +128,9 @@ and holds the conversation; it delegates to three read-scoped or write-scoped su
 (Sonnet, read-only) answers "where is X, who calls Y" lookups so those file reads stay out of the main
 session; `implementer` (Sonnet) does the file work; `reviewer` (Opus, read-only, `code-review` skill)
 reviews the working tree after each implementer slice and reports findings that the architect filters
-and routes back as one corrective task. A project opts in by setting `"defaultAgent": "architect"` in
+and routes back as one corrective task. The `architect-guard` extension enforces the split: in a
+session where `architect` is active, `edit`/`write` on anything other than Markdown or the `.pi/` tree
+is blocked at call time with a reason pointing at `implementer`. A project opts in by setting `"defaultAgent": "architect"` in
 its own `.pi/settings.json`; without that, the agents are still selectable with `/agent` but nothing
 routes automatically. A project can override any agent by name with a full file in `.pi/agents/`, for
 example a `reviewer` that carries a project-specific review skill instead of `code-review`.
