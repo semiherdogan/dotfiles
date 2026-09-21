@@ -34,6 +34,7 @@ Scope:
 
 Validation:
 - Run the narrowest relevant checks the project defines, then the broader gate if the change warrants it.
+- If the project defines a boot or wiring check separate from the unit gate (a startup smoke, a container resolution test), run it whenever you add or change a constructor argument, a module import list or a provider registration. Unit tests with mocked dependencies do not catch a missing wiring entry.
 - Distinguish failures your change caused from pre-existing ones.
 
 Never commit, stage, or otherwise change git state. Write the code and stop.

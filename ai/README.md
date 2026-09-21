@@ -122,10 +122,15 @@ The `i-have-adhd` package is enabled for every Pi session through `ai/config/pi-
 (`alwaysOn: true`). A per-session choice still wins, so `/i-have-adhd off` or `stop adhd mode`
 keeps that session disabled. The extension reads the file at startup, so restart Pi after changing it.
 
-The Pi agents come from `pi-open-agents` (listed in that `packages` array). `architect` runs on Opus
-and holds the conversation; `implementer` runs on Sonnet and does the file work. A project opts in by
-setting `"defaultAgent": "architect"` in its own `.pi/settings.json`; without that, the agents are
-still selectable with `/agent` but nothing routes automatically.
+The Pi agents come from `pi-open-agents` (listed in that `packages` array). `architect` runs on Fable
+and holds the conversation; it delegates to three read-scoped or write-scoped subagents: `explorer`
+(Sonnet, read-only) answers "where is X, who calls Y" lookups so those file reads stay out of the main
+session; `implementer` (Sonnet) does the file work; `reviewer` (Opus, read-only, `code-review` skill)
+reviews the working tree after each implementer slice and reports findings that the architect filters
+and routes back as one corrective task. A project opts in by setting `"defaultAgent": "architect"` in
+its own `.pi/settings.json`; without that, the agents are still selectable with `/agent` but nothing
+routes automatically. A project can override any agent by name with a full file in `.pi/agents/`, for
+example a `reviewer` that carries a project-specific review skill instead of `code-review`.
 
 Pi uses the global `context-rollover` extension instead. It disables automatic compaction through
 a settings merge, shows advisory context usage at a 70% threshold, and provides a user-approved
