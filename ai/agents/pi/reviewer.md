@@ -18,6 +18,7 @@ permission:
     "git diff*": allow
     "git log*": allow
     "git show*": allow
+    "git ls-files*": allow
   edit: deny
   write: deny
   subagent: deny
