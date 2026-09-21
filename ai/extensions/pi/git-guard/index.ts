@@ -1,12 +1,12 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
-const ALLOWED_SUBCOMMANDS = new Set(["status", "log", "diff"]);
+const ALLOWED_SUBCOMMANDS = new Set(["status", "log", "diff", "show"]);
 
 // Global options that consume the following token, so the subcommand is one further along.
 const VALUE_OPTIONS = new Set(["-C", "-c", "--git-dir", "--work-tree", "--namespace", "--exec-path"]);
 
 const BLOCK_REASON = [
-	"Git operations are forbidden for the agent in this project. Only `git status`, `git log` and `git diff` are allowed.",
+	"Git operations are forbidden for the agent in this project. Only `git status`, `git log`, `git diff` and `git show` are allowed.",
 	"Do not retry, do not work around it, and do not use a wrapper or alias.",
 	"Tell the user which git command is needed and why, then let them run it themselves.",
 ].join(" ");
