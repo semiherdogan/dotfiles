@@ -31,41 +31,30 @@ Set up AI coding-agent instructions:
 /absolute/path/to/dotfiles/bin/setup-ai
 ```
 
-By default, this updates only agent directories that already exist on the current
-machine. Use `--force` to create missing agent directories first.
+By default, this installs only Pi, and only when `~/.pi/agent` already exists. Use `--force`
+to create the missing directory first.
 
-To create and install only selected agents:
+Codex and Claude are opt-in. Name them explicitly:
 
 ```sh
-/absolute/path/to/dotfiles/bin/setup-ai --force --only codex,pi
+/absolute/path/to/dotfiles/bin/setup-ai --only pi,codex
+/absolute/path/to/dotfiles/bin/setup-ai --only claude
 ```
 
-For Kiro only:
+Depending on which agents are selected and which directories exist, that writes:
 
 ```sh
-/absolute/path/to/dotfiles/bin/setup-ai --force --only kiro
-```
-
-Depending on which agent directories exist, that writes:
-
-```sh
-~/.codex/AGENTS.md
 ~/.pi/agent/AGENTS.md
-~/.kiro/steering/dotfiles-instructions.md
-~/.codex/skills/
 ~/.agents/skills/
 ~/.pi/agent/skills/
 ~/.pi/agent/extensions/context-rollover/
 ~/.pi/agent/extensions/git-guard/
 ~/.pi/agent/extensions/claude-usage/
 ~/.pi/agent/settings.json
-~/.kiro/skills/
-```
-
-Claude instructions and skills are never installed automatically. Ask for them explicitly:
-
-```sh
-/absolute/path/to/dotfiles/bin/setup-ai --only claude
+~/.codex/AGENTS.md
+~/.codex/skills/
+~/.claude/CLAUDE.md
+~/.claude/skills/
 ```
 
 Terminal emulator and prompt setup lives in [terminal/README.md](terminal/README.md).

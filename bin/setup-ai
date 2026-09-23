@@ -12,19 +12,18 @@ PI_AGENTS_DIR="$AI_DIR/agents/pi"
 PI_SETTINGS="$AI_DIR/config/pi-settings.json"
 PI_ADHD_CONFIG="$AI_DIR/config/pi-i-have-adhd.json"
 FORCE=0
-ONLY=""
-ONLY_SET=0
+ONLY="pi"
 
 usage() {
     cat <<EOF
-Usage: setup-ai [--force] [--only codex,claude,pi,kiro]
+Usage: setup-ai [--force] [--only pi,codex,claude]
 
 Installs AI instructions and skills for agent directories that already exist.
-Claude is never installed by default; request it with --only claude.
+Only Pi is installed by default; request Codex or Claude with --only.
 
 Options:
   --force, -f  Create missing agent directories before installing.
-  --only LIST  Install only selected agents: codex, claude, pi, kiro.
+  --only LIST  Install only selected agents: pi, codex, claude.
   --help, -h   Show this help.
 EOF
 }
@@ -41,12 +40,10 @@ while [ "$#" -gt 0 ]; do
                 exit 1
             fi
             ONLY="$2"
-            ONLY_SET=1
             shift
             ;;
         --only=*)
             ONLY="${1#--only=}"
-            ONLY_SET=1
             ;;
         --help | -h)
             usage
@@ -61,12 +58,9 @@ while [ "$#" -gt 0 ]; do
     shift
 done
 
-is_selected() {
-    local agent="$1"
+validate_only_list() {
     local item
     local old_ifs
-
-    [ "$ONLY_SET" -eq 1 ] || return 0
 
     if [ -z "$ONLY" ]; then
         echo "--only requires a comma-separated list." >&2
@@ -79,7 +73,7 @@ is_selected() {
     for item in $ONLY; do
         IFS="$old_ifs"
         case "$item" in
-            codex | claude | pi | kiro)
+            pi | codex | claude)
                 ;;
             "")
                 echo "Empty agent name in --only list." >&2
@@ -91,11 +85,25 @@ is_selected() {
                 exit 1
                 ;;
         esac
+        IFS=","
+    done
+    IFS="$old_ifs"
 
+    return 0
+}
+
+is_selected() {
+    local agent="$1"
+    local item
+    local old_ifs
+
+    old_ifs="$IFS"
+    IFS=","
+    for item in $ONLY; do
+        IFS="$old_ifs"
         if [ "$item" = "$agent" ]; then
             return 0
         fi
-
         IFS=","
     done
     IFS="$old_ifs"
@@ -114,29 +122,6 @@ install_ai_instructions() {
 
     tmp_file="$(mktemp "${target}.tmp.XXXXXX")"
     {
-        cat "$AI_DIR/instructions.md"
-        printf '\n\n'
-        cat "$AI_DIR/$tool_file"
-    } > "$tmp_file"
-
-    mv "$tmp_file" "$target"
-}
-
-install_kiro_steering() {
-    local tool_file="$1"
-    local target="$2"
-    local target_dir
-    local tmp_file
-
-    target_dir="$(dirname "$target")"
-    mkdir -p "$target_dir"
-
-    tmp_file="$(mktemp "${target}.tmp.XXXXXX")"
-    {
-        printf '%s\n' '---'
-        printf '%s\n' 'inclusion: always'
-        printf '%s\n' '---'
-        printf '\n'
         cat "$AI_DIR/instructions.md"
         printf '\n\n'
         cat "$AI_DIR/$tool_file"
@@ -351,21 +336,6 @@ install_instructions_target() {
     echo "Installed $name instructions to $instructions_target"
 }
 
-install_skills_target() {
-    local name="$1"
-    local base_dir="$2"
-    local skills_target="$3"
-    local agent="$4"
-
-    if ! should_install "$base_dir"; then
-        echo "Skipped $name skills because $base_dir does not exist. Use --force to create it."
-        return
-    fi
-
-    install_ai_skills "$skills_target" "$agent"
-    echo "Installed $name skills to $skills_target"
-}
-
 install_pi() {
     local pi_base="$HOME/.pi/agent"
     local agents_base="$HOME/.agents"
@@ -396,39 +366,16 @@ install_pi() {
     echo "Installed Pi skills to $pi_base/skills"
 }
 
-install_kiro() {
-    local kiro_base="$HOME/.kiro"
-    local steering_target="$kiro_base/steering/dotfiles-instructions.md"
-    local skills_target="$kiro_base/skills"
-
-    if ! should_install "$kiro_base"; then
-        echo "Skipped Kiro because $kiro_base does not exist. Use --force to create it."
-        return
-    fi
-
-    install_kiro_steering kiro.md "$steering_target"
-    install_ai_skills "$skills_target" kiro
-
-    echo "Installed Kiro steering to $steering_target"
-    echo "Installed Kiro skills to $skills_target"
-}
-
-if is_selected codex; then
-    install_agent "Codex" "$HOME/.codex" codex.md "$HOME/.codex/AGENTS.md" "$HOME/.codex/skills" codex
-fi
-
-if [ "$ONLY_SET" -eq 1 ] && is_selected claude; then
-    install_agent "Claude" "$HOME/.claude" claude.md "$HOME/.claude/CLAUDE.md" "$HOME/.claude/skills" claude
-fi
+validate_only_list
 
 if is_selected pi; then
     install_pi
 fi
 
-if is_selected kiro; then
-    install_kiro
+if is_selected codex; then
+    install_agent "Codex" "$HOME/.codex" codex.md "$HOME/.codex/AGENTS.md" "$HOME/.codex/skills" codex
 fi
 
-if [ "$ONLY_SET" -eq 0 ] && ! should_install "$HOME/.pi/agent"; then
-    install_skills_target "Agent-standard" "$HOME/.agents" "$HOME/.agents/skills" codex
+if is_selected claude; then
+    install_agent "Claude" "$HOME/.claude" claude.md "$HOME/.claude/CLAUDE.md" "$HOME/.claude/skills" claude
 fi

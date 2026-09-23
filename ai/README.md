@@ -14,7 +14,6 @@ Tool-specific additions are stored in:
 /absolute/path/to/dotfiles/ai/codex.md
 /absolute/path/to/dotfiles/ai/claude.md
 /absolute/path/to/dotfiles/ai/pi.md
-/absolute/path/to/dotfiles/ai/kiro.md
 ```
 
 Agent-specific extensions are stored by target in:
@@ -62,32 +61,24 @@ Install them:
 /absolute/path/to/dotfiles/bin/setup-ai
 ```
 
-By default, this updates only agent directories that already exist on the current
-machine. To create missing agent directories first, run:
+By default, this installs only Pi, and only when `~/.pi/agent` already exists. To create
+the missing directory first, run:
 
 ```bash
 /absolute/path/to/dotfiles/bin/setup-ai --force
 ```
 
-To create and install only selected agents:
+Codex and Claude are opt-in. Name them explicitly to install them, with or without Pi:
 
 ```bash
-/absolute/path/to/dotfiles/bin/setup-ai --force --only codex,pi
+/absolute/path/to/dotfiles/bin/setup-ai --only pi,codex
+/absolute/path/to/dotfiles/bin/setup-ai --only claude
 ```
 
-For Kiro only:
+Depending on which agents are selected and which directories exist, that writes:
 
 ```bash
-/absolute/path/to/dotfiles/bin/setup-ai --force --only kiro
-```
-
-Depending on which agent directories exist, that writes:
-
-```bash
-~/.codex/AGENTS.md   # instructions.md + codex.md
 ~/.pi/agent/AGENTS.md  # instructions.md + pi.md
-~/.kiro/steering/dotfiles-instructions.md  # instructions.md + kiro.md
-~/.codex/skills/     # shared skills
 ~/.agents/skills/    # preferred shared skills path for Pi/global agents
 ~/.pi/agent/skills/  # Pi skills fallback or Pi-specific manual additions
 ~/.pi/agent/extensions/context-rollover/  # global Pi context rollover extension
@@ -98,16 +89,11 @@ Depending on which agent directories exist, that writes:
 ~/.pi/agent/agents/       # Pi agent definitions for pi-open-agents
 ~/.pi/agent/settings.json  # existing settings merged with managed Pi settings
 ~/.pi/agent/i-have-adhd.json  # i-have-adhd extension config, always-on for every Pi session
-~/.kiro/skills/      # shared skills for Kiro
+~/.codex/AGENTS.md   # instructions.md + codex.md, only with --only codex
+~/.codex/skills/     # shared skills, only with --only codex
+~/.claude/CLAUDE.md  # instructions.md + claude.md, only with --only claude
+~/.claude/skills/    # shared skills, only with --only claude
 ```
-
-Claude is opt-in. Nothing is written to `~/.claude` unless the run explicitly asks for it:
-
-```sh
-/absolute/path/to/dotfiles/bin/setup-ai --only claude
-```
-
-That installs `~/.claude/CLAUDE.md` (instructions.md + claude.md) and `~/.claude/skills/`.
 
 The `handoff` skill is installed only for Claude and Codex. It does not install hooks.
 
