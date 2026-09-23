@@ -6,7 +6,6 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 AI_DIR="$ROOT_DIR/ai"
 SKILLS_DIR="$AI_DIR/skills"
 LOCAL_SKILLS_DIR="$AI_DIR/skills-local"
-SKILL_TARGETS_DIR="$AI_DIR/skill-targets"
 PI_EXTENSIONS_DIR="$AI_DIR/extensions/pi"
 PI_AGENTS_DIR="$AI_DIR/agents/pi"
 PI_SETTINGS="$AI_DIR/config/pi-settings.json"
@@ -130,27 +129,8 @@ install_ai_instructions() {
     mv "$tmp_file" "$target"
 }
 
-skill_supports_agent() {
-    local skill_name="$1"
-    local agent="$2"
-    local target_file="$SKILL_TARGETS_DIR/$skill_name"
-    local supported_agent
-
-    [ -f "$target_file" ] || return 0
-
-    while IFS= read -r supported_agent; do
-        [ -n "$supported_agent" ] || continue
-        if [ "$supported_agent" = "$agent" ]; then
-            return 0
-        fi
-    done < "$target_file"
-
-    return 1
-}
-
 install_ai_skills() {
     local target="$1"
-    local agent="$2"
     local marker
     local skill
     local skill_name
@@ -175,9 +155,6 @@ install_ai_skills() {
         for skill in "$skills_dir"/*; do
             [ -d "$skill" ] || continue
             skill_name="$(basename "$skill")"
-            if [ "$skills_dir" = "$SKILLS_DIR" ]; then
-                skill_supports_agent "$skill_name" "$agent" || continue
-            fi
             rm -rf "$target/$skill_name"
             cp -R "$skill" "$target/$skill_name"
             printf '%s\n' "$skill_name" >> "$tmp_marker"
@@ -307,7 +284,6 @@ install_agent() {
     local tool_file="$3"
     local instructions_target="$4"
     local skills_target="$5"
-    local agent="$6"
 
     if ! should_install "$base_dir"; then
         echo "Skipped $name because $base_dir does not exist. Use --force to create it."
@@ -315,7 +291,7 @@ install_agent() {
     fi
 
     install_ai_instructions "$tool_file" "$instructions_target"
-    install_ai_skills "$skills_target" "$agent"
+    install_ai_skills "$skills_target"
 
     echo "Installed $name instructions to $instructions_target"
     echo "Installed $name skills to $skills_target"
@@ -354,7 +330,7 @@ install_pi() {
     echo "Merged i-have-adhd config into $pi_base/i-have-adhd.json"
 
     if should_install "$agents_base"; then
-        install_ai_skills "$agents_base/skills" pi
+        install_ai_skills "$agents_base/skills"
         clear_ai_skills "$pi_base/skills"
         mkdir -p "$pi_base/skills"
         echo "Installed Pi skills to $agents_base/skills"
@@ -362,7 +338,7 @@ install_pi() {
         return
     fi
 
-    install_ai_skills "$pi_base/skills" pi
+    install_ai_skills "$pi_base/skills"
     echo "Installed Pi skills to $pi_base/skills"
 }
 
@@ -373,9 +349,9 @@ if is_selected pi; then
 fi
 
 if is_selected codex; then
-    install_agent "Codex" "$HOME/.codex" codex.md "$HOME/.codex/AGENTS.md" "$HOME/.codex/skills" codex
+    install_agent "Codex" "$HOME/.codex" codex.md "$HOME/.codex/AGENTS.md" "$HOME/.codex/skills"
 fi
 
 if is_selected claude; then
-    install_agent "Claude" "$HOME/.claude" claude.md "$HOME/.claude/CLAUDE.md" "$HOME/.claude/skills" claude
+    install_agent "Claude" "$HOME/.claude" claude.md "$HOME/.claude/CLAUDE.md" "$HOME/.claude/skills"
 fi

@@ -40,12 +40,6 @@ Shared skills are stored in:
 /absolute/path/to/dotfiles/ai/skills/
 ```
 
-Skills that support only selected agents list those agents in a matching file under:
-
-```bash
-/absolute/path/to/dotfiles/ai/skill-targets/
-```
-
 Machine-local skills can be stored in:
 
 ```bash
@@ -95,8 +89,6 @@ Depending on which agents are selected and which directories exist, that writes:
 ~/.claude/skills/    # shared skills, only with --only claude
 ```
 
-The `handoff` skill is installed only for Claude and Codex. It does not install hooks.
-
 The `claude-usage` extension only shows its status entry when the selected model is a Claude model
 or the provider is `claude-bridge` or `anthropic`. Usage data comes from the Claude Code keychain
 credentials, so it requires a working `claude` login.
@@ -121,7 +113,7 @@ its own `.pi/settings.json`; without that, the agents are still selectable with 
 routes automatically. A project can override any agent by name with a full file in `.pi/agents/`, for
 example a `reviewer` that carries a project-specific review skill instead of `code-review`.
 
-Pi uses the global `context-rollover` extension instead. It disables automatic compaction through
+Context rollover is handled by the global `context-rollover` extension. It disables automatic compaction through
 a settings merge, shows advisory context usage at a 70% threshold, and provides a user-approved
 `/handoff` workflow. The extension never creates a handoff file or copies the old transcript into
 the fresh session.

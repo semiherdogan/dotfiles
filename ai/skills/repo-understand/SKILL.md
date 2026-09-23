@@ -1,11 +1,11 @@
 ---
 name: repo-understand
-description: Use when onboarding to an unfamiliar repository or explaining what a repo is, what it does, how it is structured, how to run it, and where to start contributing.
+description: Use when onboarding to an unfamiliar repository, explaining what a repo does and how to run it, or when the user asks for a higher-level map of a subsystem, its modules, callers, or data flow before changing code.
 ---
 
 # Repo Understand
 
-Build a practical onboarding map for a repository before changing code.
+Build a practical map before changing code. Pick the scope from the question: the whole repository when onboarding, one subsystem when the user asks how a specific area works. The workflow and the avoid list apply to both scopes; only the output changes.
 
 Workflow:
 - Inspect repository shape first: top-level files, package manifests, build files, docs, tests, and obvious entrypoints.
@@ -17,7 +17,7 @@ Workflow:
 - Note environment requirements without exposing secrets.
 - Separate facts from inferences.
 
-Output:
+Output, repository scope:
 - What this repo does
 - Tech stack and runtime model
 - Repository map
@@ -29,8 +29,14 @@ Output:
 - Good first places to inspect or change
 - Unknowns and assumptions
 
+Output, subsystem scope, keep it short:
+- The relevant modules and ownership boundaries.
+- The main data and control flow.
+- Important callers and entrypoints.
+- The assumptions the code appears to rely on.
+- The smallest next place to inspect or change.
+
 Use adjacent skills when needed:
-- Use `zoom-out` for a focused subsystem map after the repo-level pass.
 - Use `architecture-review` only when the user asks for architectural critique.
 - Use `issue-breakdown` only when converting findings into implementation slices.
 

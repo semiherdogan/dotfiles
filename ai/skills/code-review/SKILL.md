@@ -5,8 +5,6 @@ description: Use when reviewing a diff, branch, pull request, or changed files.
 
 # Code Review
 
-Use when reviewing a diff, branch, pull request, or changed files.
-
 Review stance:
 - Lead with findings, ordered by severity.
 - Prioritize bugs, regressions, security issues, data loss, performance risks, and missing tests.
