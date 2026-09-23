@@ -2,7 +2,7 @@
 name: reviewer
 description: Read-only reviewer. Reviews the uncommitted working-tree changes with the code-review skill and reports findings. Never edits.
 mode: subagent
-model: claude-bridge/claude-opus-5-5
+model: claude-bridge/claude-opus-5
 thinking: medium
 color: "#F4A261"
 tools: [read, grep, find, ls, bash]
