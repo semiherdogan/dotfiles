@@ -1,0 +1,18 @@
+{
+  "architect": {
+    "model": "openai-codex/gpt-6-astra",
+    "thinking": "high"
+  },
+  "explorer": {
+    "model": "openai-codex/gpt-5.6-luna",
+    "thinking": "low"
+  },
+  "implementer": {
+    "model": "openai-codex/gpt-5.6-terra",
+    "thinking": "medium"
+  },
+  "reviewer": {
+    "model": "openai-codex/gpt-5.6-sol",
+    "thinking": "high"
+  }
+}

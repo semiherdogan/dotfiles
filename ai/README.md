@@ -113,6 +113,20 @@ its own `.pi/settings.json`; without that, the agents are still selectable with 
 routes automatically. A project can override any agent by name with a full file in `.pi/agents/`, for
 example a `reviewer` that carries a project-specific review skill instead of `code-review`.
 
+To override Pi agent models and thinking levels on one machine, copy
+`ai/config/pi-agents.local.example.json` to `ai/config/pi-agents.local.json`, edit it, and run
+`bin/setup-ai`. The local file is ignored by git. Its keys match the filenames in `ai/agents/pi/`
+without `.md`; each entry can override `model`, `thinking`, or both. Omitted agents and fields
+keep their shared defaults. The example uses `openai-codex/gpt-5.5`; choose models available
+through your Pi login. Thinking levels are `off`, `minimal`, `low`, `medium`, `high`, `xhigh`, and `max`,
+subject to the selected model's support.
+
+Overrides are applied only to the installed frontmatter, leaving shared files and prompt bodies
+unchanged. Every setup run uses the latest shared prompts and reapplies the local choices.
+Remove an override and rerun setup to restore its shared default. Invalid values, unsupported
+fields, and unknown agent filenames fail installation instead of silently ignoring a typo.
+Project agents in `.pi/agents/` still take precedence over these installed global agents.
+
 Context rollover is handled by the global `context-rollover` extension. It disables automatic compaction through
 a settings merge, shows advisory context usage at a 70% threshold, and provides a user-approved
 `/handoff` workflow. The extension never creates a handoff file or copies the old transcript into

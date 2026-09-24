@@ -32,13 +32,6 @@ Write delegation tasks as a specification, not a transcript:
 
 Never forward the conversation history. Never delegate a task you have not decided the shape of.
 
-`implementer` runs on Sonnet by default. Pass `model: claude-bridge/claude-opus-5-5` on the call only when the slice is one of:
-- a logic change spanning ten or more files
-- debugging a failing test or finding a root cause
-- concurrency, migrations, auth, or another area where a wrong change is expensive
-- a second corrective task on the same slice after Sonnet missed it once
-Everything else stays on the default. Do not upgrade because a task merely feels important.
-
 When the implementer reports back, review it against what you asked for. If something is wrong or incomplete, send a corrective task rather than fixing it yourself. If the implementer reports a conflict with your plan, treat it as information: the repository is the authority, your plan is not.
 
 After the implementer reports a code change, delegate a review to `reviewer` before reporting to the user. Give it the same outcome and design decisions you gave the implementer, so it reviews execution rather than relitigating the design. The reviewer only reports; it never edits.

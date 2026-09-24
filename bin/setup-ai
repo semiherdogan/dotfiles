@@ -8,6 +8,7 @@ SKILLS_DIR="$AI_DIR/skills"
 LOCAL_SKILLS_DIR="$AI_DIR/skills-local"
 PI_EXTENSIONS_DIR="$AI_DIR/extensions/pi"
 PI_AGENTS_DIR="$AI_DIR/agents/pi"
+PI_AGENTS_LOCAL="$AI_DIR/config/pi-agents.local.json"
 PI_SETTINGS="$AI_DIR/config/pi-settings.json"
 PI_ADHD_CONFIG="$AI_DIR/config/pi-i-have-adhd.json"
 FORCE=0
@@ -278,6 +279,68 @@ should_install() {
     [ -d "$base_dir" ] || [ "$FORCE" -eq 1 ]
 }
 
+install_pi_agents() (
+    local target="$1"
+    local prepared
+    local agent
+    local item
+
+    if [ ! -f "$PI_AGENTS_LOCAL" ]; then
+        install_managed_files "$PI_AGENTS_DIR" "$target"
+        return
+    fi
+
+    jq -e '
+        def thinking_levels: ["off", "minimal", "low", "medium", "high", "xhigh", "max"];
+        type == "object" and all(to_entries[];
+            (.key | test("^[a-zA-Z0-9_-]+$")) and
+            (.value | type == "object" and
+                all(to_entries[];
+                    if .key == "model" then
+                        (.value | type == "string" and test("^[^/[:space:]]+/[^[:space:]]+$"))
+                    elif .key == "thinking" then
+                        (.value as $level | thinking_levels | index($level) != null)
+                    else false end
+                )
+            )
+        )
+    ' "$PI_AGENTS_LOCAL" >/dev/null || {
+        echo "Invalid Pi agent overrides: $PI_AGENTS_LOCAL. Expected agent objects with model (provider/model-id) and/or thinking." >&2
+        exit 1
+    }
+
+    while IFS= read -r agent; do
+        if [ ! -f "$PI_AGENTS_DIR/$agent.md" ]; then
+            echo "Unknown Pi agent in $PI_AGENTS_LOCAL: $agent" >&2
+            exit 1
+        fi
+    done < <(jq -r 'keys[]' "$PI_AGENTS_LOCAL")
+
+    prepared="$(mktemp -d)"
+    trap 'rm -rf "$prepared"' EXIT
+    for item in "$PI_AGENTS_DIR"/*.md; do
+        agent="$(basename "$item" .md)"
+        jq -Rrsj --slurpfile overrides "$PI_AGENTS_LOCAL" --arg agent "$agent" '
+            ($overrides[0][$agent] // {}) as $fields |
+            if $fields == {} then . else
+                capture("\\A(?<start>---\\n)(?<header>[\\s\\S]*?)(?<end>\\n---(?:\\n|$))(?<body>[\\s\\S]*)\\z") as $doc |
+                (reduce ($fields | to_entries[]) as $field ($doc.header;
+                    ($field.key + ": " + ($field.value | tojson)) as $line |
+                    if test("(?m)^" + $field.key + ":[^\\n]*$") then
+                        sub("(?m)^" + $field.key + ":[^\\n]*$"; $line)
+                    else . + "\n" + $line end
+                )) as $header |
+                $doc.start + $header + $doc.end + $doc.body
+            end
+        ' "$item" > "$prepared/$agent.md"
+        if [ ! -s "$prepared/$agent.md" ]; then
+            echo "Cannot apply Pi agent overrides: invalid frontmatter in $item" >&2
+            exit 1
+        fi
+    done
+    install_managed_files "$prepared" "$target"
+)
+
 install_agent() {
     local name="$1"
     local base_dir="$2"
@@ -321,7 +384,7 @@ install_pi() {
     fi
 
     install_managed_directories "$PI_EXTENSIONS_DIR" "$pi_base/extensions"
-    install_managed_files "$PI_AGENTS_DIR" "$pi_base/agents"
+    install_pi_agents "$pi_base/agents"
     merge_json_object "$pi_base/settings.json" "$PI_SETTINGS"
     merge_json_object "$pi_base/i-have-adhd.json" "$PI_ADHD_CONFIG"
     echo "Installed Pi extensions to $pi_base/extensions"

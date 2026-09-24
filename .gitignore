@@ -3,6 +3,7 @@
 /local.sh
 /work.sh
 /ai/skills-local/
+/ai/config/pi-agents.local.json
 /alfred/scripts/toggle-app
 
 /terminal/iterm2.json
