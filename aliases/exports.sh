@@ -6,8 +6,9 @@
 
 export EDITOR='vi'
 
-export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
+export LC_ALL="$LANG"
+export LC_CTYPE="$LANG"
 
 export FORCE_HYPERLINK=1
 
@@ -25,7 +26,14 @@ if [ -n "${ZSH_VERSION:-}" ]; then
 	bindkey -M viins '^R' history-incremental-search-backward
 fi
 
-# Terminal prompt
+
+export DEFAULT_USER="$USER"
+export LIGHTPANDA_DISABLE_TELEMETRY=true
+export LIGHTPANDA_DISABLE_CORE_DUMP=true
+
+
+
+##### Terminal prompt
 
 autoload -Uz vcs_info
 
