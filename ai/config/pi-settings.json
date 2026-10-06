@@ -1,4 +1,6 @@
 {
+  "ui.copyOnSelect": false,
+  "fullscreenCopyOnSelect": false,
   "compaction": {
     "enabled": false
   },

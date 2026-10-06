@@ -1,0 +1,3 @@
+{
+  "tui.editor.deleteToLineStart": ["ctrl+u", "super+backspace"]
+}

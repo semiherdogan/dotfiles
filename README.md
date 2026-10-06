@@ -51,6 +51,7 @@ Depending on which agents are selected and which directories exist, that writes:
 ~/.pi/agent/extensions/git-guard/
 ~/.pi/agent/extensions/claude-usage/
 ~/.pi/agent/settings.json
+~/.pi/agent/keybindings.json
 ~/.codex/AGENTS.md
 ~/.codex/skills/
 ~/.claude/CLAUDE.md

@@ -83,6 +83,7 @@ Depending on which agents are selected and which directories exist, that writes:
 ~/.pi/agent/agents/       # Pi agent definitions for pi-open-agents
 ~/.pi/agent/settings.json  # existing settings merged with managed Pi settings
 ~/.pi/agent/i-have-adhd.json  # i-have-adhd extension config, always-on for every Pi session
+~/.pi/agent/keybindings.json  # existing keybindings merged with managed Pi keybindings
 ~/.codex/AGENTS.md   # instructions.md + codex.md, only with --only codex
 ~/.codex/skills/     # shared skills, only with --only codex
 ~/.claude/CLAUDE.md  # instructions.md + claude.md, only with --only claude
@@ -100,6 +101,13 @@ to the overlay instead.
 The `i-have-adhd` package is enabled for every Pi session through `ai/config/pi-i-have-adhd.json`
 (`alwaysOn: true`). A per-session choice still wins, so `/i-have-adhd off` or `stop adhd mode`
 keeps that session disabled. The extension reads the file at startup, so restart Pi after changing it.
+
+Keybinding overrides live in `ai/config/pi-keybindings.json` and are merged per action id, so
+bindings set directly in `~/.pi/agent/keybindings.json` survive unless the overlay defines the same
+action. `super+backspace` needs a terminal that reports Command as a separate modifier through the
+Kitty keyboard protocol (Kitty, Ghostty, WezTerm with `enable_kitty_keyboard`, iTerm2 with
+**Profiles > Keys > General > Left Command = Super**). The VS Code integrated terminal never reports
+it. `ctrl+u` stays bound everywhere as the fallback.
 
 The Pi agents come from `pi-open-agents` (listed in that `packages` array). `architect` runs on Fable
 and holds the conversation; it delegates to three read-scoped or write-scoped subagents: `explorer`
