@@ -49,22 +49,22 @@ configure_zsh() {
     setopt auto_cd
 }
 
-activate_mise() {
-    command -v mise >/dev/null 2>&1 || return
+# activate_mise() {
+#     command -v mise >/dev/null 2>&1 || return
 
-    if [ -n "${ZSH_VERSION:-}" ]; then
-        eval "$(mise activate zsh)"
-    elif [ -n "${BASH_VERSION:-}" ]; then
-        eval "$(mise activate bash)"
-    fi
-}
+#     if [ -n "${ZSH_VERSION:-}" ]; then
+#         eval "$(mise activate zsh)"
+#     elif [ -n "${BASH_VERSION:-}" ]; then
+#         eval "$(mise activate bash)"
+#     fi
+# }
 
 configure_zsh
-activate_mise
+# activate_mise
 source_core_files
 source_optional_files
 
-unset -f activate_mise
+# unset -f activate_mise
 unset -f configure_zsh
 unset -f source_core_files
 unset -f source_optional_files
