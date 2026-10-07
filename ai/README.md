@@ -109,10 +109,10 @@ Kitty keyboard protocol (Kitty, Ghostty, WezTerm with `enable_kitty_keyboard`, i
 **Profiles > Keys > General > Left Command = Super**). The VS Code integrated terminal never reports
 it. `ctrl+u` stays bound everywhere as the fallback.
 
-The Pi agents come from `pi-open-agents` (listed in that `packages` array). `architect` runs on Fable
-and holds the conversation; it delegates to three read-scoped or write-scoped subagents: `explorer`
-(Sonnet, read-only) answers "where is X, who calls Y" lookups so those file reads stay out of the main
-session; `implementer` (Sonnet) does the file work; `reviewer` (Opus, read-only, `code-review` skill)
+The Pi agents come from `pi-open-agents` (listed in that `packages` array). `architect` runs on the
+strongest configured model and holds the conversation; it delegates to three read-scoped or
+write-scoped subagents: `explorer` (read-only) answers "where is X, who calls Y" lookups so those file
+reads stay out of the main session; `implementer` does the file work; `reviewer` (read-only, `code-review` skill)
 reviews the working tree after each implementer slice and reports findings that the architect filters
 and routes back as one corrective task. The `architect-guard` extension enforces the split: in a
 session where `architect` is active, `edit`/`write` on anything other than Markdown or the `.pi/` tree
@@ -124,10 +124,17 @@ example a `reviewer` that carries a project-specific review skill instead of `co
 To override Pi agent models and thinking levels on one machine, copy
 `ai/config/pi-agents.local.example.json` to `ai/config/pi-agents.local.json`, edit it, and run
 `bin/setup-ai`. The local file is ignored by git. Its keys match the filenames in `ai/agents/pi/`
-without `.md`; each entry can override `model`, `thinking`, or both. Omitted agents and fields
-keep their shared defaults. The example uses `openai-codex/gpt-5.5`; choose models available
-through your Pi login. Thinking levels are `off`, `minimal`, `low`, `medium`, `high`, `xhigh`, and `max`,
-subject to the selected model's support.
+without `.md`; each entry can override `model`, `thinking`, `escalationModel`, or any combination.
+Omitted agents and fields keep their shared defaults. The example uses `openai-codex/gpt-5.5`; choose
+models available through your Pi login. Thinking levels are `off`, `minimal`, `low`, `medium`, `high`,
+`xhigh`, and `max`, subject to the selected model's support.
+
+Agent prompts never hardcode a model id. They reference the effective values as `{{agent.field}}`,
+for example `{{implementer.escalationModel}}` in the architect's upgrade rule, and `bin/setup-ai`
+substitutes them at install time from the frontmatter plus the local overrides. `escalationModel`
+has no frontmatter counterpart: unset, it falls back to the `architect` model. An unresolved
+placeholder fails the install rather than shipping a prompt with a model that does not exist on
+this machine.
 
 Overrides are applied only to the installed frontmatter, leaving shared files and prompt bodies
 unchanged. Every setup run uses the latest shared prompts and reapplies the local choices.

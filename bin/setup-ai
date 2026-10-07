@@ -280,25 +280,18 @@ should_install() {
     [ -d "$base_dir" ] || [ "$FORCE" -eq 1 ]
 }
 
-install_pi_agents() (
-    local target="$1"
-    local prepared
+validate_pi_agent_overrides() {
     local agent
-    local item
-
-    if [ ! -f "$PI_AGENTS_LOCAL" ]; then
-        install_managed_files "$PI_AGENTS_DIR" "$target"
-        return
-    fi
 
     jq -e '
         def thinking_levels: ["off", "minimal", "low", "medium", "high", "xhigh", "max"];
+        def model_ref: type == "string" and test("^[^/[:space:]]+/[^[:space:]]+$");
         type == "object" and all(to_entries[];
             (.key | test("^[a-zA-Z0-9_-]+$")) and
             (.value | type == "object" and
                 all(to_entries[];
-                    if .key == "model" then
-                        (.value | type == "string" and test("^[^/[:space:]]+/[^[:space:]]+$"))
+                    if .key == "model" or .key == "escalationModel" then
+                        (.value | model_ref)
                     elif .key == "thinking" then
                         (.value as $level | thinking_levels | index($level) != null)
                     else false end
@@ -306,7 +299,7 @@ install_pi_agents() (
             )
         )
     ' "$PI_AGENTS_LOCAL" >/dev/null || {
-        echo "Invalid Pi agent overrides: $PI_AGENTS_LOCAL. Expected agent objects with model (provider/model-id) and/or thinking." >&2
+        echo "Invalid Pi agent overrides: $PI_AGENTS_LOCAL. Expected agent objects with model and/or escalationModel (provider/model-id) and/or thinking." >&2
         exit 1
     }
 
@@ -316,14 +309,66 @@ install_pi_agents() (
             exit 1
         fi
     done < <(jq -r 'keys[]' "$PI_AGENTS_LOCAL")
+}
 
-    prepared="$(mktemp -d)"
-    trap 'rm -rf "$prepared"' EXIT
+# Effective per-agent fields: frontmatter values with the local overrides applied on top.
+# Agent bodies reference them as {{agent.field}} so no prompt carries a provider-specific
+# model id that only holds on one machine.
+pi_agent_vars() {
+    local overrides="$1"
+    local vars='{}'
+    local item
+    local agent
+
     for item in "$PI_AGENTS_DIR"/*.md; do
         agent="$(basename "$item" .md)"
-        jq -Rrsj --slurpfile overrides "$PI_AGENTS_LOCAL" --arg agent "$agent" '
-            ($overrides[0][$agent] // {}) as $fields |
-            if $fields == {} then . else
+        vars="$(jq -Rrs --argjson acc "$vars" --arg agent "$agent" '
+            (capture("\\A---\\n(?<header>[\\s\\S]*?)\\n---(?:\\n|$)").header) as $header |
+            ($header
+                | [scan("(?m)^([A-Za-z][A-Za-z0-9_-]*):[ \\t]*(.*)$")]
+                | map({key: .[0], value: (.[1] | gsub("^[\"\u0027] *| *[\"\u0027]$"; ""))})
+                | from_entries
+                | {model, thinking}
+                | with_entries(select(.value != null and .value != ""))) as $fields |
+            $acc + {($agent): $fields}
+        ' "$item")"
+    done
+
+    # escalationModel has no frontmatter counterpart: without a local override it falls back to
+    # the primary agent's model, which is the strongest one configured on this machine.
+    jq -n --argjson vars "$vars" --slurpfile overrides "$overrides" '
+        ($vars * $overrides[0]) as $merged |
+        $merged.architect.model as $strongest |
+        $merged | with_entries(.value |= ({escalationModel: $strongest} + .))
+    '
+}
+
+install_pi_agents() (
+    local target="$1"
+    local prepared
+    local overrides
+    local vars
+    local agent
+    local item
+
+    prepared="$(mktemp -d)"
+    overrides="$(mktemp)"
+    trap 'rm -rf "$prepared" "$overrides"' EXIT
+
+    if [ -f "$PI_AGENTS_LOCAL" ]; then
+        validate_pi_agent_overrides
+        cp "$PI_AGENTS_LOCAL" "$overrides"
+    else
+        echo '{}' > "$overrides"
+    fi
+
+    vars="$(pi_agent_vars "$overrides")"
+
+    for item in "$PI_AGENTS_DIR"/*.md; do
+        agent="$(basename "$item" .md)"
+        jq -Rrsj --slurpfile overrides "$overrides" --argjson vars "$vars" --arg agent "$agent" '
+            ($overrides[0][$agent] // {} | del(.escalationModel)) as $fields |
+            (if $fields == {} then . else
                 capture("\\A(?<start>---\\n)(?<header>[\\s\\S]*?)(?<end>\\n---(?:\\n|$))(?<body>[\\s\\S]*)\\z") as $doc |
                 (reduce ($fields | to_entries[]) as $field ($doc.header;
                     ($field.key + ": " + ($field.value | tojson)) as $line |
@@ -332,10 +377,14 @@ install_pi_agents() (
                     else . + "\n" + $line end
                 )) as $header |
                 $doc.start + $header + $doc.end + $doc.body
-            end
+            end)
+            | gsub("\\{\\{(?<a>[A-Za-z0-9_-]+)\\.(?<f>[A-Za-z0-9_]+)(:(?<d>[^}]*))?\\}\\}";
+                . as $ref |
+                ($vars[$ref.a][$ref.f] // $ref.d //
+                    error("unresolved placeholder {{" + $ref.a + "." + $ref.f + "}} in " + $agent + ".md")))
         ' "$item" > "$prepared/$agent.md"
         if [ ! -s "$prepared/$agent.md" ]; then
-            echo "Cannot apply Pi agent overrides: invalid frontmatter in $item" >&2
+            echo "Cannot prepare Pi agent: invalid frontmatter in $item" >&2
             exit 1
         fi
     done

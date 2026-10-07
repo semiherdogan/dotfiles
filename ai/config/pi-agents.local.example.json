@@ -9,6 +9,7 @@
   },
   "implementer": {
     "model": "openai-codex/gpt-5.6-terra",
+    "escalationModel": "openai-codex/gpt-6-astra",
     "thinking": "medium"
   },
   "reviewer": {
