@@ -11,5 +11,7 @@
   ],
   "terminal": {
     "showTerminalProgress": true
-  }
+  },
+  "defaultAgent": "architect",
+  "externalEditor": "code --wait"
 }
