@@ -1,13 +1,13 @@
 {
-  "ui.copyOnSelect": false,
-  "fullscreenCopyOnSelect": false,
+  "ui.copyOnSelect": true,
+  "fullscreenCopyOnSelect": true,
   "compaction": {
     "enabled": false
   },
   "packages": [
-    "git:github.com/elidickinson/pi-claude-bridge@main",
     "https://github.com/ayghri/i-have-adhd",
-    "npm:pi-open-agents"
+    "npm:pi-open-agents",
+    "npm:pi-claude-bridge"
   ],
   "terminal": {
     "showTerminalProgress": true
