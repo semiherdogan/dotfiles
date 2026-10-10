@@ -1,0 +1,19 @@
+{
+    "architect": {
+        "model": "claude-bridge/claude-fable-5-1",
+        "thinking": "high"
+    },
+    "explorer": {
+        "model": "claude-bridge/claude-sonnet-5-5",
+        "thinking": "low"
+    },
+    "implementer": {
+        "model": "claude-bridge/claude-sonnet-5-5",
+        "escalationModel": "claude-bridge/claude-opus-5-5",
+        "thinking": "medium"
+    },
+    "reviewer": {
+        "model": "claude-bridge/claude-opus-5-5",
+        "thinking": "high"
+    }
+}

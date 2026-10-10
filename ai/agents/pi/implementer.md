@@ -2,7 +2,6 @@
 name: implementer
 description: Implementation worker on a cheaper model. Edits files, runs commands and tests, reports back. Use for localized, well-specified changes.
 mode: subagent
-model: claude-bridge/claude-sonnet-5
 thinking: medium
 color: "#44BA81"
 tools: [read, edit, write, bash]

@@ -9,15 +9,18 @@ LOCAL_SKILLS_DIR="$AI_DIR/skills-local"
 PI_EXTENSIONS_DIR="$AI_DIR/extensions/pi"
 PI_AGENTS_DIR="$AI_DIR/agents/pi"
 PI_AGENTS_LOCAL="$AI_DIR/config/pi-agents.local.json"
+PI_PROFILES_DIR="$AI_DIR/config/pi-profiles"
+PI_MODELS_LOCAL="$AI_DIR/config/pi-models.local.json"
 PI_SETTINGS="$AI_DIR/config/pi-settings.json"
 PI_ADHD_CONFIG="$AI_DIR/config/pi-i-have-adhd.json"
 PI_KEYBINDINGS="$AI_DIR/config/pi-keybindings.json"
 FORCE=0
 ONLY="pi"
+PROFILE=""
 
 usage() {
     cat <<EOF
-Usage: setup-ai [--force] [--only pi,codex,claude]
+Usage: setup-ai [--force] [--only pi,codex,claude] [--profile NAME]
 
 Installs AI instructions and skills for agent directories that already exist.
 Only Pi is installed by default; request Codex or Claude with --only.
@@ -25,6 +28,7 @@ Only Pi is installed by default; request Codex or Claude with --only.
 Options:
   --force, -f  Create missing agent directories before installing.
   --only LIST  Install only selected agents: pi, codex, claude.
+  --profile NAME  Select the Pi agent profile from ai/config/pi-profiles/ before installing.
   --help, -h   Show this help.
 EOF
 }
@@ -45,6 +49,18 @@ while [ "$#" -gt 0 ]; do
             ;;
         --only=*)
             ONLY="${1#--only=}"
+            ;;
+        --profile)
+            if [ "$#" -lt 2 ]; then
+                echo "--profile requires a profile name." >&2
+                usage >&2
+                exit 1
+            fi
+            PROFILE="$2"
+            shift
+            ;;
+        --profile=*)
+            PROFILE="${1#--profile=}"
             ;;
         --help | -h)
             usage
@@ -348,6 +364,7 @@ install_pi_agents() (
     local prepared
     local overrides
     local vars
+    local missing
     local agent
     local item
 
@@ -355,14 +372,22 @@ install_pi_agents() (
     overrides="$(mktemp)"
     trap 'rm -rf "$prepared" "$overrides"' EXIT
 
-    if [ -f "$PI_AGENTS_LOCAL" ]; then
-        validate_pi_agent_overrides
-        cp "$PI_AGENTS_LOCAL" "$overrides"
-    else
-        echo '{}' > "$overrides"
+    if [ ! -f "$PI_AGENTS_LOCAL" ]; then
+        echo "No Pi agent profile selected. Run setup-ai --profile <name>. Available: $(list_pi_profiles)" >&2
+        exit 1
     fi
 
+    validate_pi_agent_overrides
+    cp "$PI_AGENTS_LOCAL" "$overrides"
+
     vars="$(pi_agent_vars "$overrides")"
+
+    missing="$(jq -r 'to_entries[] | select(.value.model == null or .value.model == "") | .key' <<< "$vars" | tr '\n' ' ')"
+    missing="${missing% }"
+    if [ -n "$missing" ]; then
+        echo "Pi agent profile does not set a model for: $missing ($PI_AGENTS_LOCAL)" >&2
+        exit 1
+    fi
 
     for item in "$PI_AGENTS_DIR"/*.md; do
         agent="$(basename "$item" .md)"
@@ -438,8 +463,17 @@ install_pi() {
     merge_json_object "$pi_base/settings.json" "$PI_SETTINGS"
     merge_json_object "$pi_base/i-have-adhd.json" "$PI_ADHD_CONFIG"
     merge_json_object "$pi_base/keybindings.json" "$PI_KEYBINDINGS"
+    if [ -f "$PI_MODELS_LOCAL" ]; then
+        merge_json_object "$pi_base/models.json" "$PI_MODELS_LOCAL"
+        echo "Merged Pi models into $pi_base/models.json"
+    fi
     echo "Installed Pi extensions to $pi_base/extensions"
     echo "Installed Pi agents to $pi_base/agents"
+    if [ -L "$PI_AGENTS_LOCAL" ]; then
+        local active_profile
+        active_profile="$(basename "$(readlink "$PI_AGENTS_LOCAL")" .json)"
+        echo "Active Pi agent profile: $active_profile"
+    fi
     echo "Merged Pi settings into $pi_base/settings.json"
     echo "Merged i-have-adhd config into $pi_base/i-have-adhd.json"
     echo "Merged Pi keybindings into $pi_base/keybindings.json"
@@ -457,9 +491,43 @@ install_pi() {
     echo "Installed Pi skills to $pi_base/skills"
 }
 
+list_pi_profiles() {
+    local available=()
+    local item
+
+    for item in "$PI_PROFILES_DIR"/*.json; do
+        [ -e "$item" ] || continue
+        available+=("$(basename "$item" .json)")
+    done
+    echo "${available[*]:-}"
+}
+
+select_pi_profile() {
+    if [[ ! "$PROFILE" =~ ^[A-Za-z0-9_-]+$ ]]; then
+        echo "Invalid Pi profile name: $PROFILE" >&2
+        exit 1
+    fi
+
+    if [ ! -f "$PI_PROFILES_DIR/$PROFILE.json" ]; then
+        echo "Unknown Pi profile: $PROFILE. Available: $(list_pi_profiles)" >&2
+        exit 1
+    fi
+
+    # Never overwrite a hand-written override file.
+    if [ -e "$PI_AGENTS_LOCAL" ] && [ ! -L "$PI_AGENTS_LOCAL" ]; then
+        echo "$PI_AGENTS_LOCAL is a regular file. Move it into $PI_PROFILES_DIR before using --profile." >&2
+        exit 1
+    fi
+
+    ln -sfn "pi-profiles/$PROFILE.json" "$PI_AGENTS_LOCAL"
+}
+
 validate_only_list
 
 if is_selected pi; then
+    if [ -n "$PROFILE" ]; then
+        select_pi_profile
+    fi
     install_pi
 fi
 

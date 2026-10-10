@@ -2,7 +2,6 @@
 name: explorer
 description: Read-only repository scout on a cheaper model. Answers "where is X, who calls Y, is there a decision record about Z" with locations and a short summary. Never edits.
 mode: subagent
-model: claude-bridge/claude-sonnet-5
 thinking: low
 color: "#4EA8DE"
 tools: [read, grep, find, ls, bash]

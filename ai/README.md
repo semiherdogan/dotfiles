@@ -80,8 +80,10 @@ Depending on which agents are selected and which directories exist, that writes:
 ~/.pi/agent/extensions/claude-usage/      # Claude subscription usage status and /usage command
 ~/.pi/agent/extensions/skill-newline/     # lets /skill:name expand when its args start on a new line
 ~/.pi/agent/extensions/architect-guard/   # blocks the architect's own edit/write outside *.md and .pi/, so code goes through implementer
+~/.pi/agent/extensions/agent-profile/     # /profile command: switch the agent profile and reload
 ~/.pi/agent/agents/       # Pi agent definitions for pi-open-agents
 ~/.pi/agent/settings.json  # existing settings merged with managed Pi settings
+~/.pi/agent/models.json   # custom providers merged from ai/config/pi-models.local.json, if present
 ~/.pi/agent/i-have-adhd.json  # i-have-adhd extension config, always-on for every Pi session
 ~/.pi/agent/keybindings.json  # existing keybindings merged with managed Pi keybindings
 ~/.codex/AGENTS.md   # instructions.md + codex.md, only with --only codex
@@ -121,13 +123,34 @@ its own `.pi/settings.json`; without that, the agents are still selectable with 
 routes automatically. A project can override any agent by name with a full file in `.pi/agents/`, for
 example a `reviewer` that carries a project-specific review skill instead of `code-review`.
 
-To override Pi agent models and thinking levels on one machine, copy
-`ai/config/pi-agents.local.example.json` to `ai/config/pi-agents.local.json`, edit it, and run
-`bin/setup-ai`. The local file is ignored by git. Its keys match the filenames in `ai/agents/pi/`
-without `.md`; each entry can override `model`, `thinking`, `escalationModel`, or any combination.
-Omitted agents and fields keep their shared defaults. The example uses `openai-codex/gpt-5.5`; choose
+Agent models and thinking levels come from profiles in `ai/config/pi-profiles/`. Each profile is a
+JSON file keyed by the filenames in `ai/agents/pi/` without `.md`. The shared agent files carry no
+`model`, so a profile must set one for every agent; `thinking` and `escalationModel` are optional and
+fall back to the shared frontmatter and the `architect` model. Without a selected profile, or with an
+agent left without a model, `setup-ai` fails instead of installing agents that point at a provider
+this machine may not have. Profiles are committed, so one profile can mix providers (for example `claude-bridge` for
+`architect`, `openrouter` for `implementer`) and every machine can pick from the same set. Choose
 models available through your Pi login. Thinking levels are `off`, `minimal`, `low`, `medium`, `high`,
 `xhigh`, and `max`, subject to the selected model's support.
+
+The active profile is the git-ignored symlink `ai/config/pi-agents.local.json`. Select one with:
+
+```bash
+/absolute/path/to/dotfiles/bin/setup-ai --profile claude-bridge
+```
+
+or from inside Pi with `/profile [name]`, which runs the same command and then reloads the session,
+so the active agent and new subagent spawns use the new models. The extension locates the repo
+through `DOTFILES_BASE`, which `bootstrap.sh` exports. Subagents already running finish on the old
+model. `setup-ai` refuses to replace a hand-written `pi-agents.local.json` that is a regular file;
+move it into `pi-profiles/` first.
+
+Custom OpenAI-, Anthropic- or Google-compatible endpoints go into the git-ignored
+`ai/config/pi-models.local.json`; copy `pi-models.local.example.json` and edit it. `setup-ai` merges it
+into `~/.pi/agent/models.json`, the file Pi reads for compatible endpoints. Keep API keys out of the
+file: `apiKey` accepts `$ENV_NAME`, which Pi resolves at request time, so export the variable in
+`local.sh`. A provider's `models` array is replaced wholesale on every run. Built-in providers such as
+`openrouter` need no entry here, only their credentials (`OPENROUTER_API_KEY` or `/login`).
 
 Agent prompts never hardcode a model id. They reference the effective values as `{{agent.field}}`,
 for example `{{implementer.escalationModel}}` in the architect's upgrade rule, and `bin/setup-ai`
@@ -136,10 +159,10 @@ has no frontmatter counterpart: unset, it falls back to the `architect` model. A
 placeholder fails the install rather than shipping a prompt with a model that does not exist on
 this machine.
 
-Overrides are applied only to the installed frontmatter, leaving shared files and prompt bodies
-unchanged. Every setup run uses the latest shared prompts and reapplies the local choices.
-Remove an override and rerun setup to restore its shared default. Invalid values, unsupported
-fields, and unknown agent filenames fail installation instead of silently ignoring a typo.
+Profile values are applied only to the installed frontmatter, leaving shared files and prompt bodies
+unchanged. Every setup run uses the latest shared prompts and reapplies the active profile.
+Remove `thinking` from a profile entry and rerun setup to restore its shared default. Invalid values,
+unsupported fields, and unknown agent filenames fail installation instead of silently ignoring a typo.
 Project agents in `.pi/agents/` still take precedence over these installed global agents.
 
 Context rollover is handled by the global `context-rollover` extension. It disables automatic compaction through

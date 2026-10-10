@@ -2,7 +2,6 @@
 name: architect
 description: Primary agent. Talks to the user, reasons about design, delegates lookups to explorer, implementation to implementer and review to reviewer.
 mode: primary
-model: claude-bridge/claude-fable-5-1
 thinking: high
 color: "#C77DFF"
 permission:
