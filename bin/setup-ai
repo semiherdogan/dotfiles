@@ -12,6 +12,7 @@ PI_AGENTS_LOCAL="$AI_DIR/config/pi-agents.local.json"
 PI_PROFILES_DIR="$AI_DIR/config/pi-profiles"
 PI_MODELS_LOCAL="$AI_DIR/config/pi-models.local.json"
 PI_SETTINGS="$AI_DIR/config/pi-settings.json"
+PI_SETTINGS_LOCAL="$AI_DIR/config/pi-settings.local.json"
 PI_ADHD_CONFIG="$AI_DIR/config/pi-i-have-adhd.json"
 PI_KEYBINDINGS="$AI_DIR/config/pi-keybindings.json"
 FORCE=0
@@ -450,6 +451,22 @@ install_instructions_target() {
     echo "Installed $name instructions to $instructions_target"
 }
 
+pi_settings_overlay() {
+    if [ ! -f "$PI_SETTINGS_LOCAL" ]; then
+        cat "$PI_SETTINGS"
+        return
+    fi
+
+    # The deep merge replaces arrays wholesale, so the shared package list is re-added to keep it alongside a local one.
+    jq -s '
+        . as [$base, $local]
+        | ($base * $local)
+        | .packages = (
+            reduce (($base.packages // []) + ($local.packages // []))[] as $p ([]; if index([$p]) then . else . + [$p] end)
+        )
+    ' "$PI_SETTINGS" "$PI_SETTINGS_LOCAL"
+}
+
 install_pi() {
     local pi_base="$HOME/.pi/agent"
     local agents_base="$HOME/.agents"
@@ -460,7 +477,11 @@ install_pi() {
 
     install_managed_directories "$PI_EXTENSIONS_DIR" "$pi_base/extensions"
     install_pi_agents "$pi_base/agents"
-    merge_json_object "$pi_base/settings.json" "$PI_SETTINGS"
+    local settings_overlay
+    settings_overlay="$(mktemp)"
+    pi_settings_overlay > "$settings_overlay"
+    merge_json_object "$pi_base/settings.json" "$settings_overlay"
+    rm -f "$settings_overlay"
     merge_json_object "$pi_base/i-have-adhd.json" "$PI_ADHD_CONFIG"
     merge_json_object "$pi_base/keybindings.json" "$PI_KEYBINDINGS"
     if [ -f "$PI_MODELS_LOCAL" ]; then
@@ -475,6 +496,9 @@ install_pi() {
         echo "Active Pi agent profile: $active_profile"
     fi
     echo "Merged Pi settings into $pi_base/settings.json"
+    if [ -f "$PI_SETTINGS_LOCAL" ]; then
+        echo "Merged Pi local settings from $PI_SETTINGS_LOCAL"
+    fi
     echo "Merged i-have-adhd config into $pi_base/i-have-adhd.json"
     echo "Merged Pi keybindings into $pi_base/keybindings.json"
 

@@ -6,8 +6,7 @@
   },
   "packages": [
     "https://github.com/ayghri/i-have-adhd",
-    "npm:pi-open-agents",
-    "npm:pi-claude-bridge"
+    "npm:pi-open-agents"
   ],
   "terminal": {
     "showTerminalProgress": true

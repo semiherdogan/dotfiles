@@ -100,6 +100,13 @@ The `packages` list in `ai/config/pi-settings.json` is authoritative: the settin
 array wholesale, so a package added with `pi install` is reverted on the next `setup-ai` run. Add it
 to the overlay instead.
 
+Machine-specific settings go into the git-ignored `ai/config/pi-settings.local.json`; copy
+`pi-settings.local.example.json` to start. It is deep-merged on top of the shared overlay before the
+install, with one exception: `packages` is the shared list followed by the local list, deduplicated,
+so a local file can add a package without repeating the shared ones. This is how `pi-claude-bridge`
+is installed only on the machine that has a Claude Code login. The `claude-usage` extension is
+installed everywhere but stays silent unless the selected model is a Claude model.
+
 The `i-have-adhd` package is enabled for every Pi session through `ai/config/pi-i-have-adhd.json`
 (`alwaysOn: true`). A per-session choice still wins, so `/i-have-adhd off` or `stop adhd mode`
 keeps that session disabled. The extension reads the file at startup, so restart Pi after changing it.

@@ -5,6 +5,7 @@
 /ai/skills-local/
 /ai/config/pi-agents.local.json
 /ai/config/pi-models.local.json
+/ai/config/pi-settings.local.json
 /alfred/scripts/toggle-app
 
 /terminal/iterm2.json
