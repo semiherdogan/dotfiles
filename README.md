@@ -25,38 +25,13 @@ That writes:
 
 If you already maintain `~/.gitconfig`, keep your extra sections there and only include the shared file from this repo. See [gitconfig.home.example](gitconfig.home.example) for the shape.
 
-Set up AI coding-agent instructions:
+Set up Pi (instructions, agents, extensions, skills, settings):
 
 ```sh
-/absolute/path/to/dotfiles/bin/setup-ai
+/absolute/path/to/dotfiles/bin/setup-pi --profile claude-bridge
 ```
 
-By default, this installs only Pi, and only when `~/.pi/agent` already exists. Use `--force`
-to create the missing directory first.
-
-Codex and Claude are opt-in. Name them explicitly:
-
-```sh
-/absolute/path/to/dotfiles/bin/setup-ai --only pi,codex
-/absolute/path/to/dotfiles/bin/setup-ai --only claude
-```
-
-Depending on which agents are selected and which directories exist, that writes:
-
-```sh
-~/.pi/agent/AGENTS.md
-~/.agents/skills/
-~/.pi/agent/skills/
-~/.pi/agent/extensions/context-rollover/
-~/.pi/agent/extensions/git-guard/
-~/.pi/agent/extensions/claude-usage/
-~/.pi/agent/settings.json
-~/.pi/agent/keybindings.json
-~/.codex/AGENTS.md
-~/.codex/skills/
-~/.claude/CLAUDE.md
-~/.claude/skills/
-```
+That writes into `~/.pi/agent/`. See [pi/README.md](pi/README.md) for the layout, profiles, and local overrides.
 
 Terminal emulator and prompt setup lives in [terminal/README.md](terminal/README.md).
 
@@ -72,13 +47,13 @@ brew bundle --file /absolute/path/to/dotfiles/Brewfile
 - `Brewfile`: common Homebrew CLI tools, fonts, and terminal apps.
 - `aliases/`: tracked shell aliases and functions.
 - `alfred/`: Alfred workflow scripts and setup notes.
-- `ai/`: shared AI coding-agent instructions, skills, extensions, and setup notes.
+- `pi/`: Pi instructions, agents, extensions, skills, profiles, and settings overlays. See [pi/README.md](pi/README.md).
 - `scripts/`: small project helpers.
 - `terminal/`: terminal emulator and prompt configs. See [terminal/README.md](terminal/README.md).
 - `work.sh`: optional untracked work-specific commands.
 - `local.sh`: optional untracked machine-specific commands.
 - `bin/setup-git`: configures Git include and global ignore paths for the current repo location.
-- `bin/setup-ai`: installs shared plus tool-specific AI instructions, skills, extensions, and settings.
+- `bin/setup-pi`: installs `pi/` into `~/.pi/agent`.
 
 Use the example files as a starting point:
 

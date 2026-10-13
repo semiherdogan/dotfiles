@@ -3,8 +3,8 @@
 set -euo pipefail
 
 root_dir="${DOTFILES_BASE:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
-skills_dir="$root_dir/ai/skills"
-local_skills_dir="$root_dir/ai/skills-local"
+skills_dir="$root_dir/pi/skills"
+local_skills_dir="$root_dir/pi/skills-local"
 
 skill_records() {
 	local file skill desc source

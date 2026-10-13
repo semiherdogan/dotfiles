@@ -3,13 +3,15 @@ import { basename, join } from "node:path";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
 const PROFILE_EXTENSION = ".json";
+const PROFILES_DIR = "pi/profiles";
+const ACTIVE_PROFILE_FILE = "active.json";
 const SETUP_TIMEOUT_MS = 60_000;
 const ERROR_LINES = 3;
 
 function listProfiles(root: string): string[] {
 	try {
-		return readdirSync(join(root, "ai/config/pi-profiles"))
-			.filter((file) => file.endsWith(PROFILE_EXTENSION))
+		return readdirSync(join(root, PROFILES_DIR))
+			.filter((file) => file.endsWith(PROFILE_EXTENSION) && file !== ACTIVE_PROFILE_FILE)
 			.map((file) => basename(file, PROFILE_EXTENSION))
 			.sort();
 	} catch {
@@ -19,7 +21,7 @@ function listProfiles(root: string): string[] {
 
 function activeProfile(root: string): string | undefined {
 	try {
-		return basename(readlinkSync(join(root, "ai/config/pi-agents.local.json")), PROFILE_EXTENSION);
+		return basename(readlinkSync(join(root, PROFILES_DIR, ACTIVE_PROFILE_FILE)), PROFILE_EXTENSION);
 	} catch {
 		return undefined;
 	}
@@ -27,7 +29,7 @@ function activeProfile(root: string): string | undefined {
 
 export default function (pi: ExtensionAPI) {
 	pi.registerCommand("profile", {
-		description: "Switch the Pi agent profile (ai/config/pi-profiles) and reload",
+		description: "Switch the Pi agent profile (pi/profiles) and reload",
 		getArgumentCompletions: (prefix) => {
 			const root = process.env.DOTFILES_BASE;
 			if (!root) return null;
@@ -38,7 +40,7 @@ export default function (pi: ExtensionAPI) {
 		handler: async (args, ctx) => {
 			const root = process.env.DOTFILES_BASE;
 			if (!root) {
-				ctx.ui.notify("DOTFILES_BASE is not set; cannot locate ai/config/pi-profiles.", "error");
+				ctx.ui.notify("DOTFILES_BASE is not set; cannot locate pi/profiles.", "error");
 				return;
 			}
 
@@ -53,7 +55,7 @@ export default function (pi: ExtensionAPI) {
 				return;
 			}
 
-			const result = await pi.exec(join(root, "bin/setup-ai"), ["--profile", name], {
+			const result = await pi.exec(join(root, "bin/setup-pi"), ["--profile", name], {
 				cwd: root,
 				timeout: SETUP_TIMEOUT_MS,
 			});
@@ -63,7 +65,7 @@ export default function (pi: ExtensionAPI) {
 					.split("\n")
 					.filter((line) => line.trim())
 					.slice(-ERROR_LINES);
-				ctx.ui.notify(`setup-ai failed: ${lines.join("\n")}`, "error");
+				ctx.ui.notify(`setup-pi failed: ${lines.join("\n")}`, "error");
 				return;
 			}
 

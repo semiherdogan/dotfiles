@@ -2,10 +2,10 @@
 /terminal/ghostty/local.config.ghostty
 /local.sh
 /work.sh
-/ai/skills-local/
-/ai/config/pi-agents.local.json
-/ai/config/pi-models.local.json
-/ai/config/pi-settings.local.json
+/pi/skills-local/
+/pi/profiles/active.json
+/pi/models.local.json
+/pi/settings.local.json
 /alfred/scripts/toggle-app
 
 /terminal/iterm2.json

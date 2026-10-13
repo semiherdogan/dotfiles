@@ -3,54 +3,36 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-AI_DIR="$ROOT_DIR/ai"
-SKILLS_DIR="$AI_DIR/skills"
-LOCAL_SKILLS_DIR="$AI_DIR/skills-local"
-PI_EXTENSIONS_DIR="$AI_DIR/extensions/pi"
-PI_AGENTS_DIR="$AI_DIR/agents/pi"
-PI_AGENTS_LOCAL="$AI_DIR/config/pi-agents.local.json"
-PI_PROFILES_DIR="$AI_DIR/config/pi-profiles"
-PI_MODELS_LOCAL="$AI_DIR/config/pi-models.local.json"
-PI_SETTINGS="$AI_DIR/config/pi-settings.json"
-PI_SETTINGS_LOCAL="$AI_DIR/config/pi-settings.local.json"
-PI_ADHD_CONFIG="$AI_DIR/config/pi-i-have-adhd.json"
-PI_KEYBINDINGS="$AI_DIR/config/pi-keybindings.json"
-FORCE=0
-ONLY="pi"
+PI_DIR="$ROOT_DIR/pi"
+SKILLS_DIR="$PI_DIR/skills"
+LOCAL_SKILLS_DIR="$PI_DIR/skills-local"
+PI_EXTENSIONS_DIR="$PI_DIR/extensions"
+PI_AGENTS_DIR="$PI_DIR/agents"
+PI_PROFILES_DIR="$PI_DIR/profiles"
+ACTIVE_PROFILE_NAME="active"
+PI_ACTIVE_PROFILE="$PI_DIR/profiles/$ACTIVE_PROFILE_NAME.json"
+PI_MODELS_LOCAL="$PI_DIR/models.local.json"
+PI_SETTINGS="$PI_DIR/settings.json"
+PI_SETTINGS_LOCAL="$PI_DIR/settings.local.json"
+PI_ADHD_CONFIG="$PI_DIR/i-have-adhd.json"
+PI_KEYBINDINGS="$PI_DIR/keybindings.json"
+PI_INSTRUCTIONS="$PI_DIR/AGENTS.md"
 PROFILE=""
 
 usage() {
     cat <<EOF
-Usage: setup-ai [--force] [--only pi,codex,claude] [--profile NAME]
+Usage: setup-pi [--profile NAME]
 
-Installs AI instructions and skills for agent directories that already exist.
-Only Pi is installed by default; request Codex or Claude with --only.
+Installs Pi instructions, agents, extensions, skills, and settings into ~/.pi/agent.
 
 Options:
-  --force, -f  Create missing agent directories before installing.
-  --only LIST  Install only selected agents: pi, codex, claude.
-  --profile NAME  Select the Pi agent profile from ai/config/pi-profiles/ before installing.
+  --profile NAME  Select the Pi agent profile from pi/profiles/ before installing.
   --help, -h   Show this help.
 EOF
 }
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
-        --force | -f)
-            FORCE=1
-            ;;
-        --only)
-            if [ "$#" -lt 2 ]; then
-                echo "--only requires a comma-separated list." >&2
-                usage >&2
-                exit 1
-            fi
-            ONLY="$2"
-            shift
-            ;;
-        --only=*)
-            ONLY="${1#--only=}"
-            ;;
         --profile)
             if [ "$#" -lt 2 ]; then
                 echo "--profile requires a profile name." >&2
@@ -76,79 +58,7 @@ while [ "$#" -gt 0 ]; do
     shift
 done
 
-validate_only_list() {
-    local item
-    local old_ifs
-
-    if [ -z "$ONLY" ]; then
-        echo "--only requires a comma-separated list." >&2
-        usage >&2
-        exit 1
-    fi
-
-    old_ifs="$IFS"
-    IFS=","
-    for item in $ONLY; do
-        IFS="$old_ifs"
-        case "$item" in
-            pi | codex | claude)
-                ;;
-            "")
-                echo "Empty agent name in --only list." >&2
-                exit 1
-                ;;
-            *)
-                echo "Unknown agent in --only list: $item" >&2
-                usage >&2
-                exit 1
-                ;;
-        esac
-        IFS=","
-    done
-    IFS="$old_ifs"
-
-    return 0
-}
-
-is_selected() {
-    local agent="$1"
-    local item
-    local old_ifs
-
-    old_ifs="$IFS"
-    IFS=","
-    for item in $ONLY; do
-        IFS="$old_ifs"
-        if [ "$item" = "$agent" ]; then
-            return 0
-        fi
-        IFS=","
-    done
-    IFS="$old_ifs"
-
-    return 1
-}
-
-install_ai_instructions() {
-    local tool_file="$1"
-    local target="$2"
-    local target_dir
-    local tmp_file
-
-    target_dir="$(dirname "$target")"
-    mkdir -p "$target_dir"
-
-    tmp_file="$(mktemp "${target}.tmp.XXXXXX")"
-    {
-        cat "$AI_DIR/instructions.md"
-        printf '\n\n'
-        cat "$AI_DIR/$tool_file"
-    } > "$tmp_file"
-
-    mv "$tmp_file" "$target"
-}
-
-install_ai_skills() {
+install_skills() {
     local target="$1"
     local marker
     local skill
@@ -190,7 +100,7 @@ merge_json_object() {
     local merged
 
     command -v jq >/dev/null 2>&1 || {
-        echo "jq is required to install AI settings." >&2
+        echo "jq is required to install Pi settings." >&2
         exit 1
     }
 
@@ -208,23 +118,6 @@ merge_json_object() {
 
     mv "$merged" "$target"
     rm -f "$current"
-}
-
-clear_ai_skills() {
-    local target="$1"
-    local marker
-    local skill_name
-
-    marker="$target/.dotfiles-managed"
-
-    [ -f "$marker" ] || return 0
-
-    while IFS= read -r skill_name; do
-        [ -n "$skill_name" ] || continue
-        rm -rf "$target/$skill_name"
-    done < "$marker"
-
-    rm -f "$marker"
 }
 
 install_managed_directories() {
@@ -291,12 +184,6 @@ install_managed_files() {
     mv "$tmp_marker" "$marker"
 }
 
-should_install() {
-    local base_dir="$1"
-
-    [ -d "$base_dir" ] || [ "$FORCE" -eq 1 ]
-}
-
 validate_pi_agent_overrides() {
     local agent
 
@@ -315,17 +202,17 @@ validate_pi_agent_overrides() {
                 )
             )
         )
-    ' "$PI_AGENTS_LOCAL" >/dev/null || {
-        echo "Invalid Pi agent overrides: $PI_AGENTS_LOCAL. Expected agent objects with model and/or escalationModel (provider/model-id) and/or thinking." >&2
+    ' "$PI_ACTIVE_PROFILE" >/dev/null || {
+        echo "Invalid Pi agent overrides: $PI_ACTIVE_PROFILE. Expected agent objects with model and/or escalationModel (provider/model-id) and/or thinking." >&2
         exit 1
     }
 
     while IFS= read -r agent; do
         if [ ! -f "$PI_AGENTS_DIR/$agent.md" ]; then
-            echo "Unknown Pi agent in $PI_AGENTS_LOCAL: $agent" >&2
+            echo "Unknown Pi agent in $PI_ACTIVE_PROFILE: $agent" >&2
             exit 1
         fi
-    done < <(jq -r 'keys[]' "$PI_AGENTS_LOCAL")
+    done < <(jq -r 'keys[]' "$PI_ACTIVE_PROFILE")
 }
 
 # Effective per-agent fields: frontmatter values with the local overrides applied on top.
@@ -373,20 +260,20 @@ install_pi_agents() (
     overrides="$(mktemp)"
     trap 'rm -rf "$prepared" "$overrides"' EXIT
 
-    if [ ! -f "$PI_AGENTS_LOCAL" ]; then
-        echo "No Pi agent profile selected. Run setup-ai --profile <name>. Available: $(list_pi_profiles)" >&2
+    if [ ! -f "$PI_ACTIVE_PROFILE" ]; then
+        echo "No Pi agent profile selected. Run setup-pi --profile <name>. Available: $(list_pi_profiles)" >&2
         exit 1
     fi
 
     validate_pi_agent_overrides
-    cp "$PI_AGENTS_LOCAL" "$overrides"
+    cp "$PI_ACTIVE_PROFILE" "$overrides"
 
     vars="$(pi_agent_vars "$overrides")"
 
     missing="$(jq -r 'to_entries[] | select(.value.model == null or .value.model == "") | .key' <<< "$vars" | tr '\n' ' ')"
     missing="${missing% }"
     if [ -n "$missing" ]; then
-        echo "Pi agent profile does not set a model for: $missing ($PI_AGENTS_LOCAL)" >&2
+        echo "Pi agent profile does not set a model for: $missing ($PI_ACTIVE_PROFILE)" >&2
         exit 1
     fi
 
@@ -417,40 +304,6 @@ install_pi_agents() (
     install_managed_files "$prepared" "$target"
 )
 
-install_agent() {
-    local name="$1"
-    local base_dir="$2"
-    local tool_file="$3"
-    local instructions_target="$4"
-    local skills_target="$5"
-
-    if ! should_install "$base_dir"; then
-        echo "Skipped $name because $base_dir does not exist. Use --force to create it."
-        return
-    fi
-
-    install_ai_instructions "$tool_file" "$instructions_target"
-    install_ai_skills "$skills_target"
-
-    echo "Installed $name instructions to $instructions_target"
-    echo "Installed $name skills to $skills_target"
-}
-
-install_instructions_target() {
-    local name="$1"
-    local base_dir="$2"
-    local tool_file="$3"
-    local instructions_target="$4"
-
-    if ! should_install "$base_dir"; then
-        echo "Skipped $name because $base_dir does not exist. Use --force to create it."
-        return 1
-    fi
-
-    install_ai_instructions "$tool_file" "$instructions_target"
-    echo "Installed $name instructions to $instructions_target"
-}
-
 pi_settings_overlay() {
     if [ ! -f "$PI_SETTINGS_LOCAL" ]; then
         cat "$PI_SETTINGS"
@@ -469,11 +322,10 @@ pi_settings_overlay() {
 
 install_pi() {
     local pi_base="$HOME/.pi/agent"
-    local agents_base="$HOME/.agents"
 
-    if ! install_instructions_target "Pi" "$pi_base" pi.md "$pi_base/AGENTS.md"; then
-        return
-    fi
+    mkdir -p "$pi_base"
+    cp "$PI_INSTRUCTIONS" "$pi_base/AGENTS.md"
+    echo "Installed Pi instructions to $pi_base/AGENTS.md"
 
     install_managed_directories "$PI_EXTENSIONS_DIR" "$pi_base/extensions"
     install_pi_agents "$pi_base/agents"
@@ -490,9 +342,9 @@ install_pi() {
     fi
     echo "Installed Pi extensions to $pi_base/extensions"
     echo "Installed Pi agents to $pi_base/agents"
-    if [ -L "$PI_AGENTS_LOCAL" ]; then
+    if [ -L "$PI_ACTIVE_PROFILE" ]; then
         local active_profile
-        active_profile="$(basename "$(readlink "$PI_AGENTS_LOCAL")" .json)"
+        active_profile="$(basename "$(readlink "$PI_ACTIVE_PROFILE")" .json)"
         echo "Active Pi agent profile: $active_profile"
     fi
     echo "Merged Pi settings into $pi_base/settings.json"
@@ -502,16 +354,7 @@ install_pi() {
     echo "Merged i-have-adhd config into $pi_base/i-have-adhd.json"
     echo "Merged Pi keybindings into $pi_base/keybindings.json"
 
-    if should_install "$agents_base"; then
-        install_ai_skills "$agents_base/skills"
-        clear_ai_skills "$pi_base/skills"
-        mkdir -p "$pi_base/skills"
-        echo "Installed Pi skills to $agents_base/skills"
-        echo "Created Pi-specific skills directory at $pi_base/skills"
-        return
-    fi
-
-    install_ai_skills "$pi_base/skills"
+    install_skills "$pi_base/skills"
     echo "Installed Pi skills to $pi_base/skills"
 }
 
@@ -521,6 +364,8 @@ list_pi_profiles() {
 
     for item in "$PI_PROFILES_DIR"/*.json; do
         [ -e "$item" ] || continue
+        # active.json is the selection symlink, not a profile
+        [ "$(basename "$item" .json)" = "$ACTIVE_PROFILE_NAME" ] && continue
         available+=("$(basename "$item" .json)")
     done
     echo "${available[*]:-}"
@@ -532,33 +377,27 @@ select_pi_profile() {
         exit 1
     fi
 
+    if [ "$PROFILE" = "$ACTIVE_PROFILE_NAME" ]; then
+        echo "$ACTIVE_PROFILE_NAME is reserved for the selection symlink. Available: $(list_pi_profiles)" >&2
+        exit 1
+    fi
+
     if [ ! -f "$PI_PROFILES_DIR/$PROFILE.json" ]; then
         echo "Unknown Pi profile: $PROFILE. Available: $(list_pi_profiles)" >&2
         exit 1
     fi
 
     # Never overwrite a hand-written override file.
-    if [ -e "$PI_AGENTS_LOCAL" ] && [ ! -L "$PI_AGENTS_LOCAL" ]; then
-        echo "$PI_AGENTS_LOCAL is a regular file. Move it into $PI_PROFILES_DIR before using --profile." >&2
+    if [ -e "$PI_ACTIVE_PROFILE" ] && [ ! -L "$PI_ACTIVE_PROFILE" ]; then
+        echo "$PI_ACTIVE_PROFILE is a regular file. Move it to another name in $PI_PROFILES_DIR before using --profile." >&2
         exit 1
     fi
 
-    ln -sfn "pi-profiles/$PROFILE.json" "$PI_AGENTS_LOCAL"
+    ln -sfn "$PROFILE.json" "$PI_ACTIVE_PROFILE"
 }
 
-validate_only_list
-
-if is_selected pi; then
-    if [ -n "$PROFILE" ]; then
-        select_pi_profile
-    fi
-    install_pi
+if [ -n "$PROFILE" ]; then
+    select_pi_profile
 fi
 
-if is_selected codex; then
-    install_agent "Codex" "$HOME/.codex" codex.md "$HOME/.codex/AGENTS.md" "$HOME/.codex/skills"
-fi
-
-if is_selected claude; then
-    install_agent "Claude" "$HOME/.claude" claude.md "$HOME/.claude/CLAUDE.md" "$HOME/.claude/skills"
-fi
+install_pi
