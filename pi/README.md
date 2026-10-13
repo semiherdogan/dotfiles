@@ -11,7 +11,7 @@ pi/
   extensions/                   one directory per Pi extension
   skills/                       shared skills
   skills-local/                 machine-local skills (gitignored, override shared ones by name)
-  profiles/                     per-agent model profiles (claude-bridge.json, codex.json)
+  profiles/                     per-agent model profiles (claude-bridge.json, openai.json)
     active.json                 symlink to the selected profile (gitignored)
   settings.json                 managed Pi settings
   settings.local.json           machine-specific settings (gitignored, see settings.local.example.json)
