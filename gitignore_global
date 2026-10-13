@@ -7,14 +7,9 @@ scratch.md
 supervisord.log
 supervisord.pid
 docker-compose.override.yml
-ray.php
-.tinkerwell
-.php-cs-fixer.cache
 node_modules/
 .next/
-.next_old/
 bun.lock
-.ropeproject/
 
 **/.claude/settings.local.json
 /HANDOFF.md
