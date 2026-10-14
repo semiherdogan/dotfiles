@@ -4,22 +4,8 @@ description: Read-only repository scout on a cheaper model. Answers "where is X,
 mode: subagent
 thinking: low
 color: "#4EA8DE"
+# Enforced as the child's --tools whitelist. permission blocks are ignored for subagents; git policy comes from the git-guard extension.
 tools: [read, grep, find, ls, bash]
-permission:
-  read: allow
-  grep: allow
-  find: allow
-  ls: allow
-  bash:
-    "*": deny
-    "git status*": allow
-    "git diff*": allow
-    "git log*": allow
-    "git show*": allow
-    "git ls-files*": allow
-  edit: deny
-  write: deny
-  subagent: deny
 ---
 
 You are a repository scout. You receive a question about the codebase and you answer it with locations and a short summary, so your caller does not have to read the files itself.

@@ -7,6 +7,10 @@
         "model": "claude-bridge/claude-sonnet-5-5",
         "thinking": "low"
     },
+    "researcher": {
+        "model": "claude-bridge/claude-sonnet-5-5",
+        "thinking": "low"
+    },
     "implementer": {
         "model": "claude-bridge/claude-sonnet-5-5",
         "escalationModel": "claude-bridge/claude-opus-5-5",

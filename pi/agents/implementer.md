@@ -4,22 +4,8 @@ description: Implementation worker on a cheaper model. Edits files, runs command
 mode: subagent
 thinking: medium
 color: "#44BA81"
-tools: [read, edit, write, bash]
-permission:
-  read: allow
-  edit: allow
-  write: allow
-  bash:
-    "*": allow
-    "git commit*": deny
-    "git add*": deny
-    "git push*": deny
-    "git reset*": deny
-    "git checkout*": deny
-    "git rebase*": deny
-    "git merge*": deny
-    "git stash*": deny
-  subagent: deny
+# Enforced as the child's --tools whitelist. permission blocks are ignored for subagents; git policy comes from the git-guard extension.
+tools: [read, grep, find, ls, edit, write, bash]
 ---
 
 You are an implementation agent. You receive a specified task and carry it out in the repository.

@@ -4,23 +4,9 @@ description: Read-only reviewer. Reviews the uncommitted working-tree changes wi
 mode: subagent
 thinking: medium
 color: "#F4A261"
+# Enforced as the child's --tools whitelist. permission blocks are ignored for subagents; git policy comes from the git-guard extension.
 tools: [read, grep, find, ls, bash]
 skills: code-review
-permission:
-  read: allow
-  grep: allow
-  find: allow
-  ls: allow
-  bash:
-    "*": deny
-    "git status*": allow
-    "git diff*": allow
-    "git log*": allow
-    "git show*": allow
-    "git ls-files*": allow
-  edit: deny
-  write: deny
-  subagent: deny
 ---
 
 You are a code reviewer. You receive a task describing what was just implemented and you review the current uncommitted changes against the `code-review` skill.
