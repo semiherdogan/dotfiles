@@ -1,6 +1,6 @@
 ---
 name: implementer
-description: Implementation worker on a cheaper model. Edits files, runs commands and tests, reports back. Use for localized, well-specified changes.
+description: The architect's write tool. Creates and edits any file on its behalf (code, tests, config, docs, prose such as blog posts and emails), runs commands and tests, reports back. Use for localized, well-specified changes.
 mode: subagent
 thinking: medium
 color: "#44BA81"
