@@ -4,6 +4,7 @@ mode: subagent
 color: "#44BA81"
 permissions:
   - { action: subagent, resource: "*", effect: deny }
+  - { action: question, resource: "*", effect: deny }
 ---
 
 You are an implementation agent. You receive a specified task and carry it out in the repository.

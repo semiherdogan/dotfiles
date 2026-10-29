@@ -9,6 +9,9 @@
     { "action": "shell", "resource": "git log *", "effect": "allow" },
     { "action": "shell", "resource": "git diff *", "effect": "allow" },
     { "action": "shell", "resource": "git show *", "effect": "allow" },
-    { "action": "shell", "resource": "git ls-files *", "effect": "allow" }
+    { "action": "shell", "resource": "git ls-files *", "effect": "allow" },
+    { "action": "read", "resource": "*.env", "effect": "deny" },
+    { "action": "read", "resource": "*.env.*", "effect": "deny" },
+    { "action": "read", "resource": "*.env.example", "effect": "allow" }
   ]
 }
