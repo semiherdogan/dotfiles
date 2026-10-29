@@ -33,6 +33,14 @@ Set up Pi (instructions, agents, extensions, skills, settings):
 
 That writes into `~/.pi/agent/`. See [pi/README.md](pi/README.md) for the layout, profiles, and local overrides.
 
+Set up OpenCode (instructions, agents, commands, skills, config):
+
+```sh
+/absolute/path/to/dotfiles/bin/setup-opencode --profile claude-code
+```
+
+That writes into `~/.config/opencode/`. See [opencode/README.md](opencode/README.md) for the layout, profiles, and local provider.
+
 Terminal emulator and prompt setup lives in [terminal/README.md](terminal/README.md).
 
 Install common macOS packages with Homebrew:
@@ -48,12 +56,14 @@ brew bundle --file /absolute/path/to/dotfiles/Brewfile
 - `aliases/`: tracked shell aliases and functions.
 - `alfred/`: Alfred workflow scripts and setup notes.
 - `pi/`: Pi instructions, agents, extensions, skills, profiles, and settings overlays. See [pi/README.md](pi/README.md).
+- `opencode/`: OpenCode instructions, agents, commands, profiles, and config overlays. See [opencode/README.md](opencode/README.md).
 - `scripts/`: small project helpers.
 - `terminal/`: terminal emulator and prompt configs. See [terminal/README.md](terminal/README.md).
 - `work.sh`: optional untracked work-specific commands.
 - `local.sh`: optional untracked machine-specific commands.
 - `bin/setup-git`: configures Git include and global ignore paths for the current repo location.
 - `bin/setup-pi`: installs `pi/` into `~/.pi/agent`.
+- `bin/setup-opencode`: installs `opencode/` into `~/.config/opencode`.
 
 Use the example files as a starting point:
 

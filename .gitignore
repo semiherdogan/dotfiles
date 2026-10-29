@@ -7,6 +7,8 @@
 /pi/profiles/work.json
 /pi/models.local.json
 /pi/settings.local.json
+/opencode/profiles/active.json
+/opencode/opencode.local.json
 /alfred/scripts/toggle-app
 
 /terminal/iterm2.json

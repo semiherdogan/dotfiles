@@ -1,0 +1,15 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "build",
+  "compaction": { "auto": false },
+  "instructions": ["~/.config/opencode/instructions/i-have-adhd.md"],
+  "plugins": ["@openchamber/opencode-claude"],
+  "permissions": [
+    { "action": "shell", "resource": "git *", "effect": "deny" },
+    { "action": "shell", "resource": "git status *", "effect": "allow" },
+    { "action": "shell", "resource": "git log *", "effect": "allow" },
+    { "action": "shell", "resource": "git diff *", "effect": "allow" },
+    { "action": "shell", "resource": "git show *", "effect": "allow" },
+    { "action": "shell", "resource": "git ls-files *", "effect": "allow" }
+  ]
+}

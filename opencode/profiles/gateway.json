@@ -1,0 +1,8 @@
+{
+  "model": "llm-gateway/claude-fable-5-1",
+  "agents": {
+    "explore": { "model": "llm-gateway/claude-sonnet-5-5" },
+    "implementer": { "model": "llm-gateway/claude-sonnet-5-5" },
+    "reviewer": { "model": "llm-gateway/claude-opus-5-5" }
+  }
+}

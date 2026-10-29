@@ -1,0 +1,8 @@
+{
+  "model": "claude-code/claude-fable-5-1[1m]#high",
+  "agents": {
+    "explore": { "model": "claude-code/claude-sonnet-5-5#low" },
+    "implementer": { "model": "claude-code/claude-sonnet-5-5#medium" },
+    "reviewer": { "model": "claude-code/claude-opus-5-5[1m]#high" }
+  }
+}
