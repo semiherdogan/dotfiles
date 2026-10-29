@@ -52,6 +52,7 @@ The jq deep merge replaces arrays wholesale at both stages: a `permissions`, `pl
 
 ## Behavior
 
+- `shell` is `/bin/zsh` for the terminal and shell tools.
 - `compaction.auto` is `false`; compact manually with `/compact`.
 - `permissions` denies every `git` shell command except `status`, `log`, `diff`, `show`, `ls-files`.
 - `/review` runs the `reviewer` subagent on the uncommitted working tree.
