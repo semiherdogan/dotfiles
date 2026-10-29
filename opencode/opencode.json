@@ -1,6 +1,5 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "default_agent": "build",
   "compaction": { "auto": false },
   "instructions": ["~/.config/opencode/instructions/i-have-adhd.md"],
   "plugins": ["@openchamber/opencode-claude"],

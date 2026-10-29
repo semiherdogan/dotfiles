@@ -4,11 +4,13 @@
 /work.sh
 /pi/skills-local/
 /pi/profiles/active.json
-/pi/profiles/work.json
+/pi/profiles/work*.json
 /pi/models.local.json
 /pi/settings.local.json
 /opencode/profiles/active.json
+/opencode/profiles/work*.json
 /opencode/opencode.local.json
 /alfred/scripts/toggle-app
 
 /terminal/iterm2.json
+

@@ -9,11 +9,12 @@ opencode/
   AGENTS.md                     global instructions, copied verbatim
   opencode.json                 managed config (instructions, plugins, permissions, compaction)
   opencode.local.json           machine-specific config (gitignored, see opencode.local.example.json)
-  agents/                       agent definitions (reviewer, implementer)
+  agents/                       agent definitions (architect, implementer, reviewer)
   commands/                     slash commands (/review)
   instructions/                 extra instruction files loaded through `instructions`
-  profiles/                     per-agent model profiles (claude-code.json, gateway.json)
+  profiles/                     per-agent model profiles (claude-code.json)
     active.json                 symlink to the selected profile (gitignored)
+    work*.json                  machine-specific profiles (gitignored)
 ```
 
 Skills are not duplicated here: they are installed from `pi/skills` (and `pi/skills-local`).
@@ -33,10 +34,11 @@ It never touches `service.json`. Arrays such as `plugins` and `permissions` are 
 
 ## Profiles
 
-| Profile | Default model | `explore` | `implementer` | `reviewer` |
-| --- | --- | --- | --- | --- |
-| `claude-code` | `claude-code/claude-fable-5-1[1m]#high` | `claude-sonnet-5-5#low` | `claude-sonnet-5-5#medium` | `claude-opus-5-5[1m]#high` |
-| `gateway` | `llm-gateway/claude-fable-5-1` | `claude-sonnet-5-5` | `claude-sonnet-5-5` | `claude-opus-5-5` |
+| Profile | Default model | `explore` | `implementer` | `reviewer` | `architect` |
+| --- | --- | --- | --- | --- | --- |
+| `claude-code` | `claude-code/claude-opus-5-5[1m]` | `claude-sonnet-5-5#low` | `claude-sonnet-5-5#medium` | `claude-opus-5-5[1m]#high` | `claude-opus-5-5[1m]#high` |
+
+The root `model` takes no `#variant`: OpenCode V2 drops it for the default model. Set variants per agent.
 
 `profiles/active.json` is a symlink to the selected profile. `bin/setup-opencode --profile NAME` repoints it; without a selected profile the install fails. `active` is a reserved name, and a regular file at that path is never replaced.
 
@@ -53,6 +55,7 @@ The jq deep merge replaces arrays wholesale at both stages: a `permissions`, `pl
 - `compaction.auto` is `false`; compact manually with `/compact`.
 - `permissions` denies every `git` shell command except `status`, `log`, `diff`, `show`, `ls-files`.
 - `/review` runs the `reviewer` subagent on the uncommitted working tree.
+- `architect` is a read-only primary agent: it designs, delegates code changes to `implementer`, and verifies them with `reviewer`.
 
 ## Not ported from pi
 
