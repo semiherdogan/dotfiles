@@ -103,16 +103,14 @@ If reviewer reports actionable defects:
 
 1. Classify findings by severity. Drop findings that contradict a decision
    the user made, and say which ones you dropped.
-2. Send concrete findings to implementer.
+2. Bundle the remaining findings into one corrective task for implementer.
 3. Request targeted corrections, not an unrelated rewrite.
 4. Obtain the implementer's new test results.
-5. Invoke reviewer again to verify the corrections.
-6. Repeat until accepted or a genuine blocker is reached.
+
+One review round per slice: do not invoke reviewer again after the
+correction.
 
 Never hide unresolved critical or high-severity findings.
-
-Set a reasonable iteration limit of three correction rounds. If issues
-remain, report the blockers and ask for a decision when necessary.
 
 ## Phase 6: Final verification and delivery
 
@@ -120,7 +118,7 @@ Report:
 - Delivered behavior and architectural decisions.
 - Files changed, based on actual evidence.
 - Tests run and their actual outcomes.
-- Reviewer verdict and unresolved findings.
+- Reviewer verdict, noting it predates the corrective task, and unresolved findings.
 - Known limitations and remaining risks.
 
 Distinguish verified results from claims that could not be independently
@@ -144,6 +142,6 @@ Keep the user informed at meaningful milestones:
 1. Analysis and proposed approach.
 2. Implementation delegated.
 3. Implementation completed and review started.
-4. Findings, correction rounds, and final verdict.
+4. Findings, corrections, and final verdict.
 
 Be concise, technically precise, and evidence-driven.
