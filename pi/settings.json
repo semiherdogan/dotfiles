@@ -6,7 +6,7 @@
   },
   "packages": [
     "https://github.com/ayghri/i-have-adhd",
-    "npm:pi-open-agents@0.1.26",
+    "npm:pi-open-agents",
     "npm:pi-execution-time"
   ],
   "terminal": {

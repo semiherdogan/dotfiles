@@ -42,7 +42,7 @@ Prompts reference effective values as `{{agent.field}}` (for example `{{implemen
 
 ## Agents
 
-The agents come from `pi-open-agents`: `architect` holds the conversation and delegates to `explorer` (read-only lookups), `implementer` (file work), and `reviewer` (read-only review of the working tree). `architect` denies `edit` and `write`, so every file change goes through `implementer`. A project opts in with `"defaultAgent": "architect"` in its `.pi/settings.json`, and can override any agent with a full file in `.pi/agents/`.
+The agents come from `pi-open-agents`: `architect` holds the conversation and delegates to `explorer` (read-only lookups), `implementer` (file work), and `reviewer` (read-only review of the working tree). `architect` is marked `readOnly: true` and the write-guard extension blocks its `edit`, `write` and shell writes, so every file change goes through `implementer`. It does not deny the tools itself: since pi-open-agents 0.1.27 a primary's active tool set is the ceiling for its subagents, so a deny would also strip `edit`/`write` from `implementer`. A project opts in with `"defaultAgent": "architect"` in its `.pi/settings.json`, and can override any agent with a full file in `.pi/agents/`.
 
 ## Settings merge
 
@@ -52,7 +52,7 @@ The `packages` array in `settings.json` is authoritative and replaced wholesale,
 
 - `context-rollover`: disables auto compaction, shows context usage at 70%, and provides a user-approved `/handoff`.
 - `git-guard`: blocks agent-run git commands except status, log, diff.
-- `write-guard`: blocks shell file writes for agents that have no edit or write tool.
+- `write-guard`: blocks `edit`, `write` and shell file writes for agents marked `readOnly: true` or without edit/write tools.
 - `claude-usage`: shows Claude usage only for the `claude-bridge` or `anthropic` provider; reads the Claude Code keychain item.
 - `skill-newline`: lets `/skill:name` expand when its args start on a new line.
 - `agent-profile`: `/profile` command to switch the agent profile and reload.

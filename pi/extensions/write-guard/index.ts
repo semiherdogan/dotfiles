@@ -14,6 +14,8 @@ const TOOLS_LIST = /^tools:\s*\[([^\]]*)\]/m;
 const TOOLS_LINE = /^tools:/m;
 const EDIT_DENY = /^\s+edit:\s*deny\s*$/m;
 const WRITE_DENY = /^\s+write:\s*deny\s*$/m;
+// Explicit marker for a primary that must keep edit/write in its active set (subagent ceiling) but never use them.
+const READ_ONLY_FLAG = /^readOnly:\s*true\s*$/m;
 
 const MUTATING_COMMANDS = [
 	"cp", "mv", "rm", "touch", "mkdir", "rmdir", "ln", "chmod", "chown", "truncate", "install",
@@ -26,7 +28,7 @@ const DOWNLOAD_OUTPUT_FLAG = /\s(-o|-O|-J|--output(?:-dir)?|--remote-name)\b/;
 const MAX_SNIPPET_LENGTH = 40;
 
 const BLOCK_REASON = [
-	"This agent has no edit or write tool, so it must not write files through the shell either: no redirects, heredocs, sed -i, tee, inline scripts, sh -c, or cp/mv/rm/touch/mkdir.",
+	"This agent must not change files: not with edit or write, and not through the shell (no redirects, heredocs, sed -i, tee, inline scripts, sh -c, or cp/mv/rm/touch/mkdir).",
 	"Do not retry and do not work around it.",
 	"Do not write a helper script or pipe into an interpreter instead. Delegate the change to the implementer subagent in this turn, or tell the user what needs to change.",
 ].join(" ");
@@ -127,6 +129,7 @@ function resolveAgentName(ctx: ExtensionContext): string | undefined {
 }
 
 function isReadOnlyFrontmatter(frontmatter: string): boolean {
+	if (READ_ONLY_FLAG.test(frontmatter)) return true;
 	const tools = TOOLS_LIST.exec(frontmatter);
 	if (tools) {
 		const list = tools[1].split(",").map((tool) => tool.trim());
@@ -159,10 +162,14 @@ export default function writeGuard(pi: ExtensionAPI) {
 	pi.on("tool_call", (event, ctx) => {
 		// Fail open: a bug in the guard must never block a call.
 		try {
-			if (!event.toolName.includes("bash") && !event.toolName.includes("shell")) return undefined;
+			const isShell = event.toolName.includes("bash") || event.toolName.includes("shell");
+			const isWriteTool = WRITE_TOOLS.includes(event.toolName);
+			if (!isShell && !isWriteTool) return undefined;
 
 			const agentName = resolveAgentName(ctx);
 			if (agentName === undefined || !isReadOnlyAgent(agentName)) return undefined;
+
+			if (isWriteTool) return { block: true, reason: `Blocked ${event.toolName} tool. ${BLOCK_REASON}` };
 
 			const input = event.input as { command?: unknown } | null | undefined;
 			const command = input?.command;
