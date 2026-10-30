@@ -61,7 +61,7 @@ function label(category: string, match: RegExpExecArray): string {
 	return `${category} "${match[0].trim().slice(0, MAX_SNIPPET_LENGTH)}"`;
 }
 
-function findViolations(command: string): string[] {
+export function findViolations(command: string): string[] {
 	const violations: string[] = [];
 
 	// The inner command is opaque, and quote stripping would hide a redirect inside sh -c "...".
@@ -80,16 +80,16 @@ function findViolations(command: string): string[] {
 	const perl = PERL_IN_PLACE.exec(unquoted);
 	if (perl) violations.push(label("perl -i", perl));
 
-	const tee = TEE.exec(command);
+	const tee = TEE.exec(unquoted);
 	if (tee) violations.push(label("tee", tee));
 
 	const inline = INLINE_SCRIPT.exec(unquoted);
 	if (inline) violations.push(label("inline script", inline));
-	const piped = PIPED_SCRIPT.exec(command);
+	const piped = PIPED_SCRIPT.exec(unquoted);
 	if (piped) violations.push(label("piped interpreter", piped));
 
-	// Every token is a candidate: a false positive is cheap for a read-only agent.
-	const tokens = command
+	// Every unquoted token is a candidate: quoted text is data (grep patterns, messages), the rest is cheap to over-block.
+	const tokens = unquoted
 		.replace(/[;&|(){}`'"\n\r\t]/g, " ")
 		.split(/\s+/)
 		.filter(Boolean)
