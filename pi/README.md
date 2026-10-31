@@ -57,6 +57,8 @@ The `packages` array in `settings.json` is authoritative and replaced wholesale,
 - `skill-newline`: lets `/skill:name` expand when its args start on a new line.
 - `agent-profile`: `/profile` command to switch the agent profile and reload.
 - `subagent-status`: shows running `pi-open-agents` subagents in the footer as `agent provider/model-id`. The provider comes from the call's `model` override or the agent file, so it stays visible after the child reports a bare model id.
+- `review-gate`: when the active agent is `architect` and `implementer` changed the working tree, asks for one `reviewer` round if the architect gives its final answer without one. Other agents get no automatic review.
+- `change-review`: `/review-summary [focus]` asks the agent for a pinpoint review of the working tree and opens the report. It never runs on its own.
 
 ## Keybindings
 

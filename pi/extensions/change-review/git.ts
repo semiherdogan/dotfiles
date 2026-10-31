@@ -1,5 +1,4 @@
 import { spawn } from "node:child_process";
-import { createHash } from "node:crypto";
 import { lstatSync, readFileSync, statSync } from "node:fs";
 import { basename, join, posix } from "node:path";
 import { addedFileDiff, type FileDiff, parseUnifiedDiff } from "./diff.ts";
@@ -61,9 +60,9 @@ const STATUS_CHARS = new Set<string>(Object.values(FILE_STATUS));
 
 type RunResult = { stdout: string; stderr: string; code: number };
 
-function run(args: string[], cwd: string, input?: string): Promise<RunResult> {
+function run(args: string[], cwd: string): Promise<RunResult> {
 	return new Promise((resolve, reject) => {
-		const child = spawn("git", args, { cwd, stdio: [input === undefined ? "ignore" : "pipe", "pipe", "pipe"] });
+		const child = spawn("git", args, { cwd, stdio: ["ignore", "pipe", "pipe"] });
 		const stdout: Buffer[] = [];
 		const stderr: Buffer[] = [];
 		child.stdout.on("data", (chunk: Buffer) => stdout.push(chunk));
@@ -76,12 +75,11 @@ function run(args: string[], cwd: string, input?: string): Promise<RunResult> {
 				code: code ?? 1,
 			}),
 		);
-		if (input !== undefined) child.stdin?.end(input);
 	});
 }
 
-async function git(args: string[], cwd: string, input?: string): Promise<string> {
-	const result = await run(args, cwd, input);
+async function git(args: string[], cwd: string): Promise<string> {
+	const result = await run(args, cwd);
 	if (result.code !== 0) throw new GitError(result.stderr.trim() || `git ${args.join(" ")} failed`);
 	return result.stdout;
 }
@@ -105,14 +103,6 @@ export function normalizeRepoPath(input: string): string | undefined {
 	const normalized = posix.normalize(trimmed);
 	if (normalized === "." || normalized === ".." || normalized.startsWith("../")) return undefined;
 	return normalized.startsWith("./") ? normalized.slice(2) : normalized;
-}
-
-export function fileExists(root: string, path: string): boolean {
-	try {
-		return statSync(join(root, path)).isFile();
-	} catch {
-		return false;
-	}
 }
 
 type StatusEntry = Pick<ChangedFile, "path" | "oldPath" | "status">;
@@ -278,17 +268,4 @@ export async function snapshot(cwd: string): Promise<Snapshot> {
 		deletions: files.reduce((sum, file) => sum + file.deletions, 0),
 		diffs,
 	};
-}
-
-// Cheap identity of the working tree state, used to detect whether a run changed anything.
-export async function fingerprint(cwd: string): Promise<string | undefined> {
-	const root = await repoRoot(cwd);
-	if (root === undefined) return undefined;
-	const statusRaw = await git(["status", "--porcelain=v1", "-z", "--untracked-files=all"], root);
-	// Submodules and files removed mid-run have no blob to hash; the status text still covers them.
-	const paths = parseStatus(statusRaw)
-		.filter((entry) => entry.status !== FILE_STATUS.deleted && fileExists(root, entry.path))
-		.map((entry) => entry.path);
-	const hashes = paths.length > 0 ? await git(["hash-object", "--stdin-paths"], root, `${paths.join("\n")}\n`) : "";
-	return createHash("sha256").update(statusRaw).update(hashes).digest("hex");
 }

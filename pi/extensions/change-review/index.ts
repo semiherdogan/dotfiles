@@ -7,22 +7,17 @@ import { StringEnum } from "@earendil-works/pi-ai";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
 
-import { fingerprint, GitError, inspectPath, repoRoot, type Snapshot, snapshot } from "./git.ts";
+import { GitError, inspectPath, repoRoot, type Snapshot, snapshot } from "./git.ts";
 import { renderHtml } from "./html.ts";
 import { REVIEW_INSTRUCTIONS } from "./prompt.ts";
 import { render, SEVERITIES, type Submission, TESTS_STATES, type Validation, validate } from "./report.ts";
 
 const TOOL_NAME = "review_submit";
 const COMMAND_NAME = "review-summary";
-const REQUEST_MESSAGE_TYPE = "change-review-request";
 const REPORT_DIR = join(homedir(), ".local", "share", "change-review");
 const LATEST_MARKDOWN = "latest.md";
 const LATEST_HTML = "latest.html";
 const REPO_DIR_HASH_LENGTH = 8;
-// Set by pi-open-agents in subagent children; only the primary agent's run gets a review.
-const SUBAGENT_ENV = "PI_OPEN_AGENTS_NAME";
-const RUN_COMPLETED = "completed";
-const USER_RUN = "user";
 const MAC_PLATFORM = "darwin";
 const WINDOWS_PLATFORM = "win32";
 
@@ -100,10 +95,6 @@ function openReport(file: string, onFailure: (message: string) => void): void {
 }
 
 export default function changeReview(pi: ExtensionAPI) {
-	let baseline: string | undefined;
-	let requested = false;
-	let submitted = false;
-
 	pi.registerTool({
 		name: TOOL_NAME,
 		label: "Submit change review",
@@ -136,7 +127,6 @@ export default function changeReview(pi: ExtensionAPI) {
 			}
 
 			const { markdownFile, htmlFile } = writeReport(snap, params, validation, new Date());
-			submitted = true;
 			if (ctx.hasUI) openReport(htmlFile, (message) => ctx.ui.notify(message, "warning"));
 
 			const lines = [
@@ -161,33 +151,5 @@ export default function changeReview(pi: ExtensionAPI) {
 				deliverAs: "followUp",
 			});
 		},
-	});
-
-	pi.on("before_agent_start", async (event, ctx) => {
-		if (process.env[SUBAGENT_ENV]) return;
-		if (event.messageType !== USER_RUN) return;
-		requested = false;
-		submitted = false;
-		baseline = await fingerprint(ctx.cwd);
-	});
-
-	pi.on("agent_before_settle", async (event, ctx) => {
-		if (process.env[SUBAGENT_ENV]) return;
-		// The settle context's continue flag is computed before this handler's entry exists, so it is false here by construction; pi re-checks after the entry is committed.
-		if (event.outcome !== RUN_COMPLETED) return;
-		if (requested || submitted || baseline === undefined) return;
-		if (!pi.getActiveTools().includes(TOOL_NAME)) return;
-		const current = await fingerprint(ctx.cwd);
-		if (current === undefined || current === baseline) return;
-		requested = true;
-		return {
-			entries: [{ type: "custom_message", customType: REQUEST_MESSAGE_TYPE, content: REVIEW_INSTRUCTIONS, display: true }],
-			continue: true,
-		};
-	});
-
-	pi.on("agent_settled", () => {
-		baseline = undefined;
-		requested = false;
 	});
 }

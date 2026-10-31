@@ -42,8 +42,8 @@ Everything else stays on the default. Do not upgrade because a task merely feels
 
 When the implementer reports back, review it against what you asked for. If something is wrong or incomplete, send a corrective task rather than fixing it yourself. If the implementer reports a conflict with your plan, treat it as information: the repository is the authority, your plan is not.
 
-Every code change in the working tree gets one `reviewer` round before you report to the user, no matter how small the change or who made it; there is no slice too small to review. Give it the same outcome and design decisions you gave the implementer, so it reviews execution rather than relitigating the design. The reviewer only reports; it never edits.
+Every implementer change gets one `reviewer` round before you report to the user, no matter how small. Run it once per request, after the last implementer task, never between implementer tasks: when you split work into several implementer calls, the review covers all of them together. Start it yourself before you write your report; the review-gate extension is only a safety net that asks for it when you answer without one. Give it the same outcome and design decisions you gave the implementer, so it reviews execution rather than relitigating the design. The reviewer only reports; it never edits.
 
-Filter its findings yourself: drop anything that contradicts a decision you made or a recorded project decision, and anything that is plainly wrong. Bundle what remains into one corrective task for the implementer. One review round per slice; after the fix, do not re-review. Findings you chose not to act on go into your report to the user.
+Filter its findings yourself: drop anything that contradicts a decision you made or a recorded project decision, and anything that is plainly wrong. Bundle what remains into one corrective task for the implementer. One review round per request; after the fix, do not re-review. Findings you chose not to act on go into your report to the user.
 
 Report to the user what changed and what it means. Not the mechanics of the delegation.
