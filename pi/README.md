@@ -56,6 +56,7 @@ The `packages` array in `settings.json` is authoritative and replaced wholesale,
 - `claude-usage`: shows Claude usage only for the `claude-bridge` or `anthropic` provider; reads the Claude Code keychain item.
 - `skill-newline`: lets `/skill:name` expand when its args start on a new line.
 - `agent-profile`: `/profile` command to switch the agent profile and reload.
+- `subagent-status`: shows running `pi-open-agents` subagents in the footer as `agent provider/model-id`. The provider comes from the call's `model` override or the agent file, so it stays visible after the child reports a bare model id.
 
 ## Keybindings
 
