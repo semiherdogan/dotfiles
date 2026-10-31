@@ -8,24 +8,23 @@ import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
 
 import { fingerprint, GitError, inspectPath, repoRoot, type Snapshot, snapshot } from "./git.ts";
+import { renderHtml } from "./html.ts";
 import { REVIEW_INSTRUCTIONS } from "./prompt.ts";
-import { render, SEVERITIES, TESTS_STATES, validate } from "./report.ts";
+import { render, SEVERITIES, type Submission, TESTS_STATES, type Validation, validate } from "./report.ts";
 
 const TOOL_NAME = "review_submit";
 const COMMAND_NAME = "review-summary";
 const REQUEST_MESSAGE_TYPE = "change-review-request";
 const REPORT_DIR = join(homedir(), ".local", "share", "change-review");
-const LATEST_REPORT = "latest.md";
+const LATEST_MARKDOWN = "latest.md";
+const LATEST_HTML = "latest.html";
 const REPO_DIR_HASH_LENGTH = 8;
 // Set by pi-open-agents in subagent children; only the primary agent's run gets a review.
 const SUBAGENT_ENV = "PI_OPEN_AGENTS_NAME";
 const RUN_COMPLETED = "completed";
 const USER_RUN = "user";
-// `code <folder> <file>` focuses the window that has the project open (or opens one) and shows the report there.
-const OPENERS: Array<(root: string, file: string) => string[]> = [
-	(root, file) => ["code", root, file],
-	(_root, file) => ["open", file],
-];
+const MAC_PLATFORM = "darwin";
+const WINDOWS_PLATFORM = "win32";
 
 const Finding = Type.Object({
 	severity: StringEnum(SEVERITIES),
@@ -63,26 +62,40 @@ function timestamp(date: Date): string {
 	return `${day}-${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`;
 }
 
-function writeReport(snap: Snapshot, markdown: string): string {
+function writeReport(
+	snap: Snapshot,
+	submission: Submission,
+	validation: Validation,
+	generatedAt: Date,
+): { markdownFile: string; htmlFile: string } {
 	// Same folder name in two places must not share one report directory.
 	const suffix = createHash("sha1").update(snap.root).digest("hex").slice(0, REPO_DIR_HASH_LENGTH);
-	const dir = join(REPORT_DIR, `${snap.repoName}-${suffix}`);
+	const dirName = `${snap.repoName}-${suffix}`;
+	const dir = join(REPORT_DIR, dirName);
 	mkdirSync(dir, { recursive: true });
-	const file = join(dir, `${timestamp(new Date())}.md`);
-	writeFileSync(file, markdown);
-	writeFileSync(join(dir, LATEST_REPORT), markdown);
-	return file;
+	const stamp = timestamp(generatedAt);
+	const markdown = render(submission, validation, snap, generatedAt);
+	const html = renderHtml({ submission, validation, snapshot: snap, generatedAt, reportId: `${dirName}/${stamp}` });
+	const markdownFile = join(dir, `${stamp}.md`);
+	const htmlFile = join(dir, `${stamp}.html`);
+	writeFileSync(markdownFile, markdown);
+	writeFileSync(join(dir, LATEST_MARKDOWN), markdown);
+	writeFileSync(htmlFile, html);
+	writeFileSync(join(dir, LATEST_HTML), html);
+	return { markdownFile, htmlFile };
 }
 
-function openReport(root: string, file: string, onFailure: (message: string) => void, index = 0): void {
-	const opener = OPENERS[index];
-	if (opener === undefined) {
-		onFailure(`Could not open ${file}: no opener found`);
-		return;
-	}
-	const [command, ...args] = opener(root, file);
+// Chosen by platform: on Debian `open` may be `openvt` and start without error.
+function opener(file: string): { command: string; args: string[] } {
+	if (process.platform === MAC_PLATFORM) return { command: "open", args: [file] };
+	if (process.platform === WINDOWS_PLATFORM) return { command: "cmd", args: ["/c", "start", "", file] };
+	return { command: "xdg-open", args: [file] };
+}
+
+function openReport(file: string, onFailure: (message: string) => void): void {
+	const { command, args } = opener(file);
 	const child = spawn(command, args, { detached: true, stdio: "ignore" });
-	child.on("error", () => openReport(root, file, onFailure, index + 1));
+	child.on("error", () => onFailure(`Could not open ${file}: ${command} failed`));
 	child.on("spawn", () => child.unref());
 }
 
@@ -122,17 +135,17 @@ export default function changeReview(pi: ExtensionAPI) {
 				return { content: [{ type: "text", text }], details: { errors: validation.errors }, isError: true };
 			}
 
-			const markdown = render(params, validation, snap, new Date());
-			const file = writeReport(snap, markdown);
+			const { markdownFile, htmlFile } = writeReport(snap, params, validation, new Date());
 			submitted = true;
-			if (ctx.hasUI) openReport(snap.root, file, (message) => ctx.ui.notify(message, "warning"));
+			if (ctx.hasUI) openReport(htmlFile, (message) => ctx.ui.notify(message, "warning"));
 
 			const lines = [
-				`Report written: ${file}`,
+				`Review screen: ${htmlFile}`,
+				`Markdown: ${markdownFile}`,
 				`${validation.findings.length} finding(s) across ${snap.files.length} changed file(s).`,
 			];
 			if (validation.warnings.length > 0) lines.push("Warnings:", ...validation.warnings.map((warning) => `- ${warning}`));
-			return { content: [{ type: "text", text: lines.join("\n") }], details: { file, warnings: validation.warnings } };
+			return { content: [{ type: "text", text: lines.join("\n") }], details: { file: htmlFile, markdownFile, warnings: validation.warnings } };
 		},
 	});
 

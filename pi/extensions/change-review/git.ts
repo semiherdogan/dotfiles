@@ -1,7 +1,8 @@
 import { spawn } from "node:child_process";
 import { createHash } from "node:crypto";
-import { readFileSync, statSync } from "node:fs";
+import { lstatSync, readFileSync, statSync } from "node:fs";
 import { basename, join, posix } from "node:path";
+import { addedFileDiff, type FileDiff, parseUnifiedDiff } from "./diff.ts";
 
 export const FILE_STATUS = {
 	added: "A",
@@ -38,6 +39,8 @@ export type Snapshot = {
 	files: ChangedFile[];
 	additions: number;
 	deletions: number;
+	// Full -U3 diff per path, including untracked files rendered as additions.
+	diffs: Map<string, FileDiff>;
 };
 
 export class GitError extends Error {}
@@ -222,20 +225,31 @@ export async function snapshot(cwd: string): Promise<Snapshot> {
 	const root = await repoRoot(cwd);
 	if (root === undefined) throw new GitError(`Not a git repository: ${cwd}`);
 	const base = await diffBase(root);
-	const [statusRaw, numstatRaw, diffRaw, branch] = await Promise.all([
+	const [statusRaw, numstatRaw, diffRaw, contextDiffRaw, branch] = await Promise.all([
 		git(["status", "--porcelain=v1", "-z", "--untracked-files=all"], root),
 		git(["diff", base, "--numstat", "-z", "--no-ext-diff"], root),
 		git(["-c", "core.quotePath=false", "diff", base, "-U0", "--no-color", "--no-ext-diff", "--src-prefix=a/", "--dst-prefix=b/"], root),
+		git(["-c", "core.quotePath=false", "-c", "diff.suppressBlankEmpty=false", "diff", base, "-U3", "--no-color", "--no-ext-diff", "--src-prefix=a/", "--dst-prefix=b/"], root),
 		run(["rev-parse", "--abbrev-ref", HEAD], root),
 	]);
 	const numstat = parseNumstat(numstatRaw);
 	const hunks = parseHunks(diffRaw);
+	const diffs = parseUnifiedDiff(contextDiffRaw);
 	const files: ChangedFile[] = [];
 	for (const entry of parseStatus(statusRaw)) {
 		const deleted = entry.status === FILE_STATUS.deleted;
 		const inspected: FileInfo = deleted ? { binary: false } : (inspectPath(root, entry.path) ?? { binary: false });
 		if (entry.status === FILE_STATUS.untracked) {
 			const lineCount = inspected.lineCount ?? 0;
+			// lstat skips symlinks so a link to a file outside the repo is never copied into the report.
+			if (!inspected.binary && inspected.lineCount !== undefined) {
+				try {
+					const absPath = join(root, entry.path);
+					if (lstatSync(absPath).isFile()) diffs.set(entry.path, addedFileDiff(readFileSync(absPath, "utf8")));
+				} catch {
+					// File vanished or is unreadable: the report renders without its diff.
+				}
+			}
 			files.push({
 				...entry,
 				...inspected,
@@ -262,6 +276,7 @@ export async function snapshot(cwd: string): Promise<Snapshot> {
 		files,
 		additions: files.reduce((sum, file) => sum + file.additions, 0),
 		deletions: files.reduce((sum, file) => sum + file.deletions, 0),
+		diffs,
 	};
 }
 

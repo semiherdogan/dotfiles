@@ -9,6 +9,7 @@ const snapshot: Snapshot = {
 	branch: "main",
 	additions: 12,
 	deletions: 3,
+	diffs: new Map(),
 	files: [
 		{
 			path: "src/auth.ts",

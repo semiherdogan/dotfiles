@@ -3,7 +3,7 @@ import { type ChangedFile, FILE_STATUS, type FileInfo, type LineRange, normalize
 export const SEVERITY = { critical: "critical", high: "high", medium: "medium", low: "low" } as const;
 export type Severity = (typeof SEVERITY)[keyof typeof SEVERITY];
 export const SEVERITIES = [SEVERITY.critical, SEVERITY.high, SEVERITY.medium, SEVERITY.low] as const;
-const SEVERITY_ICON: Record<Severity, string> = { critical: "⛔", high: "🔴", medium: "🟡", low: "🔵" };
+export const SEVERITY_ICON: Record<Severity, string> = { critical: "⛔", high: "🔴", medium: "🟡", low: "🔵" };
 
 export const TESTS_STATE = {
 	added: "added",
@@ -13,7 +13,7 @@ export const TESTS_STATE = {
 } as const;
 export type TestsState = (typeof TESTS_STATE)[keyof typeof TESTS_STATE];
 export const TESTS_STATES = [TESTS_STATE.added, TESTS_STATE.updated, TESTS_STATE.none, TESTS_STATE.notApplicable] as const;
-const TESTS_LABEL: Record<TestsState, string> = {
+export const TESTS_LABEL: Record<TestsState, string> = {
 	added: "added",
 	updated: "updated",
 	none: "none",
@@ -52,7 +52,7 @@ const NOTHING_FLAGGED = "Nothing flagged.";
 const VSCODE_FILE_SCHEME = "vscode://file";
 
 // vscode://file/<absolute path>:<line> opens the file at that line in VS Code; the root already starts with "/".
-function vscodeLink(root: string, path: string, line?: number): string {
+export function vscodeLink(root: string, path: string, line?: number): string {
 	const target = `${root}/${path}`.split("/").map(encodeURIComponent).join("/");
 	return `${VSCODE_FILE_SCHEME}${target}${line === undefined ? "" : `:${line}`}`;
 }
