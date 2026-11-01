@@ -51,7 +51,7 @@ The `packages` array in `settings.json` is authoritative and replaced wholesale,
 ## Extensions
 
 - `context-rollover`: disables auto compaction, shows context usage at 70%, and provides a user-approved `/handoff`.
-- `git-guard`: blocks agent-run git commands except status, log, diff.
+- `git-guard`: blocks agent-run git commands except read-only inspection (status, log, diff, show, grep, blame, branch/tag listing, config reads, ...).
 - `write-guard`: blocks `edit`, `write` and shell file writes for agents marked `readOnly: true` or without edit/write tools.
 - `claude-usage`: shows Claude usage only for the `claude-bridge` or `anthropic` provider; reads the Claude Code keychain item.
 - `skill-newline`: lets `/skill:name` expand when its args start on a new line.

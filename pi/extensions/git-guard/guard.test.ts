@@ -1,0 +1,195 @@
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import { findViolations } from "./guard.ts";
+
+const PY_HEREDOC = "python3 - <<'EOF'\nimport subprocess\nsubprocess.run(['git','show','HEAD:a'])\nEOF";
+const BASH_HEREDOC = "bash <<'EOF'\ngit stash\nEOF";
+
+const ALLOWED = [
+	"git branch --show-current",
+	"git tag --sort=-creatordate | head -8",
+	"git tag --contains 9bcd933f | head",
+	"git remote -v",
+	"git config --get diff.noprefix",
+	"git config --global user.name",
+	"git config --get-regexp '^diff\\.'",
+	"git check-ignore -v a b",
+	'git grep -n "x\\|y" HEAD -- src',
+	"git stash list >/dev/null; git status --short",
+	"git --version",
+	"git log --oneline -3",
+	"git diff --output-indicator-new=+ HEAD",
+	'cd x && f=$(rg -l y | head -1); echo "$f"',
+	PY_HEREDOC,
+	"fd -t f . git npm --max-depth 5",
+	"ls ~/.pi/agent/git/* 2>/dev/null",
+	'rg -n -i "plugin|git" x | head -60',
+	'echo "--- git status:"; git status --short',
+	"git -C /repo log -1",
+	"git branch -a",
+	"git branch -vv",
+	"git tag -l 'v*'",
+	"git reflog -5",
+	"git worktree list",
+];
+
+const BLOCKED = [
+	"git push",
+	"git commit -m x",
+	"env git push",
+	"xargs git rm",
+	'echo "$(git push)"',
+	'echo "a $(git log) b" ; git push',
+	"echo `git reset --hard`",
+	"sh -c 'git checkout .'",
+	"bash -lc 'git push'",
+	`sh -c 'bash -c "git push"'`,
+	BASH_HEREDOC,
+	"bash <<< 'git push'",
+	"git branch -D x",
+	"git branch new-feature",
+	"git branch -m a b",
+	"git tag v1",
+	"git tag -d v1",
+	"git tag -a v1 -m x",
+	"git config user.name x",
+	"git config --unset a.b",
+	"git stash",
+	"git stash pop",
+	"git remote add o url",
+	"git reflog expire --all",
+	"git diff --output=x",
+	"git grep -Ovim x",
+	"git -C /tmp commit",
+	"/usr/bin/git push",
+	"git",
+	"find . -exec git rm {} \\;",
+	"fd -x git add",
+	"git fetch",
+	"git checkout --dry-run -- f",
+	"git rm --cached x",
+	"git clone url",
+	"git init",
+	"sudo -u root git push",
+	"timeout 5 git pull",
+];
+
+// Extra cases beyond the required tables: labels, opaque scripts, eval and flag edge cases.
+const EXTRA_ALLOWED = [
+	"git --help",
+	"git version",
+	"git help commit",
+	"git diff --output-indicator-old=- HEAD",
+	"git config -f x.cfg --list",
+	"git symbolic-ref HEAD",
+	"git notes list",
+	"git submodule status",
+	"git stash show -p",
+	"git remote show origin",
+	"eval 'git status'",
+	"bash -c 'echo hi'",
+	"bash script.sh < in",
+	"curl -s u | sh",
+	"uv run pytest -q",
+	"pnpm exec tsc --noEmit",
+	"uv pip list",
+	"cat <<'EOF'\n$(git commit -am x)\nEOF",
+	'cat <<"EOF"\n$(git commit -am x)\nEOF',
+	"cat <<\\EOF\n$(git commit -am x)\nEOF",
+	"[[ a > b ]] && echo y",
+	"(( a > b )) && echo y",
+	"git rev-list HEAD",
+	"git ls-remote origin",
+	'echo "${X:-a}"',
+];
+
+const EXTRA_BLOCKED = [
+	"git --git-dir=x push",
+	"git -c a=b commit",
+	"git log --output x",
+	"git show --output=x HEAD",
+	"git grep --open-files-in-pager=vim x",
+	"git branch --delete x",
+	"git branch --set-upstream-to=o/x",
+	"git tag --force v1",
+	"git config --add a.b c",
+	"git config set a.b c",
+	"git symbolic-ref -d HEAD",
+	"git worktree add x",
+	"git notes add -m x",
+	"git submodule update",
+	"git remote prune origin",
+	"eval 'git push'",
+	'bash -c "$CMD git"',
+	'eval "git $X"',
+	". <(echo git push)",
+	"bash -euo pipefail -c 'git commit -am x'",
+	"bash -c -e 'git push'",
+	"bash -c -- 'git push'",
+	"bash -O extglob -c 'git push'",
+	"bash --rcfile f -c 'git push'",
+	"bash -s arg <<'EOF'\ngit push\nEOF",
+	"bash -s -- x <<'EOF'\ngit push\nEOF",
+	"echo git push | sh",
+	"g''it push | sh",
+	"cat <<'EOF' | bash\ngit commit -am x\nEOF",
+	"uv run git push",
+	"poetry run git push",
+	"gtimeout 5 git push",
+	"pnpm exec git push",
+	"bundle exec git push",
+	"mise exec node@20 -- git push",
+	"direnv exec . git push",
+	"parallel git rm ::: a",
+	"watch -n 5 git push",
+	"flock f git push",
+	"arch -arm64 git push",
+	"xargs -J % git add %",
+	"xargs --max-args 1 git rm",
+	"function f { git commit; }; f",
+	"if t; then { git commit; }; fi",
+	"! { git commit; }",
+	"time { git commit; }",
+	"cat <<EOF\n$(git commit -am x)\nEOF",
+	"cat <<EOF\n`git commit -am x`\nEOF",
+	"sudo -iu root git push",
+	"env -S 'git push'",
+	"env -P /bin git push",
+	"env -u FOO git push",
+	"nice --adjustment 5 git push",
+	'cd "${D:-$(git stash)}"',
+	"git rev-list --output=x HEAD",
+	"git shortlog --output=x",
+	"git blame --output=x f",
+	"git ls-remote --upload-pack='touch x' origin",
+	"git ls-remote --upload-pack x origin",
+	"git ls-remote -u 'touch x' origin",
+];
+
+for (const [name, commands, expectBlocked] of [
+	["allows", [...ALLOWED, ...EXTRA_ALLOWED], false],
+	["blocks", [...BLOCKED, ...EXTRA_BLOCKED], true],
+] as const) {
+	for (const command of commands) {
+		test(`${name}: ${JSON.stringify(command)}`, () => {
+			const violations = findViolations(command);
+			assert.equal(violations.length > 0, expectBlocked, JSON.stringify(violations));
+		});
+	}
+}
+
+const LABELS: [string, string[]][] = [
+	["git push", ["git push"]],
+	["git branch -D x", ["git branch"]],
+	["git", ["git (bare)"]],
+	["git -C /tmp", ["git (bare)"]],
+	['bash -c "$CMD git"', ["git (opaque shell -c)"]],
+	["echo git push | sh", ["git (piped to shell)"]],
+	["git status; git push; git fetch", ["git push", "git fetch"]],
+];
+
+for (const [command, expected] of LABELS) {
+	test(`label: ${JSON.stringify(command)}`, () => {
+		assert.deepEqual(findViolations(command), expected);
+	});
+}

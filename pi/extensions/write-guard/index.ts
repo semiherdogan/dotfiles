@@ -2,6 +2,7 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
+import { findViolations } from "./guard.ts";
 
 const AGENT_STATE_ENTRY = "open-agents-state";
 const CUSTOM_ENTRY_TYPE = "custom";
@@ -17,97 +18,11 @@ const WRITE_DENY = /^\s+write:\s*deny\s*$/m;
 // Explicit marker for a primary that must keep edit/write in its active set (subagent ceiling) but never use them.
 const READ_ONLY_FLAG = /^readOnly:\s*true\s*$/m;
 
-const MUTATING_COMMANDS = [
-	"cp", "mv", "rm", "touch", "mkdir", "rmdir", "ln", "chmod", "chown", "truncate", "install",
-	"dd", "curl", "wget", "tar", "unzip", "gzip", "gunzip", "patch", "rsync", "ditto", "unlink", "defaults",
-];
-// Downloaders only write files with an explicit output flag; plain fetches stay allowed for researcher.
-const DOWNLOADERS = new Set(["curl", "wget"]);
-const DOWNLOAD_OUTPUT_FLAG = /\s(-o|-O|-J|--output(?:-dir)?|--remote-name)\b/;
-
-const MAX_SNIPPET_LENGTH = 40;
-
 const BLOCK_REASON = [
 	"This agent must not change files: not with edit or write, and not through the shell (no redirects, heredocs, sed -i, tee, inline scripts, sh -c, or cp/mv/rm/touch/mkdir).",
 	"Do not retry and do not work around it.",
 	"Do not write a helper script or pipe into an interpreter instead. Delegate the change to the implementer subagent in this turn, or tell the user what needs to change.",
 ].join(" ");
-
-// Whitespace before /dev/null is tolerated so `cmd > /dev/null` is not flagged.
-const HARMLESS_REDIRECTS = /2>&1|1>&2|>&2|(?:&|[12])?>>?\s*\/dev\/null(?![^\s;|&)])/g;
-const REDIRECTS = [/(^|[^<>])>{1,2}(?!=)\|?\s*\S+/, /&>>?\s*\S+/, />&\s*[^0-9\s]\S*/, /<>\s*\S+/];
-// Quoted delimiters reach this check as empty quotes after stripQuotes.
-const HEREDOCS = [/<<-?\s*(?:['"]{2}|['"]?\w+)/, /<<</];
-const SHELL_EVAL = [/\b(sh|bash|zsh|dash|ksh|fish)\s+(?:-\S+\s+)*-c\b/, /(?:^|[\s;&|(])(eval)\s/];
-const SED_IN_PLACE = /\b(g?sed)\s+(?:-\S+\s+)*(?:--in-place\b|-[a-zA-Z]*i)/;
-// Any perl cluster with i or p is treated as suspicious; false positives are acceptable.
-const PERL_IN_PLACE = /\bperl\s+(?:-\S+\s+)*-[a-zA-Z0-9]*[ip][a-zA-Z0-9]*\b/;
-const TEE = /\btee\b/;
-const INLINE_SCRIPT = /\b(python(?:\d+(?:\.\d+)?)?|node|ruby|perl)\s+(?:-\S+\s+)*(-[ce]\b|--eval\b|-p\b|-(?!\S))/;
-const PIPED_SCRIPT = /\|\s*(python(?:\d+(?:\.\d+)?)?|node|ruby|perl)\b/;
-
-// Shell operators cannot occur inside quotes, so the operator regexes run on quote-free text.
-function stripQuotes(command: string): string {
-	return command.replace(/'[^']*'/g, "''").replace(/"(?:[^"\\]|\\.)*"/g, '""');
-}
-
-function firstMatch(patterns: RegExp[], text: string): RegExpExecArray | null {
-	for (const pattern of patterns) {
-		const match = pattern.exec(text);
-		if (match) return match;
-	}
-	return null;
-}
-
-function label(category: string, match: RegExpExecArray): string {
-	return `${category} "${match[0].trim().slice(0, MAX_SNIPPET_LENGTH)}"`;
-}
-
-export function findViolations(command: string): string[] {
-	const violations: string[] = [];
-
-	// The inner command is opaque, and quote stripping would hide a redirect inside sh -c "...".
-	const evalMatch = firstMatch(SHELL_EVAL, command);
-	if (evalMatch) violations.push(label("shell eval", evalMatch));
-
-	const unquoted = stripQuotes(command);
-	const stripped = unquoted.replace(HARMLESS_REDIRECTS, " ");
-	const redirect = firstMatch(REDIRECTS, stripped);
-	if (redirect) violations.push(label("redirect", redirect));
-	const heredoc = firstMatch(HEREDOCS, unquoted);
-	if (heredoc) violations.push(label("heredoc", heredoc));
-
-	const sed = SED_IN_PLACE.exec(unquoted);
-	if (sed) violations.push(label("sed -i", sed));
-	const perl = PERL_IN_PLACE.exec(unquoted);
-	if (perl) violations.push(label("perl -i", perl));
-
-	const tee = TEE.exec(unquoted);
-	if (tee) violations.push(label("tee", tee));
-
-	const inline = INLINE_SCRIPT.exec(unquoted);
-	if (inline) violations.push(label("inline script", inline));
-	const piped = PIPED_SCRIPT.exec(unquoted);
-	if (piped) violations.push(label("piped interpreter", piped));
-
-	// Every unquoted token is a candidate: quoted text is data (grep patterns, messages), the rest is cheap to over-block.
-	const tokens = unquoted
-		.replace(/[;&|(){}`'"\n\r\t]/g, " ")
-		.split(/\s+/)
-		.filter(Boolean)
-		.map((token) => token.replace(/^\\/, ""));
-	const writesDownload = DOWNLOAD_OUTPUT_FLAG.test(command);
-	let mutation: string | undefined;
-	for (const token of tokens) {
-		mutation = MUTATING_COMMANDS.find(
-			(name) => (token === name || token.endsWith(`/${name}`)) && (writesDownload || !DOWNLOADERS.has(name)),
-		);
-		if (mutation !== undefined) break;
-	}
-	if (mutation !== undefined) violations.push(`file mutation: ${mutation}`);
-
-	return violations;
-}
 
 // getActiveTools() reports edit/write even when the agent cannot call them, so the agent file is the source of truth.
 // Order: env first (set only in subagent children, which may carry forked parent entries), then the last session entry.
