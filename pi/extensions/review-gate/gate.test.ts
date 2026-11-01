@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { ACTIVE_AGENT_ENTRY, activeAgent, ARCHITECT, IMPLEMENTER, initialState, OUTCOME_COMPLETED, recordToolResult, REVIEWER, SUBAGENT_TOOL, wantsReview } from "./gate.ts";
+import { ACTIVE_AGENT_ENTRY, activeAgent, ARCHITECT, IMPLEMENTER, initialState, MAX_REVIEW_ROUNDS, OUTCOME_COMPLETED, recordToolResult, REVIEWER, SUBAGENT_TOOL, wantsReview } from "./gate.ts";
 
 const CWD = "/repo";
 const finalTurn = { toolCallCount: 0, outcome: OUTCOME_COMPLETED };
@@ -36,6 +36,30 @@ test("asks once at the end when implementer ran again after a mid-run review", (
 	recordToolResult(state, SUBAGENT_TOOL, { agent: REVIEWER }, CWD);
 	recordToolResult(state, SUBAGENT_TOOL, { agent: IMPLEMENTER }, CWD);
 	assert.equal(wantsReview(state, finalTurn), false);
+});
+
+test("skips when the review round cap was reached, even with an implementer call after it", () => {
+	const state = initialState();
+	recordToolResult(state, SUBAGENT_TOOL, { agent: IMPLEMENTER }, CWD);
+	for (let round = 0; round < MAX_REVIEW_ROUNDS; round++) recordToolResult(state, SUBAGENT_TOOL, { agent: REVIEWER }, CWD);
+	recordToolResult(state, SUBAGENT_TOOL, { agent: IMPLEMENTER }, CWD);
+	assert.equal(state.unreviewed, true);
+	assert.equal(wantsReview(state, finalTurn), false);
+});
+
+test("still asks after one voluntary reviewer round followed by an implementer fix", () => {
+	const state = initialState();
+	recordToolResult(state, SUBAGENT_TOOL, { agent: REVIEWER }, CWD);
+	recordToolResult(state, SUBAGENT_TOOL, { agent: IMPLEMENTER }, CWD);
+	assert.equal(state.reviewerRounds, 1);
+	assert.equal(wantsReview(state, finalTurn), true);
+});
+
+test("the reviewer round counter resets with initialState", () => {
+	const state = initialState();
+	recordToolResult(state, SUBAGENT_TOOL, { agent: REVIEWER }, CWD);
+	assert.equal(state.reviewerRounds, 1);
+	assert.equal(initialState().reviewerRounds, 0);
 });
 
 test("asks only once per run", () => {

@@ -8,16 +8,21 @@ export const ARCHITECT = "architect";
 export const ACTIVE_AGENT_ENTRY = "active_agent";
 const CUSTOM_ENTRY_TYPE = "custom";
 
+// Bounds review rounds per user message: an architect-run review/fix cycle leaves an implementer call after the last reviewer, which would otherwise ask again.
+export const MAX_REVIEW_ROUNDS = 2;
+
 export type GateState = {
 	// Working directories implementer ran in during this run; empty means it did not run.
 	implementerCwds: Set<string>;
 	// Implementer ran since the last reviewer call, so some change has not been reviewed yet.
 	unreviewed: boolean;
 	requested: boolean;
+	// Reviewer subagent calls in this run, voluntary ones included.
+	reviewerRounds: number;
 };
 
 export function initialState(): GateState {
-	return { implementerCwds: new Set(), unreviewed: false, requested: false };
+	return { implementerCwds: new Set(), unreviewed: false, requested: false, reviewerRounds: 0 };
 }
 
 // Records subagent calls in the primary session. sessionCwd is the default when the call has no cwd.
@@ -30,7 +35,10 @@ export function recordToolResult(state: GateState, toolName: string, input: unkn
 		state.unreviewed = true;
 	}
 	// A failed reviewer call counts too; `requested` keeps the gate to one request per run, so a fix after it never loops.
-	if (args?.agent === REVIEWER) state.unreviewed = false;
+	if (args?.agent === REVIEWER) {
+		state.unreviewed = false;
+		state.reviewerRounds++;
+	}
 }
 
 export type TurnInfo = {
@@ -44,6 +52,7 @@ export type TurnInfo = {
 export function wantsReview(state: GateState, turn: TurnInfo): boolean {
 	if (turn.toolCallCount > 0) return false;
 	if (turn.outcome !== OUTCOME_COMPLETED) return false;
+	if (state.reviewerRounds >= MAX_REVIEW_ROUNDS) return false;
 	return state.unreviewed && !state.requested;
 }
 
