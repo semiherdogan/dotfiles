@@ -10,6 +10,7 @@ const REQUEST = [
 	"Review gate: implementer changed the working tree and no `reviewer` round has run yet.",
 	"Delegate one review of the current working-tree changes to the `reviewer` subagent, handing it the outcome and design decisions you gave the implementer.",
 	"Filter its findings against your decisions, send what remains to `implementer` as one corrective task, do not re-review after the fix, then give your final answer.",
+	"This message comes from the gate, not the user: keep subagent tasks in English, and write your final answer to the user in the language of the human's last message before this gate message.",
 ].join(" ");
 
 function isSubagentProcess(): boolean {
