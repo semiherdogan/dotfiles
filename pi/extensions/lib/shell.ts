@@ -13,7 +13,8 @@ export type SimpleCommand = {
 };
 
 // piped: the script comes from a pipe, so there is no text to inspect.
-export type NestedScripts = { commands: SimpleCommand[]; opaque: boolean; piped?: boolean };
+// substitution: the script comes from this `<(...)`, which is not inspected either.
+export type NestedScripts = { commands: SimpleCommand[]; opaque: boolean; piped?: boolean; substitution?: string };
 
 export const STDIN_PIPE = "pipe";
 const STDIN_HEREDOC = "heredoc";
@@ -48,8 +49,22 @@ const ARITHMETIC_OPEN = "$((";
 const COND_OPEN = "[[";
 const COND_CLOSE = "]]";
 const ARITHMETIC_COMMAND = "((";
-// Inside `[[ ]]` these are conditional syntax, not separators or redirects.
-const COND_OPERATORS = [DOUBLE_AMP, DOUBLE_PIPE, OPEN_PAREN, CLOSE_PAREN, LESS, GREATER];
+// Inside `[[ ]]` these are conditional syntax, not separators or redirects. `||` comes before `|` so the longer one wins.
+const COND_OPERATORS = [DOUBLE_AMP, DOUBLE_PIPE, PIPE, OPEN_PAREN, CLOSE_PAREN, LESS, GREATER];
+
+const CASE_KEYWORD = "case";
+const IN_KEYWORD = "in";
+const ESAC_KEYWORD = "esac";
+const FOR_KEYWORD = "for";
+// Longest first so that `;;&` is not read as `;;`.
+const CASE_TERMINATORS = [";;&", ";;", ";&"];
+// A case clause is read as subject (`case WORD in`), then pattern lists up to `)`, then the commands of the clause.
+const CASE_SUBJECT = "subject";
+const CASE_PATTERNS = "patterns";
+const CASE_BODY = "body";
+type CasePhase = typeof CASE_SUBJECT | typeof CASE_PATTERNS | typeof CASE_BODY;
+// A `( ... )` or `{ ...; }` group; piped means the group itself receives a pipe.
+type Group = { paren: boolean; piped: boolean };
 
 const BLANKS = new Set([" ", "\t", "\r"]);
 const WORD_BREAKS = new Set([...BLANKS, NEWLINE, SEMICOLON, AMP, PIPE, OPEN_PAREN, CLOSE_PAREN, LESS, GREATER]);
@@ -94,13 +109,33 @@ class Scanner {
 		let hasContent = false;
 		let inCond = false;
 		const pending: PendingHeredoc[] = [];
+		const groups: Group[] = [];
+		const cases: CasePhase[] = [];
 
+		// Commands inside a piped group are treated as reading the pipe, whatever their position in it.
 		const finish = (piped: boolean) => {
 			if (hasContent) this.out.push(cmd);
 			cmd = emptyCommand();
-			if (piped) cmd.stdin = STDIN_PIPE;
+			if (piped || groups.at(-1)?.piped) cmd.stdin = STDIN_PIPE;
 			hasContent = false;
 			inCond = false;
+		};
+
+		const startGroup = (paren: boolean) => {
+			const piped = !hasContent && cmd.stdin === STDIN_PIPE;
+			if (paren) finish(false);
+			groups.push({ paren, piped });
+			if (piped) cmd.stdin = STDIN_PIPE;
+		};
+
+		const endGroup = (paren: boolean): boolean => {
+			if (groups.at(-1)?.paren !== paren) return false;
+			groups.pop();
+			if (!hasContent) {
+				if (groups.at(-1)?.piped) cmd.stdin = STDIN_PIPE;
+				else delete cmd.stdin;
+			}
+			return true;
 		};
 
 		while (this.pos < src.length) {
@@ -117,18 +152,39 @@ class Scanner {
 				// A pending pipe survives a newline: `a |\n b`.
 				if (hasContent) finish(false);
 				if (pending.length > 0) this.readHeredocBodies(pending);
+			} else if (cases.at(-1) === CASE_PATTERNS) {
+				// Pattern lists are data: `|` separates alternatives and the first `)` ends the list.
+				if (ch === CLOSE_PAREN) {
+					cases[cases.length - 1] = CASE_BODY;
+					this.pos++;
+				} else if (ch === OPEN_PAREN || ch === PIPE) {
+					this.pos++;
+				} else if (this.atWordStart()) {
+					const { word, unterminated: wordUnterminated } = this.readWord();
+					if (wordUnterminated) unterminated = cmd.unterminated = true;
+					if (!word.quoted && word.text === ESAC_KEYWORD) cases.pop();
+				} else {
+					this.pos++;
+				}
 			} else if (inCond && this.condOperatorAt() !== undefined) {
 				const operator = this.condOperatorAt()!;
 				this.pos += operator.length;
 				cmd.words.push({ text: operator, quoted: true, dynamic: false });
-			} else if (src.startsWith(ARITHMETIC_COMMAND, this.pos) && atCommandPosition(cmd) && this.skipArithmetic()) {
+			} else if (src.startsWith(ARITHMETIC_COMMAND, this.pos) && (atCommandPosition(cmd) || isForHeader(cmd)) && this.skipArithmetic()) {
 				cmd.words.push({ text: ARITHMETIC_COMMAND, quoted: true, dynamic: true });
 				hasContent = true;
 			} else if (ch === CLOSE_PAREN) {
 				this.pos++;
 				finish(false);
-				if (closedByParen) return unterminated;
-			} else if (ch === OPEN_PAREN || ch === SEMICOLON) {
+				if (!endGroup(true) && closedByParen) return unterminated;
+			} else if (ch === SEMICOLON && cases.at(-1) === CASE_BODY && this.caseTerminatorAt() !== undefined) {
+				this.pos += this.caseTerminatorAt()!.length;
+				finish(false);
+				cases[cases.length - 1] = CASE_PATTERNS;
+			} else if (ch === OPEN_PAREN) {
+				this.pos++;
+				startGroup(true);
+			} else if (ch === SEMICOLON) {
 				this.pos++;
 				finish(false);
 			} else if (src.startsWith(PIPE_AND, this.pos)) {
@@ -176,8 +232,18 @@ class Scanner {
 					if (!dropped) {
 						if (!word.quoted && word.text === COND_OPEN && atCommandPosition(cmd)) inCond = true;
 						else if (!word.quoted && word.text === COND_CLOSE) inCond = false;
+						else if (!word.quoted && word.text === CASE_KEYWORD && atCommandPosition(cmd)) cases.push(CASE_SUBJECT);
+						else if (!word.quoted && word.text === ESAC_KEYWORD && cmd.words.length === 0 && cases.at(-1) === CASE_BODY) cases.pop();
 						cmd.words.push(word);
 						hasContent = true;
+						if (!word.quoted && word.text === IN_KEYWORD && cases.at(-1) === CASE_SUBJECT) {
+							cases[cases.length - 1] = CASE_PATTERNS;
+							finish(false);
+						}
+					} else if (word.text === OPEN_BRACE) {
+						groups.push({ paren: false, piped: !hasContent && cmd.stdin === STDIN_PIPE });
+					} else {
+						endGroup(false);
 					}
 				} else {
 					this.pos++;
@@ -226,6 +292,10 @@ class Scanner {
 			if (src.startsWith(op, p)) return { op, fd, end: p + op.length };
 		}
 		return undefined;
+	}
+
+	private caseTerminatorAt(): string | undefined {
+		return CASE_TERMINATORS.find((terminator) => this.src.startsWith(terminator, this.pos));
 	}
 
 	private condOperatorAt(): string | undefined {
@@ -428,13 +498,25 @@ class Scanner {
 
 		if (src.startsWith(ARITHMETIC_OPEN, start)) {
 			let depth = 2;
+			let unterminated = false;
 			this.pos += ARITHMETIC_OPEN.length;
+			// Substitutions in the body still run, so they are parsed instead of skipped.
 			while (this.pos < src.length && depth > 0) {
-				if (src[this.pos] === OPEN_PAREN) depth++;
-				else if (src[this.pos] === CLOSE_PAREN) depth--;
-				this.pos++;
+				const ch = src[this.pos];
+				if (ch === BACKSLASH) {
+					this.pos += 2;
+				} else if (ch === DOLLAR) {
+					unterminated ||= this.readDollar().unterminated;
+				} else if (ch === BACKTICK) {
+					unterminated ||= this.readBacktick(false).unterminated;
+				} else {
+					if (ch === OPEN_PAREN) depth++;
+					else if (ch === CLOSE_PAREN) depth--;
+					this.pos++;
+				}
 			}
-			return { text: src.slice(start, this.pos), dynamic: true, unterminated: depth > 0 };
+			this.pos = Math.min(this.pos, src.length);
+			return { text: src.slice(start, this.pos), dynamic: true, unterminated: unterminated || depth > 0 };
 		}
 		if (next === OPEN_PAREN) {
 			this.pos += 2;
@@ -529,6 +611,11 @@ const SPLIT_LONG_VALUE = "--split-string=";
 const SPLIT_VALUE_LETTERS = new Set(["u", "C", "P"]);
 const SHORT_VALUE_OPTION = /^-[A-Za-z]$/;
 
+// `for ((init; cond; step))`: the parens after a bare `for` are arithmetic.
+function isForHeader(cmd: SimpleCommand): boolean {
+	return cmd.words.length === 1 && !cmd.words[0].quoted && cmd.words[0].text === FOR_KEYWORD;
+}
+
 // True while only keywords precede, so the next word is where a command (or group opener) can start.
 function atCommandPosition(cmd: SimpleCommand): boolean {
 	return cmd.words.every((word) => !word.quoted && KEYWORDS.has(word.text));
@@ -556,6 +643,11 @@ function wrapper(values: string[], extra: Partial<Pick<WrapperSpec, "positionals
 	};
 }
 
+const COMMAND_NAME = "command";
+// `command -v NAME` and `command -V NAME` look NAME up instead of running it.
+const LOOKUP_LETTERS = new Set(["v", "V"]);
+// These read their standard input themselves, so the command they run does not inherit a pipe.
+const STDIN_CONSUMERS = new Set(["xargs", "parallel"]);
 const TIMEOUT_OPTIONS = ["-s", "-k", "--signal", "--kill-after"];
 const UV_RUN_OPTIONS = [
 	"--with", "--with-requirements", "--with-editable", "--python", "-p", "--directory", "--project", "--env-file", "--package",
@@ -570,7 +662,7 @@ const WRAPPERS = new Map<string, WrapperSpec>([
 	["sudo", wrapper(["-u", "-g", "-h", "-p", "-C", "-r", "-t", "-T", "-U", "-D", "--user", "--group", "--host", "--prompt", "--chdir", "--role", "--type"])],
 	["doas", wrapper(["-u", "-C"])],
 	["env", wrapper(["-u", "-C", "-P", "--unset", "--chdir"], { splits: true })],
-	["command", wrapper([])],
+	[COMMAND_NAME, wrapper([])],
 	["exec", wrapper(["-a"])],
 	["builtin", wrapper([])],
 	["nohup", wrapper([])],
@@ -659,11 +751,21 @@ function skipWrapper(words: Word[], start: number, spec: WrapperSpec): Skipped {
 	return { next: i + spec.positionals };
 }
 
-type Located = { index?: number; split?: Word };
+type Located = { index?: number; split?: Word; consumesStdin?: boolean };
+
+function isLookup(words: Word[], start: number): boolean {
+	for (let i = start; i < words.length; i++) {
+		const text = words[i].text;
+		if (text === OPTION_END || !text.startsWith(OPTION_PREFIX) || text === OPTION_PREFIX) return false;
+		if ([...text.slice(OPTION_PREFIX.length)].some((letter) => LOOKUP_LETTERS.has(letter))) return true;
+	}
+	return false;
+}
 
 // With `env -S`, index is the env word itself and split is the command line it runs.
 function locate(words: Word[]): Located {
 	let i = 0;
+	let consumesStdin = false;
 	while (i < words.length) {
 		const word = words[i];
 		if (ASSIGNMENT.test(word.text)) {
@@ -673,8 +775,10 @@ function locate(words: Word[]): Located {
 		const name = basename(word.text);
 		const spec = WRAPPERS.get(name);
 		if (spec !== undefined) {
+			if (name === COMMAND_NAME && isLookup(words, i + 1)) return {};
+			if (STDIN_CONSUMERS.has(name)) consumesStdin = true;
 			const skipped = skipWrapper(words, i + 1, spec);
-			if (skipped.split !== undefined) return { index: i, split: skipped.split };
+			if (skipped.split !== undefined) return { index: i, split: skipped.split, consumesStdin };
 			i = skipped.next;
 			continue;
 		}
@@ -695,7 +799,7 @@ function locate(words: Word[]): Located {
 			}
 			if (NO_COMMAND.has(word.text)) return {};
 		}
-		return { index: i };
+		return { index: i, consumesStdin };
 	}
 	return {};
 }
@@ -713,13 +817,15 @@ const SHELL_COMMAND_FLAG = "c";
 const SHELL_STDIN_FLAG = "s";
 const PLUS_PREFIX = "+";
 const INPUT_REDIRECT = "<";
+const INPUT_SUBSTITUTION = "<(";
+const SOURCE_NAMES = new Set(["source", "."]);
 const FIND_EXEC_FLAGS = new Set(["-exec", "-execdir", "-ok", "-okdir"]);
 const FD_EXEC_FLAGS = new Set(["-x", "--exec", "-X", "--exec-batch"]);
 const FIND_NAME = "find";
 const FD_NAMES = new Set(["fd", "fdfind"]);
 const EXEC_TERMINATORS = new Set([SEMICOLON, "+"]);
 
-type ShellArgs = { script?: Word; hasFile: boolean };
+type ShellArgs = { script?: Word; file?: Word };
 
 // The first word after the options is the script for -c, else the script file; with -s the words are positional parameters.
 function scanShellArgs(words: Word[], start: number): ShellArgs {
@@ -748,8 +854,16 @@ function scanShellArgs(words: Word[], start: number): ShellArgs {
 		i++;
 	}
 	const next = words[i];
-	if (command) return { script: next, hasFile: false };
-	return { hasFile: !stdin && next !== undefined };
+	if (command) return { script: next };
+	return { file: stdin ? undefined : next };
+}
+
+function isInputSubstitution(text: string, dynamic: boolean): boolean {
+	return dynamic && text.startsWith(INPUT_SUBSTITUTION);
+}
+
+function substitutionScript(text: string): NestedScripts {
+	return { commands: [], opaque: true, substitution: text };
 }
 
 function readsInputFile(cmd: SimpleCommand): boolean {
@@ -779,23 +893,29 @@ function parsedScript(source: string, dynamic: boolean): NestedScripts {
 
 export function nestedScripts(cmd: SimpleCommand): NestedScripts {
 	const none: NestedScripts = { commands: [], opaque: false };
-	const { index, split } = locate(cmd.words);
+	const { index, split, consumesStdin } = locate(cmd.words);
 	if (index === undefined) return none;
 	if (split !== undefined) return parsedScript(split.text, split.dynamic);
 	const name = basename(cmd.words[index].text);
 
 	if (SHELLS.has(name)) {
-		const { script, hasFile } = scanShellArgs(cmd.words, index + 1);
+		const { script, file } = scanShellArgs(cmd.words, index + 1);
 		if (script !== undefined) return parsedScript(script.text, script.dynamic);
-		if (hasFile) return none;
+		if (file !== undefined) return isInputSubstitution(file.text, file.dynamic) ? substitutionScript(file.text) : none;
+		const input = cmd.redirects.find((redirect) => redirect.op === INPUT_REDIRECT && isInputSubstitution(redirect.target, redirect.targetDynamic));
+		if (input !== undefined) return substitutionScript(input.target);
 		if (cmd.stdin === STDIN_HEREDOC && cmd.heredocBody !== undefined) return parsedScript(cmd.heredocBody, false);
 		if (cmd.stdin === STDIN_HERESTRING) {
 			const data = cmd.redirects.find((redirect) => redirect.op === OP_HERESTRING);
 			if (data !== undefined) return parsedScript(data.target, data.targetDynamic);
 		}
 		// The script arrives through a pipe: there is nothing to inspect.
-		if (cmd.stdin === STDIN_PIPE && !readsInputFile(cmd)) return { commands: [], opaque: true, piped: true };
+		if (cmd.stdin === STDIN_PIPE && !consumesStdin && !readsInputFile(cmd)) return { commands: [], opaque: true, piped: true };
 		return none;
+	}
+	if (SOURCE_NAMES.has(name)) {
+		const script = cmd.words.slice(index + 1).find((word) => isInputSubstitution(word.text, word.dynamic));
+		return script === undefined ? none : substitutionScript(script.text);
 	}
 	if (name === FIND_NAME) return { commands: execCommands(cmd.words, index + 1, FIND_EXEC_FLAGS), opaque: false };
 	if (FD_NAMES.has(name)) return { commands: execCommands(cmd.words, index + 1, FD_EXEC_FLAGS), opaque: false };

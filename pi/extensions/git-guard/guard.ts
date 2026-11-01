@@ -266,7 +266,9 @@ function checkCommand(cmd: SimpleCommand, earlier: SimpleCommand[], context: Con
 
 	// nestedScripts is not recursive, so the commands it returns go through checkCommands again.
 	const nested = nestedScripts(cmd);
-	if (nested.opaque && args.some((arg) => arg.dynamic && GIT_WORD.test(arg.text))) violations.push(LABEL_OPAQUE_SHELL);
+	if (nested.substitution !== undefined) {
+		if (GIT_WORD.test(nested.substitution)) violations.push(LABEL_PIPED_SHELL);
+	} else if (nested.opaque && args.some((arg) => arg.dynamic && GIT_WORD.test(arg.text))) violations.push(LABEL_OPAQUE_SHELL);
 	// A shell reading its script from a pipe hides the command; flag it when git appears anywhere upstream.
 	if (nested.piped && (mentionsGit(earlier) || GIT_WORD.test(context.source))) violations.push(LABEL_PIPED_SHELL);
 	checkCommands(nested.commands, context);

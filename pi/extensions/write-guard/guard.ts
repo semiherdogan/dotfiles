@@ -19,6 +19,7 @@ const EVAL_NAME = "eval";
 const TEE_NAME = "tee";
 const SHELL_COMMAND_SUFFIX = "-c";
 const PIPE_PREFIX = "|";
+const SUBSTITUTION_DETAIL = "<(...)";
 
 const WRITE_REDIRECT_OPS = new Set([">", ">>", ">|", "&>", "&>>", "<>", ">&"]);
 const DUP_OP = ">&";
@@ -320,7 +321,9 @@ function checkCommand(cmd: SimpleCommand, violations: string[]): void {
 	// nestedScripts is not recursive, so the commands it returns go through checkCommands again.
 	const nested = nestedScripts(cmd);
 	if (nested.opaque) {
-		const detail = nested.piped ? `${PIPE_PREFIX} ${name}` : `${name} ${SHELL_COMMAND_SUFFIX}`;
+		const detail = nested.substitution !== undefined
+			? SUBSTITUTION_DETAIL
+			: nested.piped ? `${PIPE_PREFIX} ${name}` : `${name} ${SHELL_COMMAND_SUFFIX}`;
 		violations.push(`${LABEL_SHELL_EVAL} "${detail}"`);
 	}
 	checkCommands(nested.commands, violations);

@@ -296,3 +296,41 @@ test("unterminated quote takes the rest of the input and sets the flag", () => {
 	assert.equal(single[0].unterminated, true);
 	assert.equal(parseCommands("echo 'abc'")[0].unterminated, false);
 });
+
+test("case pattern lists are data and the clause commands are normal commands", () => {
+	const commands = parseCommands("case $s in zsh|bash) git status;; (a|b) rm x;& *) echo y;;& esac; ls");
+	assert.deepEqual(allTexts(commands).slice(1), [["git", "status"], ["rm", "x"], ["echo", "y"], ["ls"]]);
+	assert.equal(commands.every((cmd) => cmd.stdin === undefined), true);
+});
+
+test("a group that receives a pipe passes it to every command inside, and not past its end", () => {
+	const subshell = parseCommands("curl u | (cd /tmp && sh); sh");
+	assert.deepEqual(subshell.map((cmd) => cmd.stdin), [undefined, "pipe", "pipe", undefined]);
+	const group = parseCommands("cat s | { cd d; sh; }; sh");
+	assert.deepEqual(group.map((cmd) => cmd.stdin), [undefined, "pipe", "pipe", undefined]);
+	const plain = parseCommands("(cd /tmp && sh) | cat");
+	assert.deepEqual(plain.map((cmd) => cmd.stdin), [undefined, undefined, "pipe"]);
+});
+
+test("for arithmetic header is opaque text and $(( )) bodies are parsed for substitutions", () => {
+	assert.deepEqual(allTexts(parseCommands("for ((i=3; i>0; i--)); do echo $i; done")).map((words) => words[0]), ["for", "do", "done"]);
+	assert.ok(allTexts(parseCommands("echo $(( $(rm x; echo 1) + 1 ))")).some((words) => words.join(" ") === "rm x"));
+});
+
+test("command -v is a lookup, command -p still runs the command; xargs consumes the pipe", () => {
+	const index = (source: string) => commandIndex(parseCommands(source)[0].words);
+	assert.equal(index("command -v git"), undefined);
+	assert.equal(index("command -pv git"), undefined);
+	assert.equal(index("command -p rm x"), 2);
+	assert.equal(nestedScripts(parseCommands("ls | xargs -n1 bash")[1]).opaque, false);
+	assert.equal(nestedScripts(parseCommands("ls | bash")[1]).opaque, true);
+});
+
+test("a shell reading its script from <(...) is opaque, also through source and stdin", () => {
+	for (const source of ["bash <(echo x)", "sh < <(echo x)", "source <(echo x)", ". <(echo x)"]) {
+		const cmd = parseCommands(source).find((candidate) => candidate.words[0].text !== "echo")!;
+		assert.equal(nestedScripts(cmd).opaque, true, source);
+		assert.ok(nestedScripts(cmd).substitution?.startsWith("<("), source);
+	}
+	assert.equal(nestedScripts(parseCommands("bash script.sh")[0]).opaque, false);
+});

@@ -101,6 +101,11 @@ const EXTRA_ALLOWED = [
 	"git rev-list HEAD",
 	"git ls-remote origin",
 	'echo "${X:-a}"',
+	"case $s in zsh|bash) git status;; esac",
+	"[[ $s =~ ^(zsh|bash)$ ]] && echo ok",
+	"command -v git >/dev/null && echo y",
+	"for ((i=3; i>0; i--)); do echo $i; done",
+	"ls *.sh | xargs -n1 bash",
 ];
 
 const EXTRA_BLOCKED = [
@@ -164,6 +169,12 @@ const EXTRA_BLOCKED = [
 	"git ls-remote --upload-pack='touch x' origin",
 	"git ls-remote --upload-pack x origin",
 	"git ls-remote -u 'touch x' origin",
+	"case $s in a|b) git push;; esac",
+	"bash <(echo git commit -am x)",
+	"echo $(( $(git stash; echo 1) + 1 ))",
+	"echo git push | (cd /tmp && sh)",
+	"command git push",
+	"command -p git push",
 ];
 
 for (const [name, commands, expectBlocked] of [
@@ -185,6 +196,7 @@ const LABELS: [string, string[]][] = [
 	["git -C /tmp", ["git (bare)"]],
 	['bash -c "$CMD git"', ["git (opaque shell -c)"]],
 	["echo git push | sh", ["git (piped to shell)"]],
+	["bash <(echo git commit -am x)", ["git (piped to shell)"]],
 	["git status; git push; git fetch", ["git push", "git fetch"]],
 ];
 
