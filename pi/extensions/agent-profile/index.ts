@@ -1,12 +1,26 @@
-import { readdirSync, readlinkSync } from "node:fs";
+import { readdirSync, readFileSync, readlinkSync } from "node:fs";
 import { basename, join } from "node:path";
-import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 
 const PROFILE_EXTENSION = ".json";
 const PROFILES_DIR = "pi/profiles";
 const ACTIVE_PROFILE_FILE = "active.json";
 const SETUP_TIMEOUT_MS = 60_000;
 const ERROR_LINES = 3;
+const RELOAD_REASON = "reload";
+const CUSTOM_ENTRY_TYPE = "custom";
+// Session entry written by pi-open-agents with the active primary agent.
+const OPEN_AGENTS_STATE_ENTRY = "open-agents-state";
+const MODEL_REF_SEPARATOR = "/";
+// Survives ctx.reload(), which reloads this module and drops its state.
+const PENDING_SWITCH_KEY = Symbol.for("dotfiles.agent-profile.pendingSwitch");
+
+type ThinkingLevel = Parameters<ExtensionAPI["setThinkingLevel"]>[0];
+type ProfileAgent = { model?: string; thinking?: ThinkingLevel };
+type PendingSwitchHolder = { [PENDING_SWITCH_KEY]?: string };
+
+const pendingSwitch = globalThis as PendingSwitchHolder;
+let switching = false;
 
 function listProfiles(root: string): string[] {
 	try {
@@ -27,7 +41,55 @@ function activeProfile(root: string): string | undefined {
 	}
 }
 
+function readActiveProfile(root: string): Record<string, ProfileAgent> | undefined {
+	try {
+		return JSON.parse(readFileSync(join(root, PROFILES_DIR, ACTIVE_PROFILE_FILE), "utf8"));
+	} catch {
+		return undefined;
+	}
+}
+
+function activePrimaryAgent(ctx: ExtensionContext): string | undefined {
+	const entry = ctx.sessionManager
+		.getEntries()
+		.filter(
+			(e: { type: string; customType?: string }) =>
+				e.type === CUSTOM_ENTRY_TYPE && e.customType === OPEN_AGENTS_STATE_ENTRY,
+		)
+		.pop() as { data?: { name?: string | null } } | undefined;
+	return entry?.data?.name ?? undefined;
+}
+
+// pi-open-agents restores the primary agent on reload without its model, so the session keeps the old profile's model.
+async function applyPrimaryAgentModel(pi: ExtensionAPI, ctx: ExtensionContext, profile: string): Promise<void> {
+	const root = process.env.DOTFILES_BASE;
+	const agent = activePrimaryAgent(ctx);
+	if (!root || !agent) return;
+
+	const settings = readActiveProfile(root)?.[agent];
+	if (!settings?.model) return;
+
+	const separator = settings.model.indexOf(MODEL_REF_SEPARATOR);
+	const model =
+		separator > 0
+			? ctx.modelRegistry.find(settings.model.slice(0, separator), settings.model.slice(separator + 1))
+			: undefined;
+	if (!model || !(await pi.setModel(model))) {
+		ctx.ui.notify(`Profile ${profile}: cannot switch ${agent} to ${settings.model}`, "warning");
+		return;
+	}
+	if (settings.thinking) pi.setThinkingLevel(settings.thinking);
+	ctx.ui.notify(`Profile ${profile} active: ${agent} on ${settings.model}`, "info");
+}
+
 export default function (pi: ExtensionAPI) {
+	pi.on("session_start", async (event, ctx) => {
+		const profile = pendingSwitch[PENDING_SWITCH_KEY];
+		if (event.reason !== RELOAD_REASON || profile === undefined) return;
+		delete pendingSwitch[PENDING_SWITCH_KEY];
+		await applyPrimaryAgentModel(pi, ctx, profile);
+	});
+
 	pi.registerCommand("profile", {
 		description: "Switch the Pi agent profile (pi/profiles) and reload",
 		getArgumentCompletions: (prefix) => {
@@ -54,23 +116,48 @@ export default function (pi: ExtensionAPI) {
 				ctx.ui.notify(`Unknown profile: ${name}. Available: ${names.join(", ")}`, "error");
 				return;
 			}
-
-			const result = await pi.exec(join(root, "bin/setup-pi"), ["--profile", name], {
-				cwd: root,
-				timeout: SETUP_TIMEOUT_MS,
-			});
-			if (result.code !== 0) {
-				const output = result.stderr.trim() ? result.stderr : result.stdout;
-				const lines = output
-					.split("\n")
-					.filter((line) => line.trim())
-					.slice(-ERROR_LINES);
-				ctx.ui.notify(`setup-pi failed: ${lines.join("\n")}`, "error");
+			if (switching) {
+				ctx.ui.notify("A profile switch is already in progress", "warning");
 				return;
 			}
+			switching = true;
 
-			ctx.ui.notify(`Profile ${name} installed, reloading`, "info");
-			await ctx.reload();
+			try {
+				// Pi refuses to reload while the agent runs, so switching mid-run would leave the old runtime loaded.
+				if (!ctx.isIdle()) {
+					ctx.ui.notify(`Profile ${name} will be applied when the current run finishes`, "info");
+					await ctx.waitForIdle();
+				}
+
+				const result = await pi.exec(join(root, "bin/setup-pi"), ["--profile", name], {
+					cwd: root,
+					timeout: SETUP_TIMEOUT_MS,
+				});
+				if (result.code !== 0) {
+					const output = result.stderr.trim() ? result.stderr : result.stdout;
+					const lines = output
+						.split("\n")
+						.filter((line) => line.trim())
+						.slice(-ERROR_LINES);
+					ctx.ui.notify(`setup-pi failed: ${lines.join("\n")}`, "error");
+					return;
+				}
+
+				// A run can start while setup-pi works; reload would then be refused.
+				if (!ctx.isIdle()) await ctx.waitForIdle();
+
+				ctx.ui.notify(`Profile ${name} installed, reloading`, "info");
+				pendingSwitch[PENDING_SWITCH_KEY] = name;
+				try {
+					await ctx.reload();
+				} finally {
+					// Consumed by the reloaded instance; clear it if pi refused or failed the reload so a later /reload does not switch models.
+					delete pendingSwitch[PENDING_SWITCH_KEY];
+				}
+				return;
+			} finally {
+				switching = false;
+			}
 		},
 	});
 }
