@@ -4,7 +4,7 @@ import * as path from "node:path";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { findViolations } from "./guard.ts";
 
-const AGENT_STATE_ENTRY = "open-agents-state";
+const ACTIVE_AGENT_ENTRY = "active_agent";
 const CUSTOM_ENTRY_TYPE = "custom";
 const AGENT_NAME_ENV = "PI_OPEN_AGENTS_NAME";
 const AGENTS_DIR = path.join(os.homedir(), ".pi", "agent", "agents");
@@ -25,7 +25,8 @@ const BLOCK_REASON = [
 ].join(" ");
 
 // getActiveTools() reports edit/write even when the agent cannot call them, so the agent file is the source of truth.
-// Order: env first (set only in subagent children, which may carry forked parent entries), then the last session entry.
+// Order: env first (set only in subagent children, which may carry forked parent entries), then the newest active_agent entry.
+// A null name means "(none)"; open-agents-state is not used because it is not written when the agent is cleared.
 function resolveAgentName(ctx: ExtensionContext): string | undefined {
 	const envName = process.env[AGENT_NAME_ENV];
 	if (envName) return envName;
@@ -33,7 +34,7 @@ function resolveAgentName(ctx: ExtensionContext): string | undefined {
 	const entries = ctx.sessionManager.getEntries();
 	for (let i = entries.length - 1; i >= 0; i--) {
 		const entry = entries[i] as { type?: string; customType?: string; data?: { name?: unknown } };
-		if (entry.type === CUSTOM_ENTRY_TYPE && entry.customType === AGENT_STATE_ENTRY) {
+		if (entry.type === CUSTOM_ENTRY_TYPE && entry.customType === ACTIVE_AGENT_ENTRY) {
 			const name = entry.data?.name;
 			if (typeof name === "string" && name !== "") return name;
 			break;
