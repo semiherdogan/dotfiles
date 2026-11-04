@@ -14,6 +14,7 @@ const OPEN_AGENTS_STATE_ENTRY = "open-agents-state";
 const MODEL_REF_SEPARATOR = "/";
 // Survives ctx.reload(), which reloads this module and drops its state.
 const PENDING_SWITCH_KEY = Symbol.for("dotfiles.agent-profile.pendingSwitch");
+const STATUS_KEY = "agent-profile";
 
 type ThinkingLevel = Parameters<ExtensionAPI["setThinkingLevel"]>[0];
 type ProfileAgent = { model?: string; thinking?: ThinkingLevel };
@@ -84,6 +85,17 @@ async function applyPrimaryAgentModel(pi: ExtensionAPI, ctx: ExtensionContext, p
 
 export default function (pi: ExtensionAPI) {
 	pi.on("session_start", async (event, ctx) => {
+		if (ctx.hasUI) {
+			const root = process.env.DOTFILES_BASE;
+			const active = root ? activeProfile(root) : undefined;
+			// Brackets keep the name apart from the next status; pi joins footer statuses with a single space.
+			const theme = ctx.ui.theme;
+			ctx.ui.setStatus(
+				STATUS_KEY,
+				active ? `${theme.fg("dim", "[")}${theme.fg("accent", active)}${theme.fg("dim", "]")}` : undefined,
+			);
+		}
+
 		const profile = pendingSwitch[PENDING_SWITCH_KEY];
 		if (event.reason !== RELOAD_REASON || profile === undefined) return;
 		delete pendingSwitch[PENDING_SWITCH_KEY];
