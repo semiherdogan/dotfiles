@@ -3,14 +3,6 @@
     "model": "openai/gpt-6-astra",
     "thinking": "medium"
   },
-  "explorer": {
-    "model": "openai/gpt-6-luna",
-    "thinking": "low"
-  },
-  "researcher": {
-    "model": "openai/gpt-6-luna",
-    "thinking": "low"
-  },
   "implementer": {
     "model": "openai/gpt-6.1-sol",
     "escalationModel": "openai/gpt-6-astra",
@@ -19,5 +11,13 @@
   "reviewer": {
     "model": "openai/gpt-6.1-sol",
     "thinking": "high"
+  },
+  "explorer": {
+    "model": "openai/gpt-6-luna",
+    "thinking": "low"
+  },
+  "researcher": {
+    "model": "openai/gpt-6-luna",
+    "thinking": "low"
   }
 }
