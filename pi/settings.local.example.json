@@ -1,5 +1,8 @@
 {
   "packages": [
     "npm:pi-claude-bridge"
-  ]
+  ],
+  "codexBridge": {
+    "codexPath": "/Applications/ChatGPT.app/Contents/Resources/codex-cli/bin/codex"
+  }
 }

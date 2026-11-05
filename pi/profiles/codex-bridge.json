@@ -1,0 +1,23 @@
+{
+  "architect": {
+    "model": "codex-bridge/gpt-6-astra",
+    "thinking": "medium"
+  },
+  "implementer": {
+    "model": "codex-bridge/gpt-6.1-sol",
+    "escalationModel": "codex-bridge/gpt-6-astra",
+    "thinking": "medium"
+  },
+  "reviewer": {
+    "model": "codex-bridge/gpt-6.1-sol",
+    "thinking": "high"
+  },
+  "explorer": {
+    "model": "codex-bridge/gpt-6-luna",
+    "thinking": "low"
+  },
+  "researcher": {
+    "model": "codex-bridge/gpt-6-luna",
+    "thinking": "low"
+  }
+}

@@ -11,7 +11,7 @@ pi/
   extensions/                   one directory per Pi extension
   skills/                       shared skills
   skills-local/                 machine-local skills (gitignored, override shared ones by name)
-  profiles/                     per-agent model profiles (claude-bridge.json, openai.json)
+  profiles/                     per-agent model profiles (claude-bridge.json, codex-bridge.json, openai.json)
     active.json                 symlink to the selected profile (gitignored)
   settings.json                 managed Pi settings
   settings.local.json           machine-specific settings (gitignored, see settings.local.example.json)
@@ -59,6 +59,7 @@ The `packages` array in `settings.json` is authoritative and replaced wholesale,
 - `subagent-status`: shows running `pi-open-agents` subagents in the footer as `agent provider/model-id`. The provider comes from the call's `model` override or the agent file, so it stays visible after the child reports a bare model id.
 - `review-gate`: when the active agent is `architect` and `implementer` changed the working tree, asks for one `reviewer` round if the architect gives its final answer without one, and never after two `reviewer` rounds in a run. Other agents get no automatic review.
 - `change-review`: `/review-summary [focus]` asks the agent for a pinpoint review of the working tree and opens the report. It never runs on its own.
+- `codex-bridge`: `codex-bridge/*` models that run through the Codex CLI app-server, so turns use the ChatGPT/Codex subscription bucket while pi's own tools run in pi. Needs `codexBridge.codexPath` (the Codex CLI binary) in `settings.local.json`; without it the provider is not registered. Codex built-in tools are disabled and threads run read-only. pi's tools reach the model through Codex code mode (`functions.exec`); Codex's multi-agent `collaboration.*` tools are turned off with a generated `model_catalog_json` override.
 
 ## Keybindings
 
