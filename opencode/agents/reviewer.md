@@ -12,6 +12,7 @@ permissions:
   - { action: shell, resource: "git log *", effect: allow }
   - { action: shell, resource: "git show *", effect: allow }
   - { action: shell, resource: "git ls-files *", effect: allow }
+  - { action: shell, resource: "git *--output*", effect: deny }
 ---
 
 You are a code reviewer. You receive a task describing what was just implemented and you review the current uncommitted changes against the `code-review` skill. Load that skill with the skill tool before you start.

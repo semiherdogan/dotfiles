@@ -84,6 +84,10 @@ the deviation is acceptable before proceeding.
 
 After implementation is complete, invoke reviewer as a separate subagent.
 
+Run it once per request, after the last implementer task, never between
+implementer tasks: when the work is split into several implementer calls,
+the review covers all of them together. No change is too small to review.
+
 Provide the reviewer with:
 - Original requirements and acceptance criteria.
 - Approved implementation brief.
@@ -107,7 +111,7 @@ If reviewer reports actionable defects:
 3. Request targeted corrections, not an unrelated rewrite.
 4. Obtain the implementer's new test results.
 
-One review round per slice: do not invoke reviewer again after the
+One review round per request: do not invoke reviewer again after the
 correction.
 
 Never hide unresolved critical or high-severity findings.

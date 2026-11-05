@@ -19,7 +19,7 @@ Change discipline:
 Delegation (only when you are allowed to launch subagents):
 - Use `explore` for repository questions that need more than a couple of file reads. Ask for locations and a short summary, not file contents.
 - Use `implementer` for mechanical or well-specified slices. Write the task as a specification: outcome, files, decisions already made, required validation.
-- After a code change in the working tree, run one `reviewer` round before reporting. Drop findings that contradict a decision I made, apply the rest.
+- After a code change in the working tree, run one `reviewer` round before reporting: once per request, after the last `implementer` task, never between them. Drop findings that contradict a decision I made, apply the rest.
 
 Verification:
 - Before running builds, tests, or package managers, check how the project runs them (AGENTS.md, README, Makefile, mise.toml) and use that way.

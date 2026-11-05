@@ -12,7 +12,7 @@ opencode/
   agents/                       agent definitions (architect, implementer, reviewer)
   commands/                     slash commands (/review)
   instructions/                 extra instruction files loaded through `instructions`
-  profiles/                     per-agent model profiles (claude-code.json)
+  profiles/                     per-agent model profiles (claude-code.json, openai.json)
     active.json                 symlink to the selected profile (gitignored)
     work*.json                  machine-specific profiles (gitignored)
 ```
@@ -37,6 +37,9 @@ It never touches `service.json`. Arrays such as `plugins` and `permissions` are 
 | Profile | Default model | `explore` | `implementer` | `reviewer` | `architect` |
 | --- | --- | --- | --- | --- | --- |
 | `claude-code` | `claude-code/claude-opus-5-5[1m]` | `claude-sonnet-5-5#low` | `claude-sonnet-5-5#medium` | `claude-opus-5-5[1m]#high` | `claude-opus-5-5[1m]#high` |
+| `openai` | `openai/gpt-6-astra` | `gpt-6-luna#low` | `gpt-6.1-sol#medium` | `gpt-6.1-sol#high` | `gpt-6-astra#medium` |
+
+`openai` uses the built-in ChatGPT sign-in (`/connect`, OpenAI, Sign in with ChatGPT), so no bridge is needed.
 
 The root `model` takes no `#variant`: OpenCode V2 drops it for the default model. Set variants per agent.
 
@@ -54,7 +57,8 @@ The jq deep merge replaces arrays wholesale at both stages: a `permissions`, `pl
 
 - `shell` is `/bin/zsh` for the terminal and shell tools.
 - `compaction.auto` is `false`; compact manually with `/compact`.
-- `permissions` denies every `git` shell command except `status`, `log`, `diff`, `show`, `ls-files`.
+- `permissions` denies every `git` shell command except read-only inspection: `status`, `log`, `diff`, `show`, `ls-files`, `blame`, `describe`, `shortlog`, `rev-parse`, `rev-list`, `cat-file`, `ls-tree`, `merge-base`, `for-each-ref`, `show-ref`, `check-ignore`, `stash list/show`, `worktree list`, `config --get`, plus the exact forms `git branch`, `git branch --show-current`, `git tag`, `git remote`, `git remote -v`. `--output` is denied globally and in `reviewer` (wildcard match on the command text, so best effort). Wildcards cannot check flags the way pi's git-guard does, so `git grep` stays denied (grouped short flags such as `-iOsh` run a pager command) and `branch`, `tag`, `remote` are limited to those exact forms.
+- `default_agent` is `architect`.
 - `/review` runs the `reviewer` subagent on the uncommitted working tree.
 - `architect` is a read-only primary agent: it designs, delegates code changes to `implementer`, and verifies them with `reviewer`.
 
@@ -66,3 +70,7 @@ The jq deep merge replaces arrays wholesale at both stages: a `permissions`, `pl
 - `skill-newline`: the `skill` tool loads skills, no slash expansion to fix.
 - `agent-profile`: use `bin/setup-opencode --profile NAME` from a shell.
 - `researcher` agent: built-in `webfetch` and `websearch` tools replace it.
+- `review-gate`: no plugin; the `architect` prompt requires one `reviewer` round per request.
+- `change-review` (`/review-summary`): use `/review`.
+- `subagent-status`: the TUI already shows child sessions.
+- `codex-bridge`: the `openai` profile uses the built-in ChatGPT sign-in.

@@ -1,0 +1,9 @@
+{
+  "model": "openai/gpt-6-astra",
+  "agents": {
+    "explore": { "model": "openai/gpt-6-luna#low" },
+    "implementer": { "model": "openai/gpt-6.1-sol#medium" },
+    "reviewer": { "model": "openai/gpt-6.1-sol#high" },
+    "architect": { "model": "openai/gpt-6-astra#medium" }
+  }
+}
