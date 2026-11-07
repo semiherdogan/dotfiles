@@ -26,6 +26,9 @@ permission:
     "wc": allow
     "head": allow
     "tail": allow
+    "cat": allow
+    "od": allow
+    "hexdump": allow
     "sort": allow
     "cut": allow
     "tr": allow
