@@ -4,8 +4,45 @@ description: Read-only repository scout on a cheaper model. Answers "where is X,
 mode: subagent
 thinking: low
 color: "#4EA8DE"
-# Enforced as the child's --tools whitelist. permission blocks are ignored for subagents; git policy comes from the git-guard extension.
+# `tools` is the child's --tools whitelist; `permission` is enforced by the runtime policy (see pi-open-agents PERMISSIONS.md).
 tools: [read, grep, find, ls, bash]
+permission:
+  edit: deny
+  write: deny
+  bash:
+    "git status": allow
+    "git diff": allow
+    "git log": allow
+    "git show": allow
+    "git rev-parse": allow
+    "git ls-files": allow
+    "git blame": allow
+    "git branch": allow
+    "git merge-base": allow
+    "git remote": allow
+    "rg": allow
+    "fd": allow
+    "ls": allow
+    "wc": allow
+    "head": allow
+    "tail": allow
+    "sort": allow
+    "cut": allow
+    "tr": allow
+    "jq": allow
+    "diff": allow
+    "stat": allow
+    "pwd": allow
+    "cd": allow
+    "echo": allow
+    "printf": allow
+    "test": allow
+    "true": allow
+    "date": allow
+    "which": allow
+    "basename": allow
+    "dirname": allow
+    "realpath": allow
 ---
 
 You are a repository scout. You receive a question about the codebase and you answer it with locations and a short summary, so your caller does not have to read the files itself.

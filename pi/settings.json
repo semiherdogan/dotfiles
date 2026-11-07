@@ -5,8 +5,7 @@
     "enabled": false
   },
   "packages": [
-    "https://github.com/ayghri/i-have-adhd",
-    "npm:pi-open-agents"
+    "https://github.com/ayghri/i-have-adhd"
   ],
   "terminal": {
     "showTerminalProgress": true

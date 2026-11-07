@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "alwaysDeny": {
+    "gitWrite": true,
+    "paths": [
+      "~/.ssh/**",
+      "~/.aws/**",
+      "~/.gnupg/**",
+      "~/.config/gh/**"
+    ],
+    "bash": [
+      "npm publish",
+      "pnpm publish",
+      "yarn publish"
+    ]
+  }
+}

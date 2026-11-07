@@ -1,6 +1,7 @@
 {
   "packages": [
-    "npm:pi-claude-bridge"
+    "npm:pi-claude-bridge",
+    "/Users/semih/Projects/pi-open-agents"
   ],
   "codexBridge": {
     "codexPath": "/Applications/ChatGPT.app/Contents/Resources/codex-cli/bin/codex"

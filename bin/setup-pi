@@ -14,6 +14,8 @@ PI_ACTIVE_PROFILE="$PI_DIR/profiles/$ACTIVE_PROFILE_NAME.json"
 PI_MODELS_LOCAL="$PI_DIR/models.local.json"
 PI_SETTINGS="$PI_DIR/settings.json"
 PI_SETTINGS_LOCAL="$PI_DIR/settings.local.json"
+PI_PERMISSIONS="$PI_DIR/permissions.json"
+PI_PERMISSIONS_LOCAL="$PI_DIR/permissions.local.json"
 PI_ADHD_CONFIG="$PI_DIR/i-have-adhd.json"
 PI_KEYBINDINGS="$PI_DIR/keybindings.json"
 PI_INSTRUCTIONS="$PI_DIR/AGENTS.md"
@@ -320,6 +322,37 @@ pi_settings_overlay() {
     ' "$PI_SETTINGS" "$PI_SETTINGS_LOCAL"
 }
 
+pi_permissions_overlay() {
+    local local_permissions="$PI_PERMISSIONS_LOCAL"
+
+    [ -f "$local_permissions" ] || local_permissions="/dev/null"
+
+    # The deep merge replaces arrays wholesale, so list entries from both files are concatenated and deduplicated.
+    jq -s '
+        def union($a; $b): reduce (($a // []) + ($b // []))[] as $x ([]; if index([$x]) then . else . + [$x] end);
+        (.[0]) as $base | (.[1] // {}) as $local
+        | reduce (["trustedProjects"], ["alwaysDeny", "paths"], ["alwaysDeny", "tools"], ["alwaysDeny", "bash"]) as $p
+            ($base * $local;
+                if ($base | getpath($p)) != null or ($local | getpath($p)) != null
+                then setpath($p; union($base | getpath($p); $local | getpath($p)))
+                else . end)
+    ' "$PI_PERMISSIONS" "$local_permissions"
+}
+
+# Written whole, never merged into the installed file: the repo is the source of truth for the policy.
+install_pi_permissions() {
+    local target="$1"
+    local tmp
+
+    tmp="$(mktemp "${target}.tmp.XXXXXX")"
+    if ! pi_permissions_overlay > "$tmp" || ! jq -e '.version == 1' "$tmp" >/dev/null; then
+        rm -f "$tmp"
+        echo "Invalid Pi permission policy: $PI_PERMISSIONS (+ $PI_PERMISSIONS_LOCAL). Expected version 1." >&2
+        exit 1
+    fi
+    mv "$tmp" "$target"
+}
+
 install_pi() {
     local pi_base="$HOME/.pi/agent"
 
@@ -334,6 +367,7 @@ install_pi() {
     pi_settings_overlay > "$settings_overlay"
     merge_json_object "$pi_base/settings.json" "$settings_overlay"
     rm -f "$settings_overlay"
+    install_pi_permissions "$pi_base/permissions.json"
     merge_json_object "$pi_base/i-have-adhd.json" "$PI_ADHD_CONFIG"
     merge_json_object "$pi_base/keybindings.json" "$PI_KEYBINDINGS"
     if [ -f "$PI_MODELS_LOCAL" ]; then
@@ -350,6 +384,10 @@ install_pi() {
     echo "Merged Pi settings into $pi_base/settings.json"
     if [ -f "$PI_SETTINGS_LOCAL" ]; then
         echo "Merged Pi local settings from $PI_SETTINGS_LOCAL"
+    fi
+    echo "Installed Pi permission policy to $pi_base/permissions.json"
+    if [ -f "$PI_PERMISSIONS_LOCAL" ]; then
+        echo "Merged Pi local permissions from $PI_PERMISSIONS_LOCAL"
     fi
     echo "Merged i-have-adhd config into $pi_base/i-have-adhd.json"
     echo "Merged Pi keybindings into $pi_base/keybindings.json"

@@ -15,6 +15,8 @@ pi/
     active.json                 symlink to the selected profile (gitignored)
   settings.json                 managed Pi settings
   settings.local.json           machine-specific settings (gitignored, see settings.local.example.json)
+  permissions.json              shared pi-open-agents permission policy
+  permissions.local.json        machine-specific policy, e.g. trustedProjects (gitignored, see permissions.local.example.json)
   i-have-adhd.json              i-have-adhd extension config
   keybindings.json              managed keybindings
   models.local.json             custom endpoints (gitignored, see models.local.example.json)
@@ -30,6 +32,7 @@ Rerun it after changing anything in `pi/`. It writes:
 
 - `~/.pi/agent/AGENTS.md`, `agents/`, `extensions/`, `skills/`
 - `~/.pi/agent/settings.json`, `i-have-adhd.json`, `keybindings.json` (merged into existing files)
+- `~/.pi/agent/permissions.json` (`permissions.json` plus `permissions.local.json`, written whole; edits made directly in the installed file are lost)
 - `~/.pi/agent/models.json` (merged, only when `models.local.json` exists)
 
 ## Profiles
@@ -42,11 +45,15 @@ Prompts reference effective values as `{{agent.field}}` (for example `{{implemen
 
 ## Agents
 
-The agents come from `pi-open-agents`: `architect` holds the conversation and delegates to `explorer` (read-only lookups), `implementer` (file work), and `reviewer` (read-only review of the working tree). `architect` is marked `readOnly: true` and the write-guard extension blocks its `edit`, `write` and shell writes, so every file change goes through `implementer`. It does not deny the tools itself: since pi-open-agents 0.1.27 a primary's active tool set is the ceiling for its subagents, so a deny would also strip `edit`/`write` from `implementer`. A project opts in with `"defaultAgent": "architect"` in its `.pi/settings.json`, and can override any agent with a full file in `.pi/agents/`.
+The agents come from `pi-open-agents`, installed from the personal fork per machine through `settings.local.json` (a local checkout path during the trial; the shared settings will later use `https://github.com/semiherdogan/pi-open-agents`). A machine without that local entry has no agent extension. `architect` holds the conversation and delegates to `explorer` (read-only lookups), `researcher` (web lookups), `implementer` (file work), and `reviewer` (read-only review of the working tree).
+
+Permissions come from the fork's runtime policy (see its `PERMISSIONS.md`): `permissions.json` turns on strict mode, and each agent's frontmatter `permission` block lists what it may run; unlisted bash commands, edits and writes are denied, git writes are hard denied for every agent. The `alwaysDeny` paths are protected from reads and writes by every agent, and the built-in protected paths (`.git`, `.pi`, `.opencode`, `.agents`, the agent dir) are write-protected. `architect` denies `edit` and `write` and delegates in `role` mode, so each child runs with its own permissions instead of being capped by the architect's, and every file change goes through `implementer`. During the trial `architect` also keeps `readOnly: true` for the write-guard extension. A project opts in with `"defaultAgent": "architect"` in its `.pi/settings.json`, and can override any agent with a full file in `.pi/agents/`.
 
 ## Settings merge
 
-The `packages` array in `settings.json` is authoritative and replaced wholesale, so a package added with `pi install` is reverted on the next run. `settings.local.json` is deep-merged on top; its `packages` are concatenated with the shared ones and deduplicated. This is how `pi-claude-bridge` is installed on one machine only.
+The `packages` array in `settings.json` is authoritative and replaced wholesale, so a package added with `pi install` is reverted on the next run. `settings.local.json` is deep-merged on top; its `packages` are concatenated with the shared ones and deduplicated. This is how `pi-claude-bridge` and the local `pi-open-agents` fork are installed on one machine only.
+
+`permissions.local.json` is merged into `permissions.json` the same way: objects deep-merged, `trustedProjects` and the `alwaysDeny` lists concatenated and deduplicated. The result must have `"version": 1` or the install fails.
 
 ## Extensions
 
