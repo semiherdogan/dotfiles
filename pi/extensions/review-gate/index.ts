@@ -1,17 +1,20 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
-import { activeAgent, ARCHITECT, type GateState, initialState, recordToolResult, wantsReview } from "./gate.ts";
+import { activeAgent, ARCHITECT, type GateState, initialState, recordToolResult, requestReason, wantsReview } from "./gate.ts";
 
 const REQUEST_MESSAGE_TYPE = "review-gate-request";
 const USER_RUN = "user";
 // Set to > 0 by pi-open-agents in subagent children; the gate belongs to the primary only.
 const DEPTH_ENV = "PI_OPEN_AGENTS_DEPTH";
-const REQUEST = [
-	"Review gate: implementer changed the working tree and no `reviewer` round has run yet.",
+const REQUEST_TAIL = [
 	"Delegate one review of the current working-tree changes to the `reviewer` subagent, handing it the outcome and design decisions you gave the implementer.",
 	"Filter its findings against your decisions, send what remains to `implementer` as one corrective task, do not re-review after the fix, then give your final answer.",
 	"This message comes from the gate, not the user: keep subagent tasks in English, and write your final answer to the user in the language of the human's last message before this gate message.",
 ].join(" ");
+
+function buildRequest(state: GateState): string {
+	return `Review gate: ${requestReason(state)} ${REQUEST_TAIL}`;
+}
 
 function isSubagentProcess(): boolean {
 	const depth = Number(process.env[DEPTH_ENV]);
@@ -53,7 +56,7 @@ export default function reviewGate(pi: ExtensionAPI) {
 		return {
 			entries: [
 				...event.entries,
-				{ type: "custom_message", customType: REQUEST_MESSAGE_TYPE, content: REQUEST, display: true },
+				{ type: "custom_message", customType: REQUEST_MESSAGE_TYPE, content: buildRequest(state), display: true },
 			],
 			continue: true,
 		};

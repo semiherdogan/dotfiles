@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { ACTIVE_AGENT_ENTRY, activeAgent, ARCHITECT, IMPLEMENTER, initialState, MAX_REVIEW_ROUNDS, OUTCOME_COMPLETED, recordToolResult, REVIEWER, SUBAGENT_TOOL, wantsReview } from "./gate.ts";
+import { ACTIVE_AGENT_ENTRY, activeAgent, ARCHITECT, IMPLEMENTER, initialState, MAX_REVIEW_ROUNDS, OUTCOME_COMPLETED, recordToolResult, requestReason, REVIEWER, SUBAGENT_TOOL, wantsReview } from "./gate.ts";
 
 const CWD = "/repo";
 const finalTurn = { toolCallCount: 0, outcome: OUTCOME_COMPLETED };
@@ -90,6 +90,19 @@ test("does not continue an aborted or failed run", () => {
 	recordToolResult(state, SUBAGENT_TOOL, { agent: IMPLEMENTER }, CWD);
 	assert.equal(wantsReview(state, { ...finalTurn, outcome: "aborted" }), false);
 	assert.equal(wantsReview(state, { ...finalTurn, outcome: "error" }), false);
+});
+
+test("requestReason says no reviewer round ran when none did", () => {
+	const state = initialState();
+	recordToolResult(state, SUBAGENT_TOOL, { agent: IMPLEMENTER }, CWD);
+	assert.equal(requestReason(state), "implementer changed the working tree and no `reviewer` round has run yet.");
+});
+
+test("requestReason says the change came after the last reviewer round", () => {
+	const state = initialState();
+	recordToolResult(state, SUBAGENT_TOOL, { agent: REVIEWER }, CWD);
+	recordToolResult(state, SUBAGENT_TOOL, { agent: IMPLEMENTER }, CWD);
+	assert.equal(requestReason(state), "implementer changed the working tree after the last `reviewer` round.");
 });
 
 test("activeAgent reads the newest active_agent entry and treats a null name as none", () => {

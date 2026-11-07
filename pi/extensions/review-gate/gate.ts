@@ -11,6 +11,8 @@ const CUSTOM_ENTRY_TYPE = "custom";
 // Bounds review rounds per user message: an architect-run review/fix cycle leaves an implementer call after the last reviewer, which would otherwise ask again.
 export const MAX_REVIEW_ROUNDS = 2;
 
+const NO_REVIEWER_ROUNDS = 0;
+
 export type GateState = {
 	// Working directories implementer ran in during this run; empty means it did not run.
 	implementerCwds: Set<string>;
@@ -54,6 +56,11 @@ export function wantsReview(state: GateState, turn: TurnInfo): boolean {
 	if (turn.outcome !== OUTCOME_COMPLETED) return false;
 	if (state.reviewerRounds >= MAX_REVIEW_ROUNDS) return false;
 	return state.unreviewed && !state.requested;
+}
+
+export function requestReason(state: GateState): string {
+	if (state.reviewerRounds === NO_REVIEWER_ROUNDS) return "implementer changed the working tree and no `reviewer` round has run yet.";
+	return "implementer changed the working tree after the last `reviewer` round.";
 }
 
 // Newest active_agent entry wins; a null name means no agent is active.
