@@ -19,6 +19,10 @@ PI_PERMISSIONS_LOCAL="$PI_DIR/permissions.local.json"
 PI_ADHD_CONFIG="$PI_DIR/i-have-adhd.json"
 PI_KEYBINDINGS="$PI_DIR/keybindings.json"
 PI_INSTRUCTIONS="$PI_DIR/AGENTS.md"
+PI_VIRTUAL_MODEL_PROVIDER="profile"
+PI_ESCALATION_ROUTE_SUFFIX="-escalation"
+PI_MODEL_ROUTES_FILE="agent-profile.json"
+PI_SUBAGENT_MODE="subagent"
 PROFILE=""
 
 usage() {
@@ -189,9 +193,9 @@ install_managed_files() {
 validate_pi_agent_overrides() {
     local agent
 
-    jq -e '
+    jq -e --arg virtual_prefix "$PI_VIRTUAL_MODEL_PROVIDER/" '
         def thinking_levels: ["off", "minimal", "low", "medium", "high", "xhigh", "max"];
-        def model_ref: type == "string" and test("^[^/[:space:]]+/[^[:space:]]+$");
+        def model_ref: type == "string" and test("^[^/[:space:]]+/[^[:space:]]+$") and (startswith($virtual_prefix) | not);
         type == "object" and all(to_entries[];
             (.key | test("^[a-zA-Z0-9_-]+$")) and
             (.value | type == "object" and
@@ -205,7 +209,7 @@ validate_pi_agent_overrides() {
             )
         )
     ' "$PI_ACTIVE_PROFILE" >/dev/null || {
-        echo "Invalid Pi agent overrides: $PI_ACTIVE_PROFILE. Expected agent objects with model and/or escalationModel (provider/model-id) and/or thinking." >&2
+        echo "Invalid Pi agent overrides: $PI_ACTIVE_PROFILE. Expected agent objects with model and/or escalationModel (provider/model-id) and/or thinking. Model values must be physical provider/model ids, not $PI_VIRTUAL_MODEL_PROVIDER/... ids." >&2
         exit 1
     }
 
@@ -249,8 +253,36 @@ pi_agent_vars() {
     '
 }
 
+# Subagents get a virtual model id in their frontmatter; the physical models live in the routes file,
+# so a profile switch never leaves a stale model id in a running architect's context.
+install_pi_model_routes() {
+    local routes_file="$1"
+    local vars="$2"
+    local subagents="$3"
+    local tmp
+
+    tmp="$(mktemp "${routes_file}.tmp.XXXXXX")"
+    if ! jq -n --argjson vars "$vars" --arg names "$subagents" --arg suffix "$PI_ESCALATION_ROUTE_SUFFIX" '
+        def route($model; $thinking): {model: $model} + (if $thinking == null then {} else {thinking: $thinking} end);
+        $names | split("\n") | map(select(. != "")) | reduce .[] as $agent ({};
+            . + {
+                ($agent): route($vars[$agent].model; $vars[$agent].thinking),
+                ($agent + $suffix): route($vars[$agent].escalationModel; $vars[$agent].thinking)
+            })
+    ' > "$tmp"; then
+        rm -f "$tmp"
+        echo "Cannot build Pi model routes" >&2
+        exit 1
+    fi
+    mv "$tmp" "$routes_file"
+    echo "Installed Pi model routes to $routes_file"
+}
+
 install_pi_agents() (
     local target="$1"
+    local routes_file="$2"
+    local subagents=""
+    local is_subagent
     local prepared
     local overrides
     local vars
@@ -281,8 +313,16 @@ install_pi_agents() (
 
     for item in "$PI_AGENTS_DIR"/*.md; do
         agent="$(basename "$item" .md)"
-        jq -Rrsj --slurpfile overrides "$overrides" --argjson vars "$vars" --arg agent "$agent" '
-            ($overrides[0][$agent] // {} | del(.escalationModel)) as $fields |
+        is_subagent="$(jq -Rrs --arg mode "$PI_SUBAGENT_MODE" '
+            capture("\\A---\\n(?<header>[\\s\\S]*?)\\n---(?:\\n|$)").header | test("(?m)^mode:[ \\t]*[\"\u0027]?" + $mode + "[\"\u0027]?[ \\t]*$")
+        ' "$item")"
+        if [ "$is_subagent" = true ]; then
+            subagents="$subagents$agent"$'\n'
+        fi
+        jq -Rrsj --slurpfile overrides "$overrides" --argjson vars "$vars" --arg agent "$agent" \
+            --argjson subagent "$is_subagent" --arg provider "$PI_VIRTUAL_MODEL_PROVIDER" '
+            ($overrides[0][$agent] // {} | del(.escalationModel)
+                | if $subagent then . + {model: ($provider + "/" + $agent)} else . end) as $fields |
             (if $fields == {} then . else
                 capture("\\A(?<start>---\\n)(?<header>[\\s\\S]*?)(?<end>\\n---(?:\\n|$))(?<body>[\\s\\S]*)\\z") as $doc |
                 (reduce ($fields | to_entries[]) as $field ($doc.header;
@@ -303,6 +343,7 @@ install_pi_agents() (
             exit 1
         fi
     done
+    install_pi_model_routes "$routes_file" "$vars" "$subagents"
     install_managed_files "$prepared" "$target"
 )
 
@@ -361,7 +402,7 @@ install_pi() {
     echo "Installed Pi instructions to $pi_base/AGENTS.md"
 
     install_managed_directories "$PI_EXTENSIONS_DIR" "$pi_base/extensions"
-    install_pi_agents "$pi_base/agents"
+    install_pi_agents "$pi_base/agents" "$pi_base/$PI_MODEL_ROUTES_FILE"
     local settings_overlay
     settings_overlay="$(mktemp)"
     pi_settings_overlay > "$settings_overlay"

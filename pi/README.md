@@ -39,7 +39,7 @@ Rerun it after changing anything in `pi/`. It writes:
 
 Agent models and thinking levels come from `profiles/*.json`, keyed by the filenames in `agents/` without `.md`. A profile must set `model` for every agent; `thinking` and `escalationModel` are optional. `escalationModel` defaults to the `architect` model.
 
-Prompts reference effective values as `{{agent.field}}` (for example `{{implementer.escalationModel}}`); setup substitutes them at install time, so no prompt hardcodes a model id.
+Prompts reference effective values as `{{agent.field}}` (for example `{{implementer.model}}`); setup substitutes them at install time, so no prompt hardcodes a model id. Subagent frontmatter gets `model: profile/<agent>` instead of the physical id, and setup writes the routes to `~/.pi/agent/agent-profile.json`; escalation is `profile/<agent>-escalation`.
 
 `profiles/active.json` is the selected profile. Select one with `bin/setup-pi --profile NAME`, or inside Pi with `/profile [name]`, which runs the same command and reloads. The command needs `DOTFILES_BASE`, exported by `bootstrap.sh`. Invalid values, unknown agent names, a missing model, or an unresolved placeholder fail the install.
 
@@ -62,7 +62,7 @@ The `packages` array in `settings.json` is authoritative and replaced wholesale,
 - `write-guard`: blocks `edit`, `write` and shell file writes for agents marked `readOnly: true` or without edit/write tools.
 - `claude-usage`: shows Claude usage only for the `claude-bridge` or `anthropic` provider; reads the Claude Code keychain item.
 - `skill-newline`: lets `/skill:name` expand when its args start on a new line.
-- `agent-profile`: `/profile` command to switch the agent profile and reload.
+- `agent-profile`: `/profile` command to switch the agent profile and reload. Registers the `profile/<agent>` virtual models from `agent-profile.json` (each routes to the active profile's physical model) and blocks any other model id on `subagent` calls.
 - `review-gate`: when the active agent is `architect` and `implementer` changed the working tree, asks for one `reviewer` round if the architect gives its final answer without one, and never after two `reviewer` rounds in a run. Other agents get no automatic review.
 - `change-review`: `/review-summary [focus]` asks the agent for a pinpoint review of the working tree and opens the report. It never runs on its own.
 - `codex-bridge`: `codex-bridge/*` models that run through the Codex CLI app-server, so turns use the ChatGPT/Codex subscription bucket while pi's own tools run in pi. Needs `codexBridge.codexPath` (the Codex CLI binary) in `settings.local.json`; without it the provider is not registered. Codex built-in tools are disabled and threads run read-only. pi's tools reach the model through Codex code mode (`functions.exec`); Codex's multi-agent `collaboration.*` tools are turned off with a generated `model_catalog_json` override.

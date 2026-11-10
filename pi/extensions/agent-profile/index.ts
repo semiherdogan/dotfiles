@@ -1,6 +1,16 @@
 import { readdirSync, readFileSync, readlinkSync } from "node:fs";
 import { basename, join } from "node:path";
-import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
+import { getAgentDir, type ExtensionAPI, type ExtensionContext } from "@earendil-works/pi-coding-agent";
+import {
+	MODEL_ROUTES_FILE,
+	parseModelRoutes,
+	resolveRoute,
+	SUBAGENT_TOOL,
+	subagentModelViolation,
+	THINKING_LEVELS,
+	VIRTUAL_MODEL_PROVIDER,
+	type ModelRoutes,
+} from "./routes.ts";
 
 const PROFILE_EXTENSION = ".json";
 const PROFILES_DIR = "pi/profiles";
@@ -83,8 +93,54 @@ async function applyPrimaryAgentModel(pi: ExtensionAPI, ctx: ExtensionContext, p
 	ctx.ui.notify(`Profile ${profile} active: ${agent} on ${settings.model}`, "info");
 }
 
+// Missing file means setup-pi has not written routes: stay out of the way. An invalid file is reported once.
+function loadModelRoutes(): { routes?: ModelRoutes; error?: string } {
+	let json: string;
+	try {
+		json = readFileSync(join(getAgentDir(), MODEL_ROUTES_FILE), "utf8");
+	} catch {
+		return {};
+	}
+	try {
+		return { routes: parseModelRoutes(json) };
+	} catch (error) {
+		return { error: error instanceof Error ? error.message : String(error) };
+	}
+}
+
 export default function (pi: ExtensionAPI) {
+	// Read once: /profile reloads this module and every subagent is a fresh process.
+	const { routes, error: routesError } = loadModelRoutes();
+
+	if (routes) {
+		for (const [key, route] of Object.entries(routes)) {
+			pi.registerVirtualModel({
+				provider: VIRTUAL_MODEL_PROVIDER,
+				id: key,
+				name: `Profile ${key}`,
+				thinkingLevels: THINKING_LEVELS,
+				route(request, ctx) {
+					return resolveRoute(
+						key,
+						route,
+						(provider, id) => ctx.modelRegistry.find(provider, id),
+						request.thinkingLevel,
+					);
+				},
+			});
+		}
+
+		pi.on("tool_call", async (event) => {
+			if (event.toolName !== SUBAGENT_TOOL) return;
+			const reason = subagentModelViolation((event.input as { model?: unknown }).model, routes);
+			if (reason) return { block: true, reason };
+		});
+	}
+
 	pi.on("session_start", async (event, ctx) => {
+		if (routesError && ctx.hasUI) {
+			ctx.ui.notify(`Invalid ${MODEL_ROUTES_FILE}, profile models disabled: ${routesError}`, "warning");
+		}
 		if (ctx.hasUI) {
 			const root = process.env.DOTFILES_BASE;
 			const active = root ? activeProfile(root) : undefined;
