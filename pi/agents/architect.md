@@ -52,6 +52,9 @@ permission:
     "basename": allow
     "dirname": allow
     "realpath": allow
+    "pandoc": allow
+    "uniq": allow
+    "textutil": allow
 maxDepth: 2
 ---
 
