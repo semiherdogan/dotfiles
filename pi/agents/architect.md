@@ -55,6 +55,8 @@ permission:
     "pandoc": allow
     "uniq": allow
     "textutil": allow
+    "lightpanda fetch": allow
+    "curl": allow
 maxDepth: 2
 ---
 
