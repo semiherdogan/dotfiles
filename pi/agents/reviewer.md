@@ -6,46 +6,10 @@ thinking: medium
 color: "#F4A261"
 # `tools` is the child's --tools whitelist; `permission` is enforced by the runtime policy (see pi-open-agents PERMISSIONS.md).
 tools: [read, grep, find, ls, bash]
+# Shared read-only bash rules (rg, cat, read-only git, ...) come from agents["*"] in pi/permissions.json.
 permission:
   edit: deny
   write: deny
-  bash:
-    "git status": allow
-    "git diff": allow
-    "git log": allow
-    "git show": allow
-    "git rev-parse": allow
-    "git ls-files": allow
-    "git blame": allow
-    "git branch": allow
-    "git merge-base": allow
-    "git remote": allow
-    "rg": allow
-    "fd": allow
-    "ls": allow
-    "wc": allow
-    "head": allow
-    "tail": allow
-    "cat": allow
-    "od": allow
-    "hexdump": allow
-    "sort": allow
-    "cut": allow
-    "tr": allow
-    "jq": allow
-    "diff": allow
-    "stat": allow
-    "pwd": allow
-    "cd": allow
-    "echo": allow
-    "printf": allow
-    "test": allow
-    "true": allow
-    "date": allow
-    "which": allow
-    "basename": allow
-    "dirname": allow
-    "realpath": allow
 skills: code-review
 ---
 

@@ -6,18 +6,13 @@ thinking: low
 color: "#E9C46A"
 # `tools` is the child's --tools whitelist; `permission` is enforced by the runtime policy (see pi-open-agents PERMISSIONS.md).
 tools: [read, bash]
+# Shared read-only bash rules (rg, cat, read-only git, ...) come from agents["*"] in pi/permissions.json.
 permission:
   edit: deny
   write: deny
   bash:
     "lightpanda fetch": allow
     "curl": allow
-    "jq": allow
-    "head": allow
-    "tail": allow
-    "rg": allow
-    "echo": allow
-    "printf": allow
 ---
 
 You are a web researcher. You receive a question that needs information outside the repository and you answer it from the web, so your caller does not have to read the pages itself.

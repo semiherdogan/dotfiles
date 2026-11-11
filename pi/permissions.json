@@ -13,5 +13,51 @@
       "pnpm publish",
       "yarn publish"
     ]
+  },
+  "agents": {
+    "*": {
+      "bash": {
+        "git status": "allow",
+        "git diff": "allow",
+        "git log": "allow",
+        "git show": "allow",
+        "git rev-parse": "allow",
+        "git ls-files": "allow",
+        "git blame": "allow",
+        "git branch": "allow",
+        "git merge-base": "allow",
+        "git remote": "allow",
+        "rg": "allow",
+        "fd": "allow",
+        "fzf": "allow",
+        "ls": "allow",
+        "wc": "allow",
+        "head": "allow",
+        "tail": "allow",
+        "cat": "allow",
+        "od": "allow",
+        "hexdump": "allow",
+        "sort": "allow",
+        "cut": "allow",
+        "tr": "allow",
+        "jq": "allow",
+        "yq": "allow",
+        "diff": "allow",
+        "stat": "allow",
+        "pwd": "allow",
+        "cd": "allow",
+        "echo": "allow",
+        "printf": "allow",
+        "test": "allow",
+        "true": "allow",
+        "date": "allow",
+        "which": "allow",
+        "basename": "allow",
+        "dirname": "allow",
+        "realpath": "allow",
+        "file": "allow",
+        "pandoc": "allow"
+      }
+    }
   }
 }
