@@ -13,9 +13,9 @@ permission:
   write: allow
   bash:
     "uniq": allow
-    "yq": allow
     "file": allow
     "mkdir": allow
+    "mktemp": allow
     "cp": allow
     "mv": allow
     "rm": allow
@@ -41,8 +41,10 @@ permission:
     "cargo test": allow
     "cargo build": allow
     "cargo check": allow
-    "make test": allow
-    "make build": allow
+    "make": allow
+    "npm": allow
+    "node": allow
+    "python3": allow
 ---
 
 You are an implementation agent. You receive a specified task and carry it out in the repository.

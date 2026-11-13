@@ -11,7 +11,8 @@
     "bash": [
       "npm publish",
       "pnpm publish",
-      "yarn publish"
+      "yarn publish",
+      "pi"
     ]
   },
   "agents": {
@@ -27,6 +28,7 @@
         "git branch": "allow",
         "git merge-base": "allow",
         "git remote": "allow",
+        "git reflog": "allow",
         "sed -n": "allow",
         "rg": "allow",
         "fd": "allow",
@@ -58,7 +60,8 @@
         "realpath": "allow",
         "file": "allow",
         "pandoc": "allow",
-        "xxd": "allow"
+        "xxd": "allow",
+        "ps": "allow"
       }
     }
   }
