@@ -30,6 +30,7 @@
         "git remote": "allow",
         "git reflog": "allow",
         "sed -n": "allow",
+        "awk": "allow",
         "rg": "allow",
         "fd": "allow",
         "fzf": "allow",
