@@ -62,7 +62,8 @@
         "file": "allow",
         "pandoc": "allow",
         "xxd": "allow",
-        "ps": "allow"
+        "ps": "allow",
+        "set -o pipefail": "allow"
       }
     }
   }
