@@ -22,7 +22,7 @@ const THINKING_LEVEL_SET: Record<ThinkingLevel, true> = {
 };
 export const THINKING_LEVELS = Object.keys(THINKING_LEVEL_SET) as ThinkingLevel[];
 
-function isThinkingLevel(value: unknown): value is ThinkingLevel {
+export function isThinkingLevel(value: unknown): value is ThinkingLevel {
 	return typeof value === "string" && Object.hasOwn(THINKING_LEVEL_SET, value);
 }
 
@@ -32,8 +32,7 @@ export function splitModelRef(ref: string): { provider: string; id: string } | u
 	return { provider: ref.slice(0, separator), id: ref.slice(separator + 1) };
 }
 
-export function parseModelRoutes(json: string): ModelRoutes {
-	const data: unknown = JSON.parse(json);
+export function toModelRoutes(data: unknown): ModelRoutes {
 	if (typeof data !== "object" || data === null || Array.isArray(data)) {
 		throw new Error("model routes must be a JSON object");
 	}
@@ -53,6 +52,10 @@ export function parseModelRoutes(json: string): ModelRoutes {
 		routes[key] = thinking === undefined ? { model } : { model, thinking };
 	}
 	return routes;
+}
+
+export function parseModelRoutes(json: string): ModelRoutes {
+	return toModelRoutes(JSON.parse(json));
 }
 
 export function resolveRoute<M>(

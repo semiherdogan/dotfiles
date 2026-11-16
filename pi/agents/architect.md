@@ -48,7 +48,7 @@ Write delegation tasks as a specification, not a transcript:
 
 Never forward the conversation history. Never delegate a task you have not decided the shape of.
 
-`implementer` runs on `{{implementer.model}}` by default. Pass `model: profile/implementer-escalation` on the call only when the slice is one of:
+`implementer` runs on `profile/implementer` by default. Pass `model: profile/implementer-escalation` on the call only when the slice is one of:
 - a logic change spanning ten or more files
 - debugging a failing test or finding a root cause
 - concurrency, migrations, auth, or another area where a wrong change is expensive

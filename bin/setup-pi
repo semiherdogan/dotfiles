@@ -22,6 +22,7 @@ PI_INSTRUCTIONS="$PI_DIR/AGENTS.md"
 PI_VIRTUAL_MODEL_PROVIDER="profile"
 PI_ESCALATION_ROUTE_SUFFIX="-escalation"
 PI_MODEL_ROUTES_FILE="agent-profile.json"
+PI_PROFILE_ROUTES_DIR="agent-profiles"
 PI_SUBAGENT_MODE="subagent"
 PROFILE=""
 
@@ -191,6 +192,7 @@ install_managed_files() {
 }
 
 validate_pi_agent_overrides() {
+    local profile="$1"
     local agent
 
     jq -e --arg virtual_prefix "$PI_VIRTUAL_MODEL_PROVIDER/" '
@@ -208,17 +210,17 @@ validate_pi_agent_overrides() {
                 )
             )
         )
-    ' "$PI_ACTIVE_PROFILE" >/dev/null || {
-        echo "Invalid Pi agent overrides: $PI_ACTIVE_PROFILE. Expected agent objects with model and/or escalationModel (provider/model-id) and/or thinking. Model values must be physical provider/model ids, not $PI_VIRTUAL_MODEL_PROVIDER/... ids." >&2
-        exit 1
+    ' "$profile" >/dev/null || {
+        echo "Invalid Pi agent overrides: $profile. Expected agent objects with model and/or escalationModel (provider/model-id) and/or thinking. Model values must be physical provider/model ids, not $PI_VIRTUAL_MODEL_PROVIDER/... ids." >&2
+        return 1
     }
 
     while IFS= read -r agent; do
         if [ ! -f "$PI_AGENTS_DIR/$agent.md" ]; then
-            echo "Unknown Pi agent in $PI_ACTIVE_PROFILE: $agent" >&2
-            exit 1
+            echo "Unknown Pi agent in $profile: $agent" >&2
+            return 1
         fi
-    done < <(jq -r 'keys[]' "$PI_ACTIVE_PROFILE")
+    done < <(jq -r 'keys[]' "$profile")
 }
 
 # Effective per-agent fields: frontmatter values with the local overrides applied on top.
@@ -253,8 +255,40 @@ pi_agent_vars() {
     '
 }
 
+# Prints the effective per-agent fields of a profile, or fails when the profile is invalid or incomplete.
+pi_profile_vars() {
+    local profile="$1"
+    local vars
+    local missing
+
+    validate_pi_agent_overrides "$profile" || return 1
+    vars="$(pi_agent_vars "$profile")" || return 1
+
+    missing="$(jq -r 'to_entries[] | select(.value.model == null or .value.model == "") | .key' <<< "$vars" | tr '\n' ' ')"
+    missing="${missing% }"
+    if [ -n "$missing" ]; then
+        echo "Pi agent profile does not set a model for: $missing ($profile)" >&2
+        return 1
+    fi
+    printf '%s\n' "$vars"
+}
+
 # Subagents get a virtual model id in their frontmatter; the physical models live in the routes file,
 # so a profile switch never leaves a stale model id in a running architect's context.
+pi_model_routes() {
+    local vars="$1"
+    local subagents="$2"
+
+    jq -n --argjson vars "$vars" --arg names "$subagents" --arg suffix "$PI_ESCALATION_ROUTE_SUFFIX" '
+        def route($model; $thinking): {model: $model} + (if $thinking == null then {} else {thinking: $thinking} end);
+        $names | split("\n") | map(select(. != "")) | reduce .[] as $agent ({};
+            . + {
+                ($agent): route($vars[$agent].model; $vars[$agent].thinking),
+                ($agent + $suffix): route($vars[$agent].escalationModel; $vars[$agent].thinking)
+            })
+    '
+}
+
 install_pi_model_routes() {
     local routes_file="$1"
     local vars="$2"
@@ -262,14 +296,7 @@ install_pi_model_routes() {
     local tmp
 
     tmp="$(mktemp "${routes_file}.tmp.XXXXXX")"
-    if ! jq -n --argjson vars "$vars" --arg names "$subagents" --arg suffix "$PI_ESCALATION_ROUTE_SUFFIX" '
-        def route($model; $thinking): {model: $model} + (if $thinking == null then {} else {thinking: $thinking} end);
-        $names | split("\n") | map(select(. != "")) | reduce .[] as $agent ({};
-            . + {
-                ($agent): route($vars[$agent].model; $vars[$agent].thinking),
-                ($agent + $suffix): route($vars[$agent].escalationModel; $vars[$agent].thinking)
-            })
-    ' > "$tmp"; then
+    if ! pi_model_routes "$vars" "$subagents" > "$tmp"; then
         rm -f "$tmp"
         echo "Cannot build Pi model routes" >&2
         exit 1
@@ -278,15 +305,52 @@ install_pi_model_routes() {
     echo "Installed Pi model routes to $routes_file"
 }
 
+# One resolved file per profile, so a project can select any of them at runtime (.pi/profile.json) without rerunning setup.
+install_pi_profile_routes() (
+    local target="$1"
+    local subagents="$2"
+    local prepared
+    local profile
+    local name
+    local vars
+
+    prepared="$(mktemp -d)"
+    trap 'rm -rf "$prepared"' EXIT
+
+    for profile in "$PI_PROFILES_DIR"/*.json; do
+        [ -e "$profile" ] || continue
+        name="$(basename "$profile" .json)"
+        # active.json is the selection symlink, not a profile
+        [ "$name" = "$ACTIVE_PROFILE_NAME" ] && continue
+        # Only the active profile is required to be valid; a broken sibling must not block the install.
+        if ! vars="$(pi_profile_vars "$profile")"; then
+            echo "Skipping Pi profile routes for $name" >&2
+            continue
+        fi
+        jq -n --argjson vars "$vars" --argjson routes "$(pi_model_routes "$vars" "$subagents")" --arg names "$subagents" '
+            ($names | split("\n") | map(select(. != ""))) as $subagents |
+            {
+                primary: ($vars | with_entries(
+                    select(.key as $agent | $subagents | index($agent) | not)
+                    | .value |= ({model, thinking} | with_entries(select(.value != null))))),
+                routes: $routes
+            }
+        ' > "$prepared/$name.json"
+    done
+
+    install_managed_files "$prepared" "$target"
+    echo "Installed Pi profile routes to $target"
+)
+
 install_pi_agents() (
     local target="$1"
     local routes_file="$2"
+    local profile_routes_dir="$3"
     local subagents=""
     local is_subagent
     local prepared
     local overrides
     local vars
-    local missing
     local agent
     local item
 
@@ -299,17 +363,8 @@ install_pi_agents() (
         exit 1
     fi
 
-    validate_pi_agent_overrides
     cp "$PI_ACTIVE_PROFILE" "$overrides"
-
-    vars="$(pi_agent_vars "$overrides")"
-
-    missing="$(jq -r 'to_entries[] | select(.value.model == null or .value.model == "") | .key' <<< "$vars" | tr '\n' ' ')"
-    missing="${missing% }"
-    if [ -n "$missing" ]; then
-        echo "Pi agent profile does not set a model for: $missing ($PI_ACTIVE_PROFILE)" >&2
-        exit 1
-    fi
+    vars="$(pi_profile_vars "$PI_ACTIVE_PROFILE")" || exit 1
 
     for item in "$PI_AGENTS_DIR"/*.md; do
         agent="$(basename "$item" .md)"
@@ -344,6 +399,7 @@ install_pi_agents() (
         fi
     done
     install_pi_model_routes "$routes_file" "$vars" "$subagents"
+    install_pi_profile_routes "$profile_routes_dir" "$subagents"
     install_managed_files "$prepared" "$target"
 )
 
@@ -402,7 +458,7 @@ install_pi() {
     echo "Installed Pi instructions to $pi_base/AGENTS.md"
 
     install_managed_directories "$PI_EXTENSIONS_DIR" "$pi_base/extensions"
-    install_pi_agents "$pi_base/agents" "$pi_base/$PI_MODEL_ROUTES_FILE"
+    install_pi_agents "$pi_base/agents" "$pi_base/$PI_MODEL_ROUTES_FILE" "$pi_base/$PI_PROFILE_ROUTES_DIR"
     local settings_overlay
     settings_overlay="$(mktemp)"
     pi_settings_overlay > "$settings_overlay"

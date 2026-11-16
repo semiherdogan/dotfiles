@@ -12,4 +12,5 @@ node_modules/
 bun.lock
 
 **/.claude/settings.local.json
+**/.pi/profile.json
 /HANDOFF.md
