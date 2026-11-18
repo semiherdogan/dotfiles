@@ -12,7 +12,6 @@ pi/
   skills/                       shared skills
   skills-local/                 machine-local skills (gitignored, override shared ones by name)
   profiles/                     per-agent model profiles (claude-bridge.json, codex-bridge.json, openai.json)
-    active.json                 symlink to the selected profile (gitignored)
   settings.json                 managed Pi settings
   settings.local.json           machine-specific settings (gitignored, see settings.local.example.json)
   permissions.json              shared pi-open-agents permission policy
@@ -30,19 +29,18 @@ pi/
 
 Rerun it after changing anything in `pi/`. It writes:
 
-- `~/.pi/agent/AGENTS.md`, `agents/`, `extensions/`, `skills/`
-- `~/.pi/agent/agent-profile.json` (routes of the active profile) and `agent-profiles/` (one resolved file per profile)
+- `~/.pi/agent/AGENTS.md`, `agents/`, `profiles/`, `extensions/`, `skills/`
 - `~/.pi/agent/settings.json`, `i-have-adhd.json`, `keybindings.json` (merged into existing files)
 - `~/.pi/agent/permissions.json` (`permissions.json` plus `permissions.local.json`, written whole; edits made directly in the installed file are lost)
 - `~/.pi/agent/models.json` (merged, only when `models.local.json` exists)
 
 ## Profiles
 
-Agent models and thinking levels come from `profiles/*.json`, keyed by the filenames in `agents/` without `.md`. A profile must set `model` for every agent; `thinking` and `escalationModel` are optional. `escalationModel` defaults to the `architect` model.
+Agent models and thinking levels come from `profiles/*.json`, keyed by the filenames in `agents/` without `.md`. Each entry needs `model`; `thinking` and `escalationModel` are optional. Setup installs the files as they are to `~/.pi/agent/profiles/`; validation and resolution happen in `pi-open-agents`, see its `PROFILES.md` for the format and the error cases.
 
-Prompts can reference effective values as `{{agent.field}}` (for example `{{implementer.thinking}}`); setup substitutes them at install time from the active profile, so they do not follow a project override. Subagent frontmatter gets `model: profile/<agent>` instead of the physical id, and setup writes the routes to `~/.pi/agent/agent-profile.json`; escalation is `profile/<agent>-escalation`.
+The selection lives in `~/.pi/agent/profile-state.json` (`{"active": "<name>"}`). Set it with `bin/setup-pi --profile NAME`, or inside Pi with `/profile [name]`. Switching applies to all running sessions on their next request: no reload and no setup rerun. An edited or new profile file still needs `bin/setup-pi` to be installed.
 
-`profiles/active.json` is the selected profile. Select one with `bin/setup-pi --profile NAME`, or inside Pi with `/profile [name]`, which runs the same command and reloads. The command needs `DOTFILES_BASE`, exported by `bootstrap.sh`. Invalid values, unknown agent names, a missing model, or an unresolved placeholder fail the install.
+An agent follows the profile unless its frontmatter sets `model:`. Escalation routes exist only where a profile entry sets `escalationModel`.
 
 ### Project override
 
@@ -57,11 +55,9 @@ A project can override the global profile with `.pi/profile.json`:
 }
 ```
 
-Both fields are optional. `profile` selects any profile from `profiles/` by name: setup writes one resolved file per profile to `~/.pi/agent/agent-profiles/`, so a new or edited profile needs a rerun before a project can select it. `agents` then overrides `model`, `thinking` and `escalationModel` per agent, on top of that profile, or of the global one when `profile` is absent. Inline, an escalation model changes only when `escalationModel` is set; it does not follow an overridden `architect` model, and it is rejected for the primary agent itself.
+Both fields are optional. `profile` selects any installed profile by name; `agents` applies field-wise overrides on top of that profile, or of the global one when `profile` is absent. An agent not present in the profile needs its own `model`.
 
-The file is read at session start from the working directory, only in a trusted project. Subagents never read it: they inherit the parent's resolution, whatever their own cwd is. The footer shows `[name · project]` while an override is active. An invalid file, an unknown profile or an unknown agent is reported once and the global profile stays active. `/profile` keeps switching the global profile; the project file still takes precedence in that project.
-
-The primary agent's model is applied when a new session starts, again before its first run (because `pi-open-agents` may apply the agent's installed model in between), and after `/profile`. A resumed, forked or reloaded session keeps the model it has, so an edited primary override takes effect in the next new session. Subagent routes follow on `/reload`.
+The file is read at session start from the working directory, only in a trusted project. Subagents never read it: they inherit the parent's project override and resolve it live against the current profile, whatever their own cwd is. The footer shows `[name · project]` while an override is active. An invalid file or an unknown `profile` name is ignored with a warning and the global profile stays active; an override without `model` for an agent the profile does not define is ignored with a warning while the rest of the file still applies. `/profile` keeps switching the global profile; the project file still takes precedence in that project.
 
 Keep the file out of shared repositories: model ids are machine-specific. Agents cannot write it, since `.pi` is write-protected.
 
@@ -84,7 +80,6 @@ The `packages` array in `settings.json` is authoritative and replaced wholesale,
 - `write-guard`: blocks `edit`, `write` and shell file writes for agents marked `readOnly: true` or without edit/write tools.
 - `claude-usage`: shows Claude usage only for the `claude-bridge` or `anthropic` provider; reads the Claude Code keychain item.
 - `skill-newline`: lets `/skill:name` expand when its args start on a new line.
-- `agent-profile`: `/profile` command to switch the agent profile and reload. Registers the `profile/<agent>` virtual models from `agent-profile.json` (each routes to the active profile's physical model, or to the project override from `.pi/profile.json`) and blocks any other model id on `subagent` calls.
 - `review-gate`: when the active agent is `architect` and `implementer` changed the working tree, asks for one `reviewer` round if the architect gives its final answer without one, and never after two `reviewer` rounds in a run. Other agents get no automatic review.
 - `change-review`: `/review-summary [focus]` asks the agent for a pinpoint review of the working tree and opens the report. It never runs on its own.
 - `codex-bridge`: `codex-bridge/*` models that run through the Codex CLI app-server, so turns use the ChatGPT/Codex subscription bucket while pi's own tools run in pi. Needs `codexBridge.codexPath` (the Codex CLI binary) in `settings.local.json`; without it the provider is not registered. Codex built-in tools are disabled and threads run read-only. pi's tools reach the model through Codex code mode (`functions.exec`); Codex's multi-agent `collaboration.*` tools are turned off with a generated `model_catalog_json` override.

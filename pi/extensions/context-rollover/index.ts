@@ -11,6 +11,7 @@ import {
 } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
 
+import { physicalModel } from "../lib/physical-model.ts";
 import { HANDOFF_SYSTEM_PROMPT } from "./prompt.ts";
 
 const CONTEXT_WARNING_THRESHOLD = 70;
@@ -52,8 +53,10 @@ async function generateHandoff(
 
 	const conversationText = serializeConversation(convertToLlm(messages));
 	const continuationGoal = goal || "No additional continuation goal was supplied. Preserve the current task's goal.";
+	// pi routes a virtual model fresh, so prompt and request must agree on the physical model.
+	const target = physicalModel(ctx) ?? model;
 	const systemPrompt =
-		model.baseUrl === "claude-bridge"
+		target.baseUrl === "claude-bridge"
 			? `${ctx.getSystemPrompt()}\n\n${HANDOFF_SYSTEM_PROMPT}`
 			: HANDOFF_SYSTEM_PROMPT;
 
@@ -82,7 +85,7 @@ async function generateHandoff(
 
 		ctx.modelRegistry
 			.complete(
-				model,
+				target,
 				{ systemPrompt, messages: [userMessage] },
 				{
 					signal: loader.signal,

@@ -1,6 +1,7 @@
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
+import { physicalModel } from "../lib/physical-model.ts";
 
 const execFileAsync = promisify(execFile);
 
@@ -110,7 +111,8 @@ function isClaudeModel(model: { id: string; provider: string } | undefined): boo
 	return CLAUDE_PROVIDERS.has(model.provider) || model.id.startsWith("claude");
 }
 
-async function updateStatus(ctx: ExtensionContext, force: boolean, model = ctx.model): Promise<void> {
+// In a fresh session on a virtual model there is no response yet, so the status stays hidden until the first turn.
+async function updateStatus(ctx: ExtensionContext, force: boolean, model = physicalModel(ctx)): Promise<void> {
 	if (!ctx.hasUI) return;
 	if (!isClaudeModel(model)) {
 		ctx.ui.setStatus(STATUS_KEY, undefined);
@@ -124,7 +126,7 @@ export default function claudeUsage(pi: ExtensionAPI) {
 	pi.registerCommand("usage", {
 		description: "Show Claude subscription usage (5-hour and weekly windows)",
 		handler: async (_args, ctx) => {
-			if (!isClaudeModel(ctx.model)) {
+			if (!isClaudeModel(physicalModel(ctx))) {
 				ctx.ui.notify("Claude usage applies only to Claude models or the anthropic/claude-bridge providers.", "info");
 				return;
 			}
@@ -156,7 +158,7 @@ export default function claudeUsage(pi: ExtensionAPI) {
 	});
 
 	pi.on("model_select", (event, ctx) => {
-		void updateStatus(ctx, false, event.model);
+		void updateStatus(ctx, false, physicalModel(ctx, event.model));
 	});
 
 	pi.on("session_shutdown", (_event, ctx) => {

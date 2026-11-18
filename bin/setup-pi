@@ -9,8 +9,7 @@ LOCAL_SKILLS_DIR="$PI_DIR/skills-local"
 PI_EXTENSIONS_DIR="$PI_DIR/extensions"
 PI_AGENTS_DIR="$PI_DIR/agents"
 PI_PROFILES_DIR="$PI_DIR/profiles"
-ACTIVE_PROFILE_NAME="active"
-PI_ACTIVE_PROFILE="$PI_DIR/profiles/$ACTIVE_PROFILE_NAME.json"
+PI_PROFILE_STATE_FILE="profile-state.json"
 PI_MODELS_LOCAL="$PI_DIR/models.local.json"
 PI_SETTINGS="$PI_DIR/settings.json"
 PI_SETTINGS_LOCAL="$PI_DIR/settings.local.json"
@@ -19,21 +18,16 @@ PI_PERMISSIONS_LOCAL="$PI_DIR/permissions.local.json"
 PI_ADHD_CONFIG="$PI_DIR/i-have-adhd.json"
 PI_KEYBINDINGS="$PI_DIR/keybindings.json"
 PI_INSTRUCTIONS="$PI_DIR/AGENTS.md"
-PI_VIRTUAL_MODEL_PROVIDER="profile"
-PI_ESCALATION_ROUTE_SUFFIX="-escalation"
-PI_MODEL_ROUTES_FILE="agent-profile.json"
-PI_PROFILE_ROUTES_DIR="agent-profiles"
-PI_SUBAGENT_MODE="subagent"
 PROFILE=""
 
 usage() {
     cat <<EOF
 Usage: setup-pi [--profile NAME]
 
-Installs Pi instructions, agents, extensions, skills, and settings into ~/.pi/agent.
+Installs Pi instructions, agents, profiles, extensions, skills, and settings into ~/.pi/agent.
 
 Options:
-  --profile NAME  Select the Pi agent profile from pi/profiles/ before installing.
+  --profile NAME  Install pi/profiles/ and select NAME in ~/.pi/agent/profile-state.json.
   --help, -h   Show this help.
 EOF
 }
@@ -100,16 +94,20 @@ install_skills() {
     mv "$tmp_marker" "$marker"
 }
 
+require_jq() {
+    command -v jq >/dev/null 2>&1 || {
+        echo "jq is required to install Pi settings." >&2
+        exit 1
+    }
+}
+
 merge_json_object() {
     local target="$1"
     local overlay="$2"
     local current
     local merged
 
-    command -v jq >/dev/null 2>&1 || {
-        echo "jq is required to install Pi settings." >&2
-        exit 1
-    }
+    require_jq
 
     mkdir -p "$(dirname "$target")"
     current="$(mktemp "${target}.current.XXXXXX")"
@@ -191,217 +189,39 @@ install_managed_files() {
     mv "$tmp_marker" "$marker"
 }
 
-validate_pi_agent_overrides() {
-    local profile="$1"
-    local agent
-
-    jq -e --arg virtual_prefix "$PI_VIRTUAL_MODEL_PROVIDER/" '
-        def thinking_levels: ["off", "minimal", "low", "medium", "high", "xhigh", "max"];
-        def model_ref: type == "string" and test("^[^/[:space:]]+/[^[:space:]]+$") and (startswith($virtual_prefix) | not);
-        type == "object" and all(to_entries[];
-            (.key | test("^[a-zA-Z0-9_-]+$")) and
-            (.value | type == "object" and
-                all(to_entries[];
-                    if .key == "model" or .key == "escalationModel" then
-                        (.value | model_ref)
-                    elif .key == "thinking" then
-                        (.value as $level | thinking_levels | index($level) != null)
-                    else false end
-                )
-            )
-        )
-    ' "$profile" >/dev/null || {
-        echo "Invalid Pi agent overrides: $profile. Expected agent objects with model and/or escalationModel (provider/model-id) and/or thinking. Model values must be physical provider/model ids, not $PI_VIRTUAL_MODEL_PROVIDER/... ids." >&2
-        return 1
-    }
-
-    while IFS= read -r agent; do
-        if [ ! -f "$PI_AGENTS_DIR/$agent.md" ]; then
-            echo "Unknown Pi agent in $profile: $agent" >&2
-            return 1
-        fi
-    done < <(jq -r 'keys[]' "$profile")
-}
-
-# Effective per-agent fields: frontmatter values with the local overrides applied on top.
-# Agent bodies reference them as {{agent.field}} so no prompt carries a provider-specific
-# model id that only holds on one machine.
-pi_agent_vars() {
-    local overrides="$1"
-    local vars='{}'
-    local item
-    local agent
-
-    for item in "$PI_AGENTS_DIR"/*.md; do
-        agent="$(basename "$item" .md)"
-        vars="$(jq -Rrs --argjson acc "$vars" --arg agent "$agent" '
-            (capture("\\A---\\n(?<header>[\\s\\S]*?)\\n---(?:\\n|$)").header) as $header |
-            ($header
-                | [scan("(?m)^([A-Za-z][A-Za-z0-9_-]*):[ \\t]*(.*)$")]
-                | map({key: .[0], value: (.[1] | gsub("^[\"\u0027] *| *[\"\u0027]$"; ""))})
-                | from_entries
-                | {model, thinking}
-                | with_entries(select(.value != null and .value != ""))) as $fields |
-            $acc + {($agent): $fields}
-        ' "$item")"
-    done
-
-    # escalationModel has no frontmatter counterpart: without a local override it falls back to
-    # the primary agent's model, which is the strongest one configured on this machine.
-    jq -n --argjson vars "$vars" --slurpfile overrides "$overrides" '
-        ($vars * $overrides[0]) as $merged |
-        $merged.architect.model as $strongest |
-        $merged | with_entries(.value |= ({escalationModel: $strongest} + .))
-    '
-}
-
-# Prints the effective per-agent fields of a profile, or fails when the profile is invalid or incomplete.
-pi_profile_vars() {
-    local profile="$1"
-    local vars
-    local missing
-
-    validate_pi_agent_overrides "$profile" || return 1
-    vars="$(pi_agent_vars "$profile")" || return 1
-
-    missing="$(jq -r 'to_entries[] | select(.value.model == null or .value.model == "") | .key' <<< "$vars" | tr '\n' ' ')"
-    missing="${missing% }"
-    if [ -n "$missing" ]; then
-        echo "Pi agent profile does not set a model for: $missing ($profile)" >&2
-        return 1
-    fi
-    printf '%s\n' "$vars"
-}
-
-# Subagents get a virtual model id in their frontmatter; the physical models live in the routes file,
-# so a profile switch never leaves a stale model id in a running architect's context.
-pi_model_routes() {
-    local vars="$1"
-    local subagents="$2"
-
-    jq -n --argjson vars "$vars" --arg names "$subagents" --arg suffix "$PI_ESCALATION_ROUTE_SUFFIX" '
-        def route($model; $thinking): {model: $model} + (if $thinking == null then {} else {thinking: $thinking} end);
-        $names | split("\n") | map(select(. != "")) | reduce .[] as $agent ({};
-            . + {
-                ($agent): route($vars[$agent].model; $vars[$agent].thinking),
-                ($agent + $suffix): route($vars[$agent].escalationModel; $vars[$agent].thinking)
-            })
-    '
-}
-
-install_pi_model_routes() {
-    local routes_file="$1"
-    local vars="$2"
-    local subagents="$3"
-    local tmp
-
-    tmp="$(mktemp "${routes_file}.tmp.XXXXXX")"
-    if ! pi_model_routes "$vars" "$subagents" > "$tmp"; then
-        rm -f "$tmp"
-        echo "Cannot build Pi model routes" >&2
-        exit 1
-    fi
-    mv "$tmp" "$routes_file"
-    echo "Installed Pi model routes to $routes_file"
-}
-
-# One resolved file per profile, so a project can select any of them at runtime (.pi/profile.json) without rerunning setup.
-install_pi_profile_routes() (
-    local target="$1"
-    local subagents="$2"
-    local prepared
+# Detailed validation belongs to pi-open-agents; a non-object file cannot be installed as a profile.
+validate_pi_profiles() {
     local profile
-    local name
-    local vars
-
-    prepared="$(mktemp -d)"
-    trap 'rm -rf "$prepared"' EXIT
 
     for profile in "$PI_PROFILES_DIR"/*.json; do
         [ -e "$profile" ] || continue
-        name="$(basename "$profile" .json)"
-        # active.json is the selection symlink, not a profile
-        [ "$name" = "$ACTIVE_PROFILE_NAME" ] && continue
-        # Only the active profile is required to be valid; a broken sibling must not block the install.
-        if ! vars="$(pi_profile_vars "$profile")"; then
-            echo "Skipping Pi profile routes for $name" >&2
-            continue
+        if ! jq -e 'type == "object"' "$profile" >/dev/null; then
+            echo "Invalid Pi profile: $profile. Expected a JSON object." >&2
+            return 1
         fi
-        jq -n --argjson vars "$vars" --argjson routes "$(pi_model_routes "$vars" "$subagents")" --arg names "$subagents" '
-            ($names | split("\n") | map(select(. != ""))) as $subagents |
-            {
-                primary: ($vars | with_entries(
-                    select(.key as $agent | $subagents | index($agent) | not)
-                    | .value |= ({model, thinking} | with_entries(select(.value != null))))),
-                routes: $routes
-            }
-        ' > "$prepared/$name.json"
     done
+}
 
-    install_managed_files "$prepared" "$target"
-    echo "Installed Pi profile routes to $target"
-)
-
-install_pi_agents() (
-    local target="$1"
-    local routes_file="$2"
-    local profile_routes_dir="$3"
-    local subagents=""
-    local is_subagent
-    local prepared
-    local overrides
-    local vars
-    local agent
-    local item
-
-    prepared="$(mktemp -d)"
-    overrides="$(mktemp)"
-    trap 'rm -rf "$prepared" "$overrides"' EXIT
-
-    if [ ! -f "$PI_ACTIVE_PROFILE" ]; then
-        echo "No Pi agent profile selected. Run setup-pi --profile <name>. Available: $(list_pi_profiles)" >&2
+validate_pi_profile_selection() {
+    if [[ ! "$PROFILE" =~ ^[A-Za-z0-9_-]+$ ]]; then
+        echo "Invalid Pi profile name: $PROFILE" >&2
         exit 1
     fi
 
-    cp "$PI_ACTIVE_PROFILE" "$overrides"
-    vars="$(pi_profile_vars "$PI_ACTIVE_PROFILE")" || exit 1
+    if [ ! -f "$PI_PROFILES_DIR/$PROFILE.json" ]; then
+        echo "Unknown Pi profile: $PROFILE. Available: $(list_pi_profiles)" >&2
+        exit 1
+    fi
+}
 
-    for item in "$PI_AGENTS_DIR"/*.md; do
-        agent="$(basename "$item" .md)"
-        is_subagent="$(jq -Rrs --arg mode "$PI_SUBAGENT_MODE" '
-            capture("\\A---\\n(?<header>[\\s\\S]*?)\\n---(?:\\n|$)").header | test("(?m)^mode:[ \\t]*[\"\u0027]?" + $mode + "[\"\u0027]?[ \\t]*$")
-        ' "$item")"
-        if [ "$is_subagent" = true ]; then
-            subagents="$subagents$agent"$'\n'
-        fi
-        jq -Rrsj --slurpfile overrides "$overrides" --argjson vars "$vars" --arg agent "$agent" \
-            --argjson subagent "$is_subagent" --arg provider "$PI_VIRTUAL_MODEL_PROVIDER" '
-            ($overrides[0][$agent] // {} | del(.escalationModel)
-                | if $subagent then . + {model: ($provider + "/" + $agent)} else . end) as $fields |
-            (if $fields == {} then . else
-                capture("\\A(?<start>---\\n)(?<header>[\\s\\S]*?)(?<end>\\n---(?:\\n|$))(?<body>[\\s\\S]*)\\z") as $doc |
-                (reduce ($fields | to_entries[]) as $field ($doc.header;
-                    ($field.key + ": " + ($field.value | tojson)) as $line |
-                    if test("(?m)^" + $field.key + ":[^\\n]*$") then
-                        sub("(?m)^" + $field.key + ":[^\\n]*$"; $line)
-                    else . + "\n" + $line end
-                )) as $header |
-                $doc.start + $header + $doc.end + $doc.body
-            end)
-            | gsub("\\{\\{(?<a>[A-Za-z0-9_-]+)\\.(?<f>[A-Za-z0-9_]+)(:(?<d>[^}]*))?\\}\\}";
-                . as $ref |
-                ($vars[$ref.a][$ref.f] // $ref.d //
-                    error("unresolved placeholder {{" + $ref.a + "." + $ref.f + "}} in " + $agent + ".md")))
-        ' "$item" > "$prepared/$agent.md"
-        if [ ! -s "$prepared/$agent.md" ]; then
-            echo "Cannot prepare Pi agent: invalid frontmatter in $item" >&2
-            exit 1
-        fi
-    done
-    install_pi_model_routes "$routes_file" "$vars" "$subagents"
-    install_pi_profile_routes "$profile_routes_dir" "$subagents"
-    install_managed_files "$prepared" "$target"
-)
+write_pi_profile_state() {
+    local state="$1/$PI_PROFILE_STATE_FILE"
+    local tmp
+
+    tmp="$(mktemp "${state}.tmp.XXXXXX")"
+    jq -n --arg active "$PROFILE" '{active: $active}' > "$tmp"
+    mv "$tmp" "$state"
+}
 
 pi_settings_overlay() {
     if [ ! -f "$PI_SETTINGS_LOCAL" ]; then
@@ -458,7 +278,21 @@ install_pi() {
     echo "Installed Pi instructions to $pi_base/AGENTS.md"
 
     install_managed_directories "$PI_EXTENSIONS_DIR" "$pi_base/extensions"
-    install_pi_agents "$pi_base/agents" "$pi_base/$PI_MODEL_ROUTES_FILE" "$pi_base/$PI_PROFILE_ROUTES_DIR"
+    install_managed_files "$PI_AGENTS_DIR" "$pi_base/agents"
+    echo "Installed Pi agents to $pi_base/agents"
+
+    # The previous profile mechanism wrote these; stale routes would mislead debugging after the move.
+    rm -f "$pi_base/agent-profile.json"
+    rm -rf "$pi_base/agent-profiles"
+    install_managed_files "$PI_PROFILES_DIR" "$pi_base/profiles"
+    echo "Installed Pi profiles to $pi_base/profiles"
+
+    if [ -n "$PROFILE" ]; then
+        write_pi_profile_state "$pi_base"
+    elif [ ! -f "$pi_base/$PI_PROFILE_STATE_FILE" ]; then
+        echo "No active Pi agent profile yet. Select one with setup-pi --profile <name> or /profile <name> inside Pi. Available: $(list_pi_profiles)"
+    fi
+
     local settings_overlay
     settings_overlay="$(mktemp)"
     pi_settings_overlay > "$settings_overlay"
@@ -472,11 +306,8 @@ install_pi() {
         echo "Merged Pi models into $pi_base/models.json"
     fi
     echo "Installed Pi extensions to $pi_base/extensions"
-    echo "Installed Pi agents to $pi_base/agents"
-    if [ -L "$PI_ACTIVE_PROFILE" ]; then
-        local active_profile
-        active_profile="$(basename "$(readlink "$PI_ACTIVE_PROFILE")" .json)"
-        echo "Active Pi agent profile: $active_profile"
+    if [ -f "$pi_base/$PI_PROFILE_STATE_FILE" ]; then
+        echo "Active Pi agent profile: $(jq -r '.active // empty' "$pi_base/$PI_PROFILE_STATE_FILE")"
     fi
     echo "Merged Pi settings into $pi_base/settings.json"
     if [ -f "$PI_SETTINGS_LOCAL" ]; then
@@ -499,40 +330,17 @@ list_pi_profiles() {
 
     for item in "$PI_PROFILES_DIR"/*.json; do
         [ -e "$item" ] || continue
-        # active.json is the selection symlink, not a profile
-        [ "$(basename "$item" .json)" = "$ACTIVE_PROFILE_NAME" ] && continue
         available+=("$(basename "$item" .json)")
     done
     echo "${available[*]:-}"
 }
 
-select_pi_profile() {
-    if [[ ! "$PROFILE" =~ ^[A-Za-z0-9_-]+$ ]]; then
-        echo "Invalid Pi profile name: $PROFILE" >&2
-        exit 1
-    fi
-
-    if [ "$PROFILE" = "$ACTIVE_PROFILE_NAME" ]; then
-        echo "$ACTIVE_PROFILE_NAME is reserved for the selection symlink. Available: $(list_pi_profiles)" >&2
-        exit 1
-    fi
-
-    if [ ! -f "$PI_PROFILES_DIR/$PROFILE.json" ]; then
-        echo "Unknown Pi profile: $PROFILE. Available: $(list_pi_profiles)" >&2
-        exit 1
-    fi
-
-    # Never overwrite a hand-written override file.
-    if [ -e "$PI_ACTIVE_PROFILE" ] && [ ! -L "$PI_ACTIVE_PROFILE" ]; then
-        echo "$PI_ACTIVE_PROFILE is a regular file. Move it to another name in $PI_PROFILES_DIR before using --profile." >&2
-        exit 1
-    fi
-
-    ln -sfn "$PROFILE.json" "$PI_ACTIVE_PROFILE"
-}
-
 if [ -n "$PROFILE" ]; then
-    select_pi_profile
+    validate_pi_profile_selection
 fi
+
+require_jq
+
+validate_pi_profiles
 
 install_pi

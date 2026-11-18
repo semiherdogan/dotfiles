@@ -2,6 +2,6 @@
   "version": 1,
   "trustedProjects": [
     "~/Projects/pi-open-agents",
-    "~/dotfiles"
+    "/absolute/path/to/dotfiles"
   ]
 }
