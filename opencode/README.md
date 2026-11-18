@@ -66,7 +66,6 @@ The jq deep merge replaces arrays wholesale at both stages: a `permissions`, `pl
 
 - `claude-usage`: no equivalent; the `claude-code` plugin owns Claude auth.
 - `write-guard`: `reviewer` denies `edit` and its shell is an allowlist of read-only git commands. `implementer` and `build` are not shell-restricted beyond the global git rules.
-- `context-rollover` and `/handoff`: auto compaction is off, `/compact` is manual.
 - `skill-newline`: the `skill` tool loads skills, no slash expansion to fix.
 - `agent-profile`: use `bin/setup-opencode --profile NAME` from a shell.
 - `researcher` agent: built-in `webfetch` and `websearch` tools replace it.
