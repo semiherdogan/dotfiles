@@ -1,0 +1,23 @@
+{
+  "architect": {
+    "model": "9router/cc/claude-opus-5-5",
+    "thinking": "high"
+  },
+  "implementer": {
+    "model": "9router/cc/claude-sonnet-5-5",
+    "escalationModel": "9router/cc/claude-opus-5-5",
+    "thinking": "medium"
+  },
+  "reviewer": {
+    "model": "9router/cc/claude-opus-5-5",
+    "thinking": "high"
+  },
+  "explorer": {
+    "model": "9router/cc/claude-sonnet-5-5",
+    "thinking": "low"
+  },
+  "researcher": {
+    "model": "9router/cc/claude-sonnet-5-5",
+    "thinking": "low"
+  }
+}

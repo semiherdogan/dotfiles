@@ -11,7 +11,7 @@ pi/
   extensions/                   one directory per Pi extension
   skills/                       shared skills
   skills-local/                 machine-local skills (gitignored, override shared ones by name)
-  profiles/                     per-agent model profiles (claude-bridge.json, codex-bridge.json, openai.json)
+  profiles/                     per-agent model profiles (claude-bridge.json, codex-bridge.json, openai.json, 9router.json)
   settings.json                 managed Pi settings
   settings.local.json           machine-specific settings (gitignored, see settings.local.example.json)
   permissions.json              shared pi-open-agents permission policy
@@ -82,6 +82,7 @@ The `packages` array in `settings.json` is authoritative and replaced wholesale,
 - `skill-newline`: lets `/skill:name` expand when its args start on a new line.
 - `review-gate`: when the active agent is `architect` and `implementer` changed the working tree, asks for one `reviewer` round if the architect gives its final answer without one, and never after two `reviewer` rounds in a run. Other agents get no automatic review.
 - `change-review`: `/review-summary [focus]` asks the agent for a pinpoint review of the working tree and opens the report. It never runs on its own.
+- `ninerouter`: `9router/*` models from a self-hosted 9router (OpenAI-compatible, behind Cloudflare Access). Needs `NINE_ROUTER_BASE_URL` (including `/v1`), `NINE_ROUTER_API_KEY`, `CF_ACCESS_CLIENT_ID` and `CF_ACCESS_CLIENT_SECRET` in the environment (see `local.example.sh`); without all four the provider is not registered. Secrets stay `$ENV` references resolved per request. The model list comes from `GET /models` (5 s timeout) and is saved to `ninerouter-models.json` in the agent dir, which pi uses when 9router is unreachable.
 - `codex-bridge`: `codex-bridge/*` models that run through the Codex CLI app-server, so turns use the ChatGPT/Codex subscription bucket while pi's own tools run in pi. Needs `codexBridge.codexPath` (the Codex CLI binary) in `settings.local.json`; without it the provider is not registered. Codex built-in tools are disabled and threads run read-only. pi's tools reach the model through Codex code mode (`functions.exec`); Codex's multi-agent `collaboration.*` tools are turned off with a generated `model_catalog_json` override.
 
 ## Keybindings
