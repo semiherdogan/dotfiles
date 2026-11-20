@@ -4,7 +4,11 @@
   "default_agent": "architect",
   "compaction": { "auto": false },
   "instructions": ["~/.config/opencode/instructions/i-have-adhd.md"],
-  "plugins": ["@openchamber/opencode-claude"],
+  "plugins": [],
+  "policies": [
+    { "action": "provider.use", "resource": "opencode", "effect": "deny" },
+    { "action": "provider.use", "resource": "opencode-go", "effect": "deny" }
+  ],
   "permissions": [
     { "action": "shell", "resource": "git *", "effect": "deny" },
     { "action": "shell", "resource": "git status *", "effect": "allow" },

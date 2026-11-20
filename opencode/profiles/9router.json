@@ -1,0 +1,9 @@
+{
+  "model": "9router/cc/claude-opus-5-5",
+  "agents": {
+    "explore": { "model": "9router/cc/claude-sonnet-5-5#low" },
+    "implementer": { "model": "9router/cc/claude-sonnet-5-5#medium" },
+    "reviewer": { "model": "9router/cc/claude-opus-5-5#high" },
+    "architect": { "model": "9router/cc/claude-opus-5-5#high" }
+  }
+}

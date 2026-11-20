@@ -16,6 +16,11 @@ OPENCODE_CONFIG="$OPENCODE_DIR/opencode.json"
 OPENCODE_CONFIG_LOCAL="$OPENCODE_DIR/opencode.local.json"
 OPENCODE_INSTRUCTIONS="$OPENCODE_DIR/AGENTS.md"
 PROFILE=""
+NINE_ROUTER_PROVIDER_ID="9router"
+NINE_ROUTER_PROVIDER_FILE="$OPENCODE_DIR/providers/9router.json"
+NINE_ROUTER_MODELS_FILTER="$OPENCODE_DIR/9router-models.jq"
+NINE_ROUTER_FETCH_TIMEOUT_SECONDS=10
+NINE_ROUTER_REQUIRED_ENV=(NINE_ROUTER_BASE_URL NINE_ROUTER_API_KEY CF_ACCESS_CLIENT_ID CF_ACCESS_CLIENT_SECRET)
 
 usage() {
     cat <<EOF
@@ -169,6 +174,138 @@ opencode_overlay() {
     jq -s 'reduce .[] as $file ({}; . * $file)' "${files[@]}"
 }
 
+nine_router_warn() {
+    echo "Skipping 9router provider: $1" >&2
+}
+
+# Writes the providers["9router"] overlay to $1. Returns non-zero (after one
+# warning) on any failure, so callers under set -e must test the result.
+# Never prints credentials or response bodies.
+build_nine_router_overlay() {
+    local out="$1"
+    local name
+    local response
+    local models
+
+    for name in "${NINE_ROUTER_REQUIRED_ENV[@]}"; do
+        if [ -z "${!name:-}" ]; then
+            nine_router_warn "$name is not set."
+            return 1
+        fi
+    done
+
+    command -v curl >/dev/null 2>&1 || {
+        nine_router_warn "curl is not installed."
+        return 1
+    }
+
+    # Headers go through stdin (-H @-) so the secrets never appear in argv.
+    # No -L: a redirect must not forward the credentials to another host.
+    if ! response="$(
+        printf 'Authorization: Bearer %s\nCF-Access-Client-Id: %s\nCF-Access-Client-Secret: %s\n' \
+            "$NINE_ROUTER_API_KEY" "$CF_ACCESS_CLIENT_ID" "$CF_ACCESS_CLIENT_SECRET" |
+            curl -fsS --max-time "$NINE_ROUTER_FETCH_TIMEOUT_SECONDS" --proto =https \
+                -H @- "$NINE_ROUTER_BASE_URL/models" 2>/dev/null
+    )"; then
+        nine_router_warn "could not fetch the model list."
+        return 1
+    fi
+
+    # -e makes an empty or null filter result a failure.
+    if ! models="$(printf '%s' "$response" | jq -ce -f "$NINE_ROUTER_MODELS_FILTER" 2>/dev/null)"; then
+        nine_router_warn "the model list response is invalid."
+        return 1
+    fi
+
+    if ! printf '%s' "$models" | jq -e 'length > 0' >/dev/null 2>&1; then
+        nine_router_warn "no usable models in the response."
+        return 1
+    fi
+
+    # Models go through stdin: a single argv entry is capped at 128 KB on Linux.
+    if ! printf '%s' "$models" | jq --arg id "$NINE_ROUTER_PROVIDER_ID" --slurpfile m /dev/stdin \
+        '{providers: {($id): (. + {models: $m[0]})}}' \
+        "$NINE_ROUTER_PROVIDER_FILE" > "$out" 2>/dev/null; then
+        nine_router_warn "could not build the provider config."
+        return 1
+    fi
+}
+
+# Writes the installed config $1 to the temp file $3 with provider $2 removed,
+# so a fresh one replaces it completely instead of deep-merging into stale
+# models. Only deletes when .providers is an object; otherwise copies as is.
+# Does not touch $1. Prints no warning; the caller does.
+prepare_installed_trim() {
+    local target="$1"
+    local provider_id="$2"
+    local trimmed="$3"
+
+    jq --arg id "$provider_id" \
+        'if (.providers | type) == "object" then del(.providers[$id]) else . end' \
+        "$target" > "$trimmed" 2>/dev/null
+}
+
+# Builds the 9router overlay, combines it into a temp file, and prepares the
+# trimmed installed config in another temp file. Nothing is committed until all
+# of that succeeded. Then commits the trim ($2) first and the overlay ($1)
+# second. If the overlay commit fails, the installed config is restored from a
+# backup. Any failure leaves $1 and $2 unchanged, removes all temp files, and
+# returns non-zero after exactly one warning.
+# Call from an `if`: set -e is inactive inside, so every step is guarded.
+apply_nine_router() {
+    local overlay="$1"
+    local installed="$2"
+    local nine_overlay=""
+    local combined=""
+    local trimmed=""
+    local backup=""
+    local rc=0
+
+    nine_overlay="$(mktemp 2>/dev/null)" &&
+        combined="$(mktemp 2>/dev/null)" || {
+        nine_router_warn "could not create a temp file."
+        rm -f "$nine_overlay" "$combined"
+        return 1
+    }
+
+    # build_nine_router_overlay prints its own warning.
+    if ! build_nine_router_overlay "$nine_overlay"; then
+        rc=1
+    elif ! jq -s '.[0] * .[1]' "$overlay" "$nine_overlay" > "$combined" 2>/dev/null; then
+        nine_router_warn "could not combine the provider config."
+        rc=1
+    elif [ -f "$installed" ]; then
+        if ! trimmed="$(mktemp "${installed}.trimmed.XXXXXX" 2>/dev/null)" ||
+            ! backup="$(mktemp "${installed}.backup.XXXXXX" 2>/dev/null)"; then
+            nine_router_warn "could not create a temp file for the installed config."
+            rc=1
+        elif ! prepare_installed_trim "$installed" "$NINE_ROUTER_PROVIDER_ID" "$trimmed"; then
+            nine_router_warn "could not trim the installed config."
+            rc=1
+        elif ! cp "$installed" "$backup" 2>/dev/null; then
+            nine_router_warn "could not back up the installed config."
+            rc=1
+        elif ! mv "$trimmed" "$installed" 2>/dev/null; then
+            nine_router_warn "could not update the installed config."
+            rc=1
+        elif ! mv "$combined" "$overlay" 2>/dev/null; then
+            # Trim was committed: put the original installed config back.
+            if mv "$backup" "$installed" 2>/dev/null; then
+                nine_router_warn "could not update the config overlay."
+            else
+                nine_router_warn "could not update the config overlay and could not restore the installed config."
+            fi
+            rc=1
+        fi
+    elif ! mv "$combined" "$overlay" 2>/dev/null; then
+        nine_router_warn "could not update the config overlay."
+        rc=1
+    fi
+
+    rm -f "$nine_overlay" "$combined" "$trimmed" "$backup"
+    return "$rc"
+}
+
 install_opencode() {
     local opencode_base="$HOME/.config/opencode"
     local overlay
@@ -195,6 +332,11 @@ install_opencode() {
 
     overlay="$(mktemp)"
     opencode_overlay > "$overlay"
+
+    if apply_nine_router "$overlay" "$opencode_base/opencode.json"; then
+        echo "Installed 9router provider with fresh model list (merged below)"
+    fi
+
     merge_json_object "$opencode_base/opencode.json" "$overlay"
     rm -f "$overlay"
     echo "Merged OpenCode config into $opencode_base/opencode.json"

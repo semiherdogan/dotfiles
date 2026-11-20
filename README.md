@@ -36,10 +36,10 @@ That writes into `~/.pi/agent/`. See [pi/README.md](pi/README.md) for the layout
 Set up OpenCode (instructions, agents, commands, skills, config):
 
 ```sh
-/absolute/path/to/dotfiles/bin/setup-opencode --profile claude-code
+/absolute/path/to/dotfiles/bin/setup-opencode --profile 9router
 ```
 
-That writes into `~/.config/opencode/`. See [opencode/README.md](opencode/README.md) for the layout, profiles, and local provider.
+That writes into `~/.config/opencode/`. See [opencode/README.md](opencode/README.md) for the layout, profiles, and providers.
 
 Terminal emulator and prompt setup lives in [terminal/README.md](terminal/README.md).
 

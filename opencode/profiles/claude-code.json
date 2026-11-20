@@ -1,9 +1,0 @@
-{
-  "model": "claude-code/claude-opus-5-5[1m]",
-  "agents": {
-    "explore": { "model": "claude-code/claude-sonnet-5-5#low" },
-    "implementer": { "model": "claude-code/claude-sonnet-5-5#medium" },
-    "reviewer": { "model": "claude-code/claude-opus-5-5[1m]#high" },
-    "architect": { "model": "claude-code/claude-opus-5-5[1m]#high" }
-  }
-}
