@@ -75,7 +75,7 @@ The `packages` array in `settings.json` is authoritative and replaced wholesale,
 
 ## Extensions
 
-- `context-usage`: shows context usage in the footer and warns each time it crosses 70%. Auto compaction is off in `settings.json`, so compact manually with `/compact`.
+- `context-usage`: shows context usage in the footer, in the warning color at 70% and above. Auto compaction is off in `settings.json`, so compact manually with `/compact`.
 - `git-guard`: blocks agent-run git commands except read-only inspection (status, log, diff, show, grep, blame, branch/tag listing, config reads, ...).
 - `write-guard`: blocks `edit`, `write` and shell file writes for agents marked `readOnly: true` or without edit/write tools.
 - `claude-usage`: shows Claude usage only for the `claude-bridge` or `anthropic` provider; reads the Claude Code keychain item.
