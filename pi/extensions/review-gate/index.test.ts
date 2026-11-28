@@ -10,6 +10,7 @@ function harness(entries: Entry[] = [], settings: Record<string, unknown> = {}) 
 	const handlers = new Map<string, Function>();
 	const commands = new Map<string, { handler: Function }>();
 	const statuses: Array<string | undefined> = [];
+	const statusKeys: string[] = [];
 	const notices: string[] = [];
 	const pi = {
 		getSettings: () => settings,
@@ -24,7 +25,7 @@ function harness(entries: Entry[] = [], settings: Record<string, unknown> = {}) 
 		sessionManager: { getEntries: () => entries },
 		ui: {
 			theme: { fg: (color: string, text: string) => `<${color}>${text}</${color}>` },
-			setStatus: (_key: string, value: string | undefined) => statuses.push(value),
+			setStatus: (key: string, value: string | undefined) => { statusKeys.push(key); statuses.push(value); },
 			notify: (value: string) => notices.push(value),
 		},
 	};
@@ -35,7 +36,7 @@ function harness(entries: Entry[] = [], settings: Record<string, unknown> = {}) 
 	} finally {
 		if (depth !== undefined) process.env.PI_OPEN_AGENTS_DEPTH = depth;
 	}
-	return { handlers, commands, ctx, statuses, notices, entries };
+	return { handlers, commands, ctx, statuses, statusKeys, notices, entries };
 }
 
 const ON_STATUS = "<success>●</success> <accent>Review ON</accent>";
@@ -68,6 +69,19 @@ test("defaults on, toggles, accepts explicit settings and rejects invalid argume
 	assert.equal(h.notices.length, 1);
 	await command(h, "");
 	assert.equal(h.statuses.at(-1), ON_STATUS);
+});
+
+test("sorts review immediately after ADHD without disturbing other statuses", async () => {
+	const h = harness();
+	await start(h);
+	const adhdKey = "i-have-adhd";
+	const reviewKey = h.statusKeys.at(-1)!;
+	const keys = ["open-agents-profile", "context-usage", reviewKey, "claude-usage", adhdKey, "open-agents-activity"];
+	keys.sort((a, b) => a.localeCompare(b));
+	assert.deepEqual(keys, ["claude-usage", "context-usage", adhdKey, reviewKey, "open-agents-activity", "open-agents-profile"]);
+	await command(h, "off");
+	assert.equal(h.statusKeys.at(-1), reviewKey);
+	assert.equal(h.statuses.at(-1), undefined);
 });
 
 test("uses effective settings for fresh sessions and leaves settings unchanged", async () => {

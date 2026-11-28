@@ -24,6 +24,7 @@ const SETTINGS_ENTRY = "review-gate-settings";
 const COMMAND_ON = "on";
 const COMMAND_OFF = "off";
 const SETTINGS_KEY = "review-gate";
+const STATUS_KEY = "i-have-adhd-review-gate";
 const USER_RUN = "user";
 // Set to > 0 by pi-open-agents in subagent children; the gate belongs to the primary only.
 const DEPTH_ENV = "PI_OPEN_AGENTS_DEPTH";
@@ -111,7 +112,7 @@ export default function reviewGate(pi: ExtensionAPI) {
 		if (!ctx.hasUI) return;
 		const dot = ctx.ui.theme.fg("success", "●");
 		const label = ctx.ui.theme.fg("accent", "Review ON");
-		ctx.ui.setStatus(SETTINGS_ENTRY, enabled ? `${dot} ${label}` : undefined);
+		ctx.ui.setStatus(STATUS_KEY, enabled ? `${dot} ${label}` : undefined);
 	}
 
 	pi.on("session_start", (_event, ctx) => {
