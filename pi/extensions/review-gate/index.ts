@@ -1,7 +1,7 @@
 import { lstatSync, readlinkSync } from "node:fs";
 import { join } from "node:path";
 
-import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 
 import {
 	activeAgent,
@@ -20,6 +20,10 @@ import {
 } from "./gate.ts";
 
 const REQUEST_MESSAGE_TYPE = "review-gate-request";
+const SETTINGS_ENTRY = "review-gate-settings";
+const COMMAND_ON = "on";
+const COMMAND_OFF = "off";
+const SETTINGS_KEY = "review-gate";
 const USER_RUN = "user";
 // Set to > 0 by pi-open-agents in subagent children; the gate belongs to the primary only.
 const DEPTH_ENV = "PI_OPEN_AGENTS_DEPTH";
@@ -57,6 +61,7 @@ export default function reviewGate(pi: ExtensionAPI) {
 	if (isSubagentProcess()) return;
 
 	let state: GateState = initialState();
+	let enabled = true;
 	// Fingerprints taken before each implementer call, keyed by toolCallId.
 	const beforeFingerprints = new Map<string, Fingerprint>();
 
@@ -102,9 +107,38 @@ export default function reviewGate(pi: ExtensionAPI) {
 		return false;
 	}
 
-	pi.on("session_start", () => {
+	function updateStatus(ctx: ExtensionContext) {
+		if (!ctx.hasUI) return;
+		const dot = ctx.ui.theme.fg("success", "●");
+		const label = ctx.ui.theme.fg("accent", "Review ON");
+		ctx.ui.setStatus(SETTINGS_ENTRY, enabled ? `${dot} ${label}` : undefined);
+	}
+
+	pi.on("session_start", (_event, ctx) => {
 		state = initialState();
 		beforeFingerprints.clear();
+		const setting = (pi.getSettings() as Record<string, unknown>)[SETTINGS_KEY];
+		enabled = typeof setting !== "string" || setting.toLowerCase() !== COMMAND_OFF;
+		for (const entry of ctx.sessionManager.getEntries()) {
+			if (entry.type === "custom" && entry.customType === SETTINGS_ENTRY && typeof entry.data?.enabled === "boolean") {
+				enabled = entry.data.enabled;
+			}
+		}
+		updateStatus(ctx);
+	});
+
+	pi.registerCommand("review-gate", {
+		description: "Toggle the automatic review gate, or set it on or off",
+		handler: (args, ctx) => {
+			const choice = args.trim().toLowerCase();
+			if (choice && choice !== COMMAND_ON && choice !== COMMAND_OFF) {
+				if (ctx.hasUI) ctx.ui.notify("Usage: /review-gate [on|off]", "warning");
+				return;
+			}
+			enabled = choice ? choice === COMMAND_ON : !enabled;
+			pi.appendEntry(SETTINGS_ENTRY, { enabled });
+			updateStatus(ctx);
+		},
 	});
 
 	pi.on("before_agent_start", (event) => {
@@ -136,6 +170,7 @@ export default function reviewGate(pi: ExtensionAPI) {
 	});
 
 	pi.on("turn_end", async (event, ctx) => {
+		if (!enabled) return;
 		if (!wantsReview(state, { toolCallCount: event.toolResults.length, outcome: event.outcome })) return;
 		if (activeAgent(ctx.sessionManager.getEntries()) !== ARCHITECT) return;
 		if (!(await anyDirty(state.implementerCwds))) return;
