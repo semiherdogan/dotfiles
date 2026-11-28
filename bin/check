@@ -12,6 +12,9 @@ zsh -n bootstrap.sh aliases/*.sh scripts/cb.sh alfred/scripts/*.sh
 echo "Checking shell files with bash..."
 bash -n bootstrap.sh aliases/*.sh scripts/cb.sh scripts/generate_prompt.sh bin/setup-pi bin/setup-opencode bin/setup-git
 
+echo "Checking POSIX shell scripts..."
+sh -n scripts/pi-commit-msg
+
 echo "Checking for hardcoded dotfiles paths..."
 if rg -n "~/dotfiles" README.md bootstrap.sh aliases pi opencode bin/setup-pi bin/setup-opencode bin/setup-git gitconfig gitconfig.home.example work.example.sh local.example.sh >/dev/null; then
     echo "Found hardcoded ~/dotfiles references."

@@ -49,6 +49,16 @@ Install common macOS packages with Homebrew:
 brew bundle --file /absolute/path/to/dotfiles/Brewfile
 ```
 
+## Commit message generation
+
+Pipe a prompt containing the staged diff to `scripts/pi-commit-msg`:
+
+```sh
+git diff --cached | /absolute/path/to/dotfiles/scripts/pi-commit-msg
+```
+
+The command uses PiBoard's active Pi runtime and the `9router/commit-generator` model. It requires PiBoard, the `ninerouter` Pi extension, and its [9router environment configuration](pi/README.md#extensions). It prints a message without creating a commit.
+
 ## Layout
 
 - `bootstrap.sh`: entrypoint, resolves the repo path dynamically.

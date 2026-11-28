@@ -1,0 +1,17 @@
+#!/bin/sh
+# Reads the prompt (with the staged diff) from stdin, prints the commit message.
+set -eu
+
+prompt=$(cat)
+root="$HOME/Library/Application Support/PiBoard/runtime/pi"
+ver="$(/usr/bin/jq -r .activeVersion "$root/current.json")"
+
+exec /Applications/PiBoard.app/Contents/Resources/node/bin/node "$root/versions/$ver/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js" \
+  --print --no-tools --no-extensions --no-skills --no-context-files --no-session \
+  -e "$HOME/.pi/agent/extensions/ninerouter/index.ts" \
+  --model "9router/commit-generator" \
+  --thinking off \
+  --system-prompt 'Write a Conventional Commit message based on the staged changes. Output only the message, with no code fences, quotes, or preamble.
+Use the format type: description, or type(scope): description when a scope adds clarity. Choose the type that describes the primary change: feat for new behavior, fix for a bug fix, chore for maintenance, or another appropriate type such as docs, refactor, test, or build.
+Write a specific, grammatical subject in the imperative mood, at most 72 characters including the prefix, with no trailing period. Prefer the subject alone. Only if the motivation or impact is not clear from the subject, add a blank line and exactly one short sentence. Never output more than two sentences total.' \
+  -- "$prompt"
